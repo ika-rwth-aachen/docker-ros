@@ -13,7 +13,8 @@ COPY . src/${PACKAGE_NAME}
 
 # get non apt dependencies
 RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
-        vcs import src < src/${PACKAGE_NAME}.repos ; \
+        vcs import src < src/${PACKAGE_NAME}.repos && \
+        rm src/${PACKAGE_NAME}.repos ; \
     fi
 
 # get apt dependencies via rosdep
@@ -24,22 +25,13 @@ RUN apt-get update && \
     chmod +x $WORKSPACE/.install-dependencies.sh
 
 
-############ DEVELOPMENT #################
-FROM ${BASE_IMAGE} AS development
-ARG PACKAGE_NAME
+############ DEPENDENCIES-INSTALL ########
+FROM ${BASE_IMAGE} AS dependencies-install
 
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
 
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
-
-# copy ROS packages
-COPY . src/${PACKAGE_NAME}
-
-# clone .repos
-RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
-        vcs import src < src/${PACKAGE_NAME}.repos ; \
-    fi
 
 RUN apt-get update && \
     rosdep update && \
@@ -47,9 +39,21 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 
+############ DEVELOPMENT ################
+FROM dependencies-install as development
+ARG PACKAGE_NAME
+
+# copy ROS packages
+COPY . src/${PACKAGE_NAME}
+
+# clone .repos
+RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
+        vcs import src < src/${PACKAGE_NAME}.repos && \
+        rm src/${PACKAGE_NAME}.repos ; \
+    fi
+
 ############ BUILD ######################
 FROM development as build
-ARG PACKAGE_NAME
 
 # build ROS workspace
 RUN catkin config --install --extend /opt/ros/$ROS_DISTRO && \
@@ -57,7 +61,7 @@ RUN catkin config --install --extend /opt/ros/$ROS_DISTRO && \
 
 
 ############ RUN ######################
-FROM development as run
+FROM dependencies-install as run
 ARG COMMAND
 
 # copy ROS packages
