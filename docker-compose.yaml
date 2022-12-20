@@ -1,0 +1,25 @@
+x-args: &args
+  BASE_IMAGE: base_image # e.g.: gitlab.ika.rwth-aachen.de:5050/automated-driving/docker/ros1:noetic
+  PACKAGE_NAME: ""       # if no package stack
+  COMMAND: run_cmd       # e.g. "roslaunch package file.launch"
+
+x-dockerfile: &dockerfile ./docker/docker-ros/Dockerfile
+x-context: &context ../
+
+services:
+  run:
+    image: image_name:tag         # run image name
+    build:
+      dockerfile: *dockerfile
+      context: *context
+      target: run
+      args:
+        <<: *args
+  devel:
+    image: devel_image_name:tag   # devel image name
+    build:
+      dockerfile: *dockerfile
+      context: *context
+      target: development
+      args:
+        <<: *args
