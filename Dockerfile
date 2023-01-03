@@ -20,7 +20,8 @@ RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
 # get apt dependencies via rosdep
 RUN apt-get update && \
     rosdep update && \
-    ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install -y --simulate --from-paths src --ignore-src \
+    if [ -x "$(command -v colcon)" ]; then export OS="ubuntu:jammy"; else export OS="ubuntu:focal"; fi && \
+    ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src \
         | tee $WORKSPACE/.install-dependencies.sh && \
     chmod +x $WORKSPACE/.install-dependencies.sh
 
@@ -34,7 +35,6 @@ WORKDIR $WORKSPACE
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
 
 RUN apt-get update && \
-    rosdep update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
@@ -56,9 +56,12 @@ RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
 FROM development as build
 
 # build ROS workspace
-RUN catkin config --install --extend /opt/ros/$ROS_DISTRO && \
-    catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize 
-
+RUN if [ -x "$(command -v colcon)" ]; then \
+        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
+    elif [ -x "$(command -v catkin)" ]; then \
+        catkin config --install --extend /opt/ros/$ROS_DISTRO && \
+        catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
+    fi
 
 ############ RUN ######################
 FROM dependencies-install as run
