@@ -27,16 +27,12 @@ RUN apt-get update && \
     chmod +x $WORKSPACE/.install-dependencies.sh
 
 # add additional apt dependencies
-RUN if [[ -f "src/${PACKAGE_NAME}/docker/additional.apt-dependencies" ]]; then \
-        echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
-        cat src/${PACKAGE_NAME}/docker/additional.apt-dependencies | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
-        echo ";" >> $WORKSPACE/.install-dependencies.sh ; \
-    fi
+RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
+    find . -type f -name "additional.apt-dependencies" -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
+    echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installations
-RUN if [[ -f "src/${PACKAGE_NAME}/docker/custom.sh" ]]; then \
-        cat src/${PACKAGE_NAME}/docker/custom.sh >> $WORKSPACE/.install-dependencies.sh ; \
-    fi
+RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
 ############ DEPENDENCIES-INSTALL ########
 FROM ${BASE_IMAGE} AS dependencies-install
