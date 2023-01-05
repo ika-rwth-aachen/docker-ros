@@ -1,6 +1,5 @@
 x-args: &args
   BASE_IMAGE: base_image # e.g.: gitlab.ika.rwth-aachen.de:5050/automated-driving/docker/ros1:noetic
-  PACKAGE_NAME: ""       # if no package stack
   COMMAND: run_cmd       # e.g. "roslaunch package file.launch"
 
 x-dockerfile: &dockerfile ./docker/docker-ros/Dockerfile

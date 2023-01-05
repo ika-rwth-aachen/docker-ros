@@ -1,21 +1,22 @@
 ARG BASE_IMAGE=""
-ARG PACKAGE_NAME=""
 ARG COMMAND=""
 
 ############ DEPENDENCIES ###############
 FROM ${BASE_IMAGE} as dependencies
-ARG PACKAGE_NAME
 
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
 
-COPY . src/${PACKAGE_NAME}
+COPY . src/
+
+RUN if [[ -f "src/package.xml" ]]; then \
+        export PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
+        mkdir -p src/${PACKAGE_NAME} && \
+        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
+    fi
 
 # get non apt dependencies
-RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
-        vcs import src < src/${PACKAGE_NAME}.repos && \
-        rm src/${PACKAGE_NAME}.repos ; \
-    fi
+RUN find . -name "*.repos" -exec bash -c 'vcs import src < {}' \;
 
 # get apt dependencies via rosdep
 RUN apt-get update && \
@@ -51,16 +52,18 @@ RUN apt-get update && \
 
 ############ DEVELOPMENT ################
 FROM dependencies-install as development
-ARG PACKAGE_NAME
 
 # copy ROS packages
-COPY . src/${PACKAGE_NAME}
+COPY . src/
+
+RUN if [[ -f "src/package.xml" ]]; then \
+        export PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
+        mkdir -p src/${PACKAGE_NAME} && \
+        cd src && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} asd \; ; \
+    fi
 
 # clone .repos
-RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
-        vcs import src < src/${PACKAGE_NAME}.repos && \
-        rm src/${PACKAGE_NAME}.repos ; \
-    fi
+RUN find . -name "*.repos" -exec bash -c 'vcs import src < {}' \;
 
 ############ BUILD ######################
 FROM development as build
