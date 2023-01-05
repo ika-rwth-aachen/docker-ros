@@ -55,7 +55,7 @@ COPY . src/
 RUN if [[ -f "src/package.xml" ]]; then \
         export PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
         mkdir -p src/${PACKAGE_NAME} && \
-        cd src && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} asd \; ; \
+        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
     fi
 
 # clone .repos
