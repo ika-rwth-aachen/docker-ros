@@ -27,9 +27,14 @@ RUN apt-get update && \
 
 # add additional apt dependencies
 RUN if [[ -f "src/${PACKAGE_NAME}/docker/additional.apt-dependencies" ]]; then \
-        echo "sudo apt-get install \\" >> $WORKSPACE/.install-dependencies.sh && \
+        echo "apt-get install \\" >> $WORKSPACE/.install-dependencies.sh && \
         cat src/${PACKAGE_NAME}/docker/additional.apt-dependencies | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
         echo ";" >> $WORKSPACE/.install-dependencies.sh ; \
+    fi
+
+# add custom installations
+RUN if [[ -f "src/${PACKAGE_NAME}/docker/custom.sh" ]]; then \
+        cat src/${PACKAGE_NAME}/docker/custom.sh >> $WORKSPACE/.install-dependencies.sh ; \
     fi
 
 ############ DEPENDENCIES-INSTALL ########
