@@ -15,8 +15,9 @@ RUN if [[ -f "src/package.xml" ]]; then \
         cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
     fi
 
-# get non apt dependencies
-RUN find . -name "*.repos" -exec bash -c 'vcs import src < {}' \;
+# clone .repos
+RUN cd src && \
+    ./docker/docker-ros/recursive_vcs_import.py
 
 # get apt dependencies via rosdep
 RUN apt-get update && \
@@ -59,7 +60,8 @@ RUN if [[ -f "src/package.xml" ]]; then \
     fi
 
 # clone .repos
-RUN find . -name "*.repos" -exec bash -c 'vcs import src < {}' \;
+RUN cd src && \
+    ./docker/docker-ros/recursive_vcs_import.py
 
 ############ BUILD ######################
 FROM development as build
