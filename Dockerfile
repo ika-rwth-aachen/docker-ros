@@ -1,5 +1,4 @@
-ARG BASE_IMAGE=""
-ARG COMMAND=""
+ARG BASE_IMAGE
 
 ############ DEPENDENCIES ###############
 FROM ${BASE_IMAGE} as dependencies
@@ -9,6 +8,7 @@ WORKDIR $WORKSPACE
 
 COPY . src/
 
+# move top-level package to package folder in src/
 RUN if [[ -f "src/package.xml" ]]; then \
         PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
         mkdir -p src/${PACKAGE_NAME} && \
@@ -16,8 +16,9 @@ RUN if [[ -f "src/package.xml" ]]; then \
     fi
 
 # clone .repos
+COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
 RUN cd src && \
-    ./docker/docker-ros/recursive_vcs_import.py
+    /usr/local/bin/recursive_vcs_import.py
 
 # get apt dependencies via rosdep
 RUN apt-get update && \
@@ -50,9 +51,9 @@ RUN apt-get update && \
 ############ DEVELOPMENT ################
 FROM dependencies-install as development
 
-# copy ROS packages
 COPY . src/
 
+# move top-level package to package folder in src/
 RUN if [[ -f "src/package.xml" ]]; then \
         PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
         mkdir -p src/${PACKAGE_NAME} && \
@@ -60,8 +61,9 @@ RUN if [[ -f "src/package.xml" ]]; then \
     fi
 
 # clone .repos
+COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
 RUN cd src && \
-    ./docker/docker-ros/recursive_vcs_import.py
+    /usr/local/bin/recursive_vcs_import.py
 
 ############ BUILD ######################
 FROM development as build
