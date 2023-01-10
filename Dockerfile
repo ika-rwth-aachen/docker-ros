@@ -1,21 +1,24 @@
-ARG BASE_IMAGE=""
-ARG PACKAGE_NAME=""
-ARG COMMAND=""
+ARG BASE_IMAGE
 
 ############ DEPENDENCIES ###############
 FROM ${BASE_IMAGE} as dependencies
-ARG PACKAGE_NAME
 
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
 
-COPY . src/${PACKAGE_NAME}
+COPY . src/
 
-# get non apt dependencies
-RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
-        vcs import src < src/${PACKAGE_NAME}.repos && \
-        rm src/${PACKAGE_NAME}.repos ; \
+# move top-level package to package folder in src/
+RUN if [[ -f "src/package.xml" ]]; then \
+        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
+        mkdir -p src/${PACKAGE_NAME} && \
+        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
     fi
+
+# clone .repos
+COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
+RUN cd src && \
+    /usr/local/bin/recursive_vcs_import.py
 
 # get apt dependencies via rosdep
 RUN apt-get update && \
@@ -25,6 +28,13 @@ RUN apt-get update && \
         | tee $WORKSPACE/.install-dependencies.sh && \
     chmod +x $WORKSPACE/.install-dependencies.sh
 
+# add additional apt dependencies
+RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
+    find . -type f -name "additional.apt-dependencies" -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
+    echo ";" >> $WORKSPACE/.install-dependencies.sh
+
+# add custom installations
+RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
 ############ DEPENDENCIES-INSTALL ########
 FROM ${BASE_IMAGE} AS dependencies-install
@@ -38,28 +48,32 @@ RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
-
 ############ DEVELOPMENT ################
 FROM dependencies-install as development
-ARG PACKAGE_NAME
 
-# copy ROS packages
-COPY . src/${PACKAGE_NAME}
+COPY . src/
+
+# move top-level package to package folder in src/
+RUN if [[ -f "src/package.xml" ]]; then \
+        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
+        mkdir -p src/${PACKAGE_NAME} && \
+        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
+    fi
 
 # clone .repos
-RUN if [[ -f "src/${PACKAGE_NAME}.repos" ]]; then \
-        vcs import src < src/${PACKAGE_NAME}.repos && \
-        rm src/${PACKAGE_NAME}.repos ; \
-    fi
+COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
+RUN cd src && \
+    /usr/local/bin/recursive_vcs_import.py
 
 ############ BUILD ######################
 FROM development as build
 
 # build ROS workspace
 RUN if [ -x "$(command -v colcon)" ]; then \
+        source /opt/ros/${ROS_DISTRO}/setup.bash && \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
     elif [ -x "$(command -v catkin)" ]; then \
-        catkin config --install --extend /opt/ros/$ROS_DISTRO && \
+        catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
     fi
 
