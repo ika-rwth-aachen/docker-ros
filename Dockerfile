@@ -1,7 +1,13 @@
 ARG BASE_IMAGE
 
+############ base-amd64 #################
+FROM --platform=linux/amd64 ${BASE_IMAGE} as base-amd64
+
+############ base-arm64 #################
+FROM --platform=linux/arm64 ${BASE_IMAGE} as base-arm64
+
 ############ DEPENDENCIES ###############
-FROM ${BASE_IMAGE} as dependencies
+FROM "base-${TARGETARCH}" as dependencies
 
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
@@ -37,7 +43,8 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
 RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
 ############ DEPENDENCIES-INSTALL ########
-FROM ${BASE_IMAGE} AS dependencies-install
+FROM "base-${TARGETARCH}" AS dependencies-install
+ARG TARGETARCH
 
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
