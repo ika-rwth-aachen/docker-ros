@@ -50,6 +50,9 @@ WORKDIR $WORKSPACE
 
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
 
+# copy contents of copy-folder into image, if it exists (use yaml as existing dummy)
+COPY docker/docker-compose.yaml docker/copy/* $DOCKER_HOME/copy/
+
 RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
