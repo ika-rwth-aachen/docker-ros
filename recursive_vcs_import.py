@@ -24,7 +24,7 @@ def main():
 
         next_repo = list(remaining_repos)[0]
         with open(str(next_repo), "r") as f:
-            subprocess.run(["vcs", "import", ".", "--recursive"], stdin=f)
+            subprocess.run(["vcs", "import", "./upstream/", "--recursive"], stdin=f)
         
         cloned_repos.append(next_repo)
 

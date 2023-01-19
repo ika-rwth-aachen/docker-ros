@@ -12,13 +12,15 @@ FROM "base-${TARGETARCH}" as dependencies
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
 
-COPY . src/
+RUN mkdir -p src/target src/upstream
 
-# move top-level package to package folder in src/
-RUN if [[ -f "src/package.xml" ]]; then \
-        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
-        mkdir -p src/${PACKAGE_NAME} && \
-        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
+COPY . src/target
+
+# move top-level package to package folder in src/target/
+RUN if [[ -f "src/target/package.xml" ]]; then \
+        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/target/package.xml) && \
+        mkdir -p src/target/${PACKAGE_NAME} && \
+        cd src/target && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
     fi
 
 # clone .repos
@@ -58,19 +60,8 @@ RUN apt-get update && \
 ############ DEVELOPMENT ################
 FROM dependencies-install as development
 
-COPY . src/
-
-# move top-level package to package folder in src/
-RUN if [[ -f "src/package.xml" ]]; then \
-        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
-        mkdir -p src/${PACKAGE_NAME} && \
-        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
-    fi
-
-# clone .repos
-COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
-RUN cd src && \
-    /usr/local/bin/recursive_vcs_import.py
+# copy source code
+COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
 ############ BUILD ######################
 FROM development as build
