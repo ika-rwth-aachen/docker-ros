@@ -24,6 +24,12 @@ RUN if [[ -f "src/target/package.xml" ]]; then \
     fi
 
 # clone .repos
+ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
+ARG GIT_HTTPS_USER=
+ARG GIT_HTTPS_PASSWORD=
+RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
+        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
+    fi
 COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
 RUN cd src && \
     /usr/local/bin/recursive_vcs_import.py
@@ -50,6 +56,9 @@ ARG TARGETARCH
 
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
+
+# copy contents of copy-folder into image, if it exists (use yaml as existing dummy)
+COPY docker/docker-compose.yaml docker/copy* $DOCKER_HOME/copy/
 
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
 
