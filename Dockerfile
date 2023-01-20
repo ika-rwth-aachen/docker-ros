@@ -26,8 +26,7 @@ RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
         git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
     fi
 COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
-RUN cd src/upstream && \
-    /usr/local/bin/recursive_vcs_import.py ../target
+RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 
 # create install script with list of rosdep dependencies
 RUN apt-get update && \
@@ -48,6 +47,7 @@ RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-depende
 ############ dependencies-install ##############################################
 FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH}
 
 # set workspace
 ENV WORKSPACE $DOCKER_HOME/ws
