@@ -1,21 +1,24 @@
 ARG BASE_IMAGE
 
-############ DEPENDENCIES ###############
+############ dependencies ######################################################
 FROM ${BASE_IMAGE} as dependencies
 
+# create workspace folder structure
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
+RUN mkdir -p src/target src/upstream src/downstream
 
-COPY . src/
+# copy contents of repository
+COPY . src/target
 
-# move top-level package to package folder in src/
-RUN if [[ -f "src/package.xml" ]]; then \
-        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
-        mkdir -p src/${PACKAGE_NAME} && \
-        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
+# if repository is a top-level package, move contents to <PACKAGE_NAME> folder
+RUN if [[ -f "src/target/package.xml" ]]; then \
+        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/target/package.xml) && \
+        mkdir -p src/target/${PACKAGE_NAME} && \
+        cd src/target && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
     fi
 
-# clone .repos
+# clone .repos upstream dependencies
 ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
 ARG GIT_HTTPS_USER=
 ARG GIT_HTTPS_PASSWORD=
@@ -23,10 +26,9 @@ RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
         git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
     fi
 COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
-RUN cd src && \
-    /usr/local/bin/recursive_vcs_import.py
+RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 
-# get apt dependencies via rosdep
+# create install script with list of rosdep dependencies
 RUN apt-get update && \
     rosdep update && \
     if [ -x "$(command -v colcon)" ]; then export OS="ubuntu:jammy"; else export OS="ubuntu:focal"; fi && \
@@ -34,53 +36,42 @@ RUN apt-get update && \
         | tee $WORKSPACE/.install-dependencies.sh && \
     chmod +x $WORKSPACE/.install-dependencies.sh
 
-# add additional apt dependencies
+# add additionally specified apt dependencies to install script
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     find . -type f -name "additional.apt-dependencies" -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
-# add custom installations
+# add custom installation commands to install script
 RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
-############ DEPENDENCIES-INSTALL ########
+############ dependencies-install ##############################################
 FROM ${BASE_IMAGE} AS dependencies-install
+ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH}
 
+# set workspace
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
 
 # copy contents of copy-folder into image, if it exists (use yaml as existing dummy)
 COPY docker/docker-compose.yaml docker/copy* $DOCKER_HOME/copy/
+RUN rm $DOCKER_HOME/copy/docker-compose.yaml
 
+# copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
 
+# install dependencies
 RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
-############ DEVELOPMENT ################
+############ development #######################################################
 FROM dependencies-install as development
 
-COPY . src/
+# copy contents of repository from dependencies stage
+COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
-# move top-level package to package folder in src/
-RUN if [[ -f "src/package.xml" ]]; then \
-        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/package.xml) && \
-        mkdir -p src/${PACKAGE_NAME} && \
-        cd src && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
-    fi
-
-# clone .repos
-ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
-ARG GIT_HTTPS_USER=
-ARG GIT_HTTPS_PASSWORD=
-RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
-        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
-    fi
-COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
-RUN cd src && \
-    /usr/local/bin/recursive_vcs_import.py
-
-############ BUILD ######################
+############ build #############################################################
 FROM development as build
 
 # build ROS workspace
@@ -92,17 +83,16 @@ RUN if [ -x "$(command -v colcon)" ]; then \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
     fi
 
-############ RUN ######################
+############ run ###############################################################
 FROM dependencies-install as run
-ARG COMMAND
 
-# copy ROS packages
+# copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 
+# setup entrypoint
+ARG COMMAND
+COPY docker/docker-ros/entrypoint.sh /
 RUN echo ${COMMAND} > cmd.sh && \
     chmod a+x cmd.sh
-
-# run launchfile
-COPY docker/docker-ros/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["./cmd.sh"]
