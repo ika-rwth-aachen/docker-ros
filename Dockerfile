@@ -9,21 +9,22 @@ FROM --platform=linux/arm64 ${BASE_IMAGE} as base-arm64
 ############ dependencies ######################################################
 FROM "base-${TARGETARCH}" as dependencies
 
+# create workspace folder structure
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
+RUN mkdir -p src/target src/upstream src/downstream
 
-RUN mkdir -p src/target src/upstream
-
+# copy contents of repository
 COPY . src/target
 
-# move top-level package to package folder in src/target/
+# if repository is a top-level package, move contents to <PACKAGE_NAME> folder
 RUN if [[ -f "src/target/package.xml" ]]; then \
         PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/target/package.xml) && \
         mkdir -p src/target/${PACKAGE_NAME} && \
         cd src/target && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
     fi
 
-# clone .repos
+# clone .repos upstream dependencies
 ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
 ARG GIT_HTTPS_USER=
 ARG GIT_HTTPS_PASSWORD=
@@ -34,7 +35,7 @@ COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
 RUN cd src && \
     /usr/local/bin/recursive_vcs_import.py
 
-# get apt dependencies via rosdep
+# create install script with list of rosdep dependencies
 RUN apt-get update && \
     rosdep update && \
     if [ -x "$(command -v colcon)" ]; then export OS="ubuntu:jammy"; else export OS="ubuntu:focal"; fi && \
@@ -42,26 +43,25 @@ RUN apt-get update && \
         | tee $WORKSPACE/.install-dependencies.sh && \
     chmod +x $WORKSPACE/.install-dependencies.sh
 
-# add additional apt dependencies
+# add additionally specified apt dependencies to install script
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     find . -type f -name "additional.apt-dependencies" -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
-# add custom installations
+# add custom installation commands to install script
 RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
 ############ dependencies-install ##############################################
 FROM "base-${TARGETARCH}" AS dependencies-install
 ARG TARGETARCH
 
-ENV WORKSPACE $DOCKER_HOME/ws
-WORKDIR $WORKSPACE
-
 # copy contents of copy-folder into image, if it exists (use yaml as existing dummy)
 COPY docker/docker-compose.yaml docker/copy* $DOCKER_HOME/copy/
 
+# copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
 
+# install dependencies
 RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
@@ -69,7 +69,7 @@ RUN apt-get update && \
 ############ development #######################################################
 FROM dependencies-install as development
 
-# copy source code
+# copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
 ############ build #############################################################
@@ -86,15 +86,12 @@ RUN if [ -x "$(command -v colcon)" ]; then \
 
 ############ run ###############################################################
 FROM dependencies-install as run
-ARG COMMAND
 
-# copy ROS packages
+# copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 
-RUN echo ${COMMAND} > cmd.sh && \
-    chmod a+x cmd.sh
-
-# run launchfile
+# setup entrypoint
+ARG COMMAND
 COPY docker/docker-ros/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["./cmd.sh"]
+CMD ${COMMAND}
