@@ -32,7 +32,7 @@ RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
         git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
     fi
 COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
-RUN cd src && \
+RUN cd src/upstream && \
     /usr/local/bin/recursive_vcs_import.py
 
 # create install script with list of rosdep dependencies
