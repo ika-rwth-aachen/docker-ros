@@ -1,12 +1,12 @@
 ARG BASE_IMAGE
 
-############ base-amd64 #################
+############ base-amd64 ########################################################
 FROM --platform=linux/amd64 ${BASE_IMAGE} as base-amd64
 
-############ base-arm64 #################
+############ base-arm64 ########################################################
 FROM --platform=linux/arm64 ${BASE_IMAGE} as base-arm64
 
-############ DEPENDENCIES ###############
+############ dependencies ######################################################
 FROM "base-${TARGETARCH}" as dependencies
 
 ENV WORKSPACE $DOCKER_HOME/ws
@@ -50,7 +50,7 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
 # add custom installations
 RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
-############ DEPENDENCIES-INSTALL ########
+############ dependencies-install ##############################################
 FROM "base-${TARGETARCH}" AS dependencies-install
 ARG TARGETARCH
 
@@ -66,13 +66,13 @@ RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
-############ DEVELOPMENT ################
+############ development #######################################################
 FROM dependencies-install as development
 
 # copy source code
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
-############ BUILD ######################
+############ build #############################################################
 FROM development as build
 
 # build ROS workspace
@@ -84,7 +84,7 @@ RUN if [ -x "$(command -v colcon)" ]; then \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
     fi
 
-############ RUN ######################
+############ run ###############################################################
 FROM dependencies-install as run
 ARG COMMAND
 
