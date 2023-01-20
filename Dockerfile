@@ -55,6 +55,10 @@ RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-depende
 FROM "base-${TARGETARCH}" AS dependencies-install
 ARG TARGETARCH
 
+# set workspace
+ENV WORKSPACE $DOCKER_HOME/ws
+WORKDIR $WORKSPACE
+
 # copy contents of copy-folder into image, if it exists (use yaml as existing dummy)
 COPY docker/docker-compose.yaml docker/copy* $DOCKER_HOME/copy/
 
@@ -93,5 +97,7 @@ COPY --from=build $WORKSPACE/install install
 # setup entrypoint
 ARG COMMAND
 COPY docker/docker-ros/entrypoint.sh /
+RUN echo ${COMMAND} > cmd.sh && \
+    chmod a+x cmd.sh
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ${COMMAND}
+CMD ["./cmd.sh"]
