@@ -33,7 +33,7 @@ RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
     fi
 COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
 RUN cd src/upstream && \
-    /usr/local/bin/recursive_vcs_import.py
+    /usr/local/bin/recursive_vcs_import.py ../target
 
 # create install script with list of rosdep dependencies
 RUN apt-get update && \
