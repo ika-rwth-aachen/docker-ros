@@ -1,13 +1,7 @@
 ARG BASE_IMAGE
 
-############ base-amd64 ########################################################
-FROM --platform=linux/amd64 ${BASE_IMAGE} as base-amd64
-
-############ base-arm64 ########################################################
-FROM --platform=linux/arm64 ${BASE_IMAGE} as base-arm64
-
 ############ dependencies ######################################################
-FROM "base-${TARGETARCH}" as dependencies
+FROM ${BASE_IMAGE} as dependencies
 
 # create workspace folder structure
 ENV WORKSPACE $DOCKER_HOME/ws
@@ -52,7 +46,7 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
 RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
 ############ dependencies-install ##############################################
-FROM "base-${TARGETARCH}" AS dependencies-install
+FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
 
 # set workspace
