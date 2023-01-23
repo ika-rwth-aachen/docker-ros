@@ -4,6 +4,8 @@ default:
     - docker:20.10.22-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker context create buildx-context
+    - docker buildx create --use buildx-context
     - cd $DOCKER_COMPOSE_DIR
     - 'sed -i "/\ image:/a\    platform: $PLATFORM" docker-compose.yaml'
 
