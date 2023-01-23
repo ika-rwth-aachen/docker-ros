@@ -41,6 +41,7 @@ devel-amd64:
     - docker push $IMAGE_DEVEL_CI_AMD64
   variables:
     PLATFORM: linux/amd64
+    CACHE_IMAGE: $IMAGE_DEVEL_CI_AMD64
 
 run-amd64:
   stage: Build Images (amd64)
@@ -50,6 +51,7 @@ run-amd64:
     - docker push $IMAGE_RUN_CI_AMD64
   variables:
     PLATFORM: linux/amd64
+    CACHE_IMAGE: $IMAGE_RUN_CI_AMD64
 
 
 devel-arm64:
@@ -60,6 +62,7 @@ devel-arm64:
     - docker push $IMAGE_DEVEL_CI_ARM64
   variables:
     PLATFORM: linux/arm64
+    CACHE_IMAGE: $IMAGE_DEVEL_CI_ARM64
 
 run-arm64:
   stage: Build Images (arm64)
@@ -69,6 +72,7 @@ run-arm64:
     - docker push $IMAGE_RUN_CI_ARM64
   variables:
     PLATFORM: linux/arm64
+    CACHE_IMAGE: $IMAGE_RUN_CI_ARM64
 
 
 Test devel-amd64:
