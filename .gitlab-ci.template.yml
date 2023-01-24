@@ -7,7 +7,8 @@ default:
     - docker context create buildx-context
     - docker buildx create --use buildx-context
     - cd $DOCKER_COMPOSE_DIR
-    - 'sed -i "/\ image:/a\    platform: $PLATFORM" docker-compose.yaml'
+    - 'sed -i "/\    image:/a\    platform: $PLATFORM" docker-compose.yaml'
+    - 'sed -i "/\  context:/a\  cache_from: [$IMAGE_CACHE]\n\  cache_to: [type=inline]" docker-compose.yaml'
 
 
 variables:
@@ -17,6 +18,7 @@ variables:
   IMAGE_DEVEL_CI_ARM64: ${IMAGE_DEVEL}_ci-arm64
   IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN}_ci-amd64
   IMAGE_RUN_CI_ARM64:   ${IMAGE_RUN}_ci-arm64
+  IMAGE_CACHE:          ${IMAGE_DEVEL}
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
   GIT_HTTPS_USER: gitlab-ci-token
@@ -43,7 +45,7 @@ devel-amd64:
     - docker push $IMAGE_DEVEL_CI_AMD64
   variables:
     PLATFORM: linux/amd64
-    CACHE_IMAGE: $IMAGE_DEVEL_CI_AMD64
+    IMAGE_CACHE: $IMAGE_DEVEL_CI_AMD64
 
 run-amd64:
   stage: Build Images (amd64)
@@ -53,7 +55,7 @@ run-amd64:
     - docker push $IMAGE_RUN_CI_AMD64
   variables:
     PLATFORM: linux/amd64
-    CACHE_IMAGE: $IMAGE_RUN_CI_AMD64
+    IMAGE_CACHE: $IMAGE_RUN_CI_AMD64
 
 
 devel-arm64:
@@ -64,7 +66,7 @@ devel-arm64:
     - docker push $IMAGE_DEVEL_CI_ARM64
   variables:
     PLATFORM: linux/arm64
-    CACHE_IMAGE: $IMAGE_DEVEL_CI_ARM64
+    IMAGE_CACHE: $IMAGE_DEVEL_CI_ARM64
 
 run-arm64:
   stage: Build Images (arm64)
@@ -74,7 +76,7 @@ run-arm64:
     - docker push $IMAGE_RUN_CI_ARM64
   variables:
     PLATFORM: linux/arm64
-    CACHE_IMAGE: $IMAGE_RUN_CI_ARM64
+    IMAGE_CACHE: $IMAGE_RUN_CI_ARM64
 
 
 Test devel-amd64:
