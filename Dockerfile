@@ -9,14 +9,18 @@ WORKDIR $WORKSPACE
 RUN mkdir -p src/target src/upstream src/downstream
 
 # copy contents of repository
-COPY . src/target
+COPY . src/repository
 
 # if repository is a top-level package, move contents to <PACKAGE_NAME> folder
-RUN if [[ -f "src/target/package.xml" ]]; then \
-        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/target/package.xml) && \
+RUN shopt -s dotglob && \
+    if [[ -f "src/repository/package.xml" ]]; then \
+        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/repository/package.xml) && \
         mkdir -p src/target/${PACKAGE_NAME} && \
-        cd src/target && shopt -s dotglob && find * -maxdepth 0 -not -name ${PACKAGE_NAME} -exec mv {} ${PACKAGE_NAME} \; ; \
-    fi
+        mv src/repository/* src/target/${PACKAGE_NAME} ; \
+    else \
+        mv src/repository/* src/target ; \
+    fi && \
+    rm -r src/repository
 
 # clone .repos upstream dependencies
 ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
