@@ -105,7 +105,11 @@ Test devel-amd64:
 Push devel:
   stage: Push Images
   only: [main]
-  needs: [devel-amd64, devel-arm64, Test devel-amd64]
+  needs:
+    - devel-amd64
+    - devel-arm64
+    - job: Test devel-amd64
+      optional: true
   script:
     - docker manifest create $IMAGE_DEVEL --amend $IMAGE_DEVEL_CI_AMD64 --amend $IMAGE_DEVEL_CI_ARM64
     - docker manifest push $IMAGE_DEVEL
@@ -113,7 +117,11 @@ Push devel:
 Push run:
   stage: Push Images
   only: [main]
-  needs: [run-amd64, run-arm64, Test devel-amd64]
+  needs:
+    - run-amd64
+    - run-arm64
+    - job: Test devel-amd64
+      optional: true
   script:
     - docker manifest create $IMAGE_RUN --amend $IMAGE_RUN_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64
     - docker manifest push $IMAGE_RUN
