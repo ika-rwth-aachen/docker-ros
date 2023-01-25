@@ -91,7 +91,6 @@ Test devel-amd64:
     - test -f .repos || echo "repositories:" > .repos
   script: .industrial_ci/gitlab.sh
   variables:
-    BUILDER: catkin_tools
     UPSTREAM_WORKSPACE: $ROS_WORKSPACE_DIR/.repos
     TARGET_WORKSPACE: $ROS_WORKSPACE_DIR
     CATKIN_LINT: 'true'
