@@ -93,7 +93,6 @@ Test devel-amd64:
   variables:
     UPSTREAM_WORKSPACE: $ROS_WORKSPACE_DIR/.repos
     TARGET_WORKSPACE: $ROS_WORKSPACE_DIR
-    CATKIN_LINT: 'true'
     ADDITIONAL_DEBS: git
     BEFORE_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_IMAGE: $IMAGE_DEVEL_CI_AMD64
