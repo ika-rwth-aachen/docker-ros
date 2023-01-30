@@ -69,7 +69,7 @@ RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
-############ dev #######################################################
+############ dev ###############################################################
 FROM dependencies-install as dev
 
 # copy contents of repository from dependencies stage
