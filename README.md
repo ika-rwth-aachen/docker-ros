@@ -1,3 +1,5 @@
+<img src="assets/logo.png" height=130 align="right">
+
 # docker-ros
 
 *docker-ros* automatically builds development and deployment Docker images for your ROS-based repositories.
