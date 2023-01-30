@@ -69,14 +69,14 @@ RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
-############ development #######################################################
-FROM dependencies-install as development
+############ dev #######################################################
+FROM dependencies-install as dev
 
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
 ############ build #############################################################
-FROM development as build
+FROM dev as build
 
 # build ROS workspace
 RUN if [ -x "$(command -v colcon)" ]; then \
