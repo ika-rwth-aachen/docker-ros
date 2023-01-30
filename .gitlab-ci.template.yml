@@ -14,10 +14,10 @@ default:
 variables:
   IMAGE_DEVEL:          gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest-dev
   IMAGE_RUN:            gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest
-  IMAGE_DEVEL_CI_AMD64: ${IMAGE_DEVEL}_ci-amd64
-  IMAGE_DEVEL_CI_ARM64: ${IMAGE_DEVEL}_ci-arm64
-  IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN}_ci-amd64
-  IMAGE_RUN_CI_ARM64:   ${IMAGE_RUN}_ci-arm64
+  IMAGE_DEVEL_CI_AMD64: ${IMAGE_DEVEL}_ci-amd64_${CI_COMMIT_REF_SLUG}
+  IMAGE_DEVEL_CI_ARM64: ${IMAGE_DEVEL}_ci-arm64_${CI_COMMIT_REF_SLUG}
+  IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN}_ci-amd64_${CI_COMMIT_REF_SLUG}
+  IMAGE_RUN_CI_ARM64:   ${IMAGE_RUN}_ci-arm64_${CI_COMMIT_REF_SLUG}
   IMAGE_CACHE:          ${IMAGE_DEVEL}
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
