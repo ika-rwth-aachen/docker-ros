@@ -57,9 +57,9 @@ ENV TARGETARCH=${TARGETARCH}
 ENV WORKSPACE $DOCKER_HOME/ws
 WORKDIR $WORKSPACE
 
-# copy contents of copy-folder into image, if it exists (use yaml as existing dummy)
-COPY docker/docker-compose.yaml docker/copy* $DOCKER_HOME/copy/
-RUN rm $DOCKER_HOME/copy/docker-compose.yaml
+# copy contents of files-folder into image, if it exists (use yaml as existing dummy)
+COPY docker/docker-compose.yaml docker/files* /files/
+RUN rm /files/docker-compose.yaml
 
 # copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh

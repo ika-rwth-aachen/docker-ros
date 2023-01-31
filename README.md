@@ -12,7 +12,7 @@ The Dockerfile performs the following steps to automatically build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool).
 1. The ROS dependencies listed in each package's `package.xml` are installed by [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/).
 1. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed.
-1. *(optional)* A special folder `copy/` is copied into the images, if needed.
+1. *(optional)* A special folder `files/` is copied into the images, if needed.
 1. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed.
 1. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2). 
 1. *(deployment)* A custom launch command is configured to run on container start.
@@ -73,13 +73,9 @@ Create a script `custom.sh` in your `docker` folder that executes arbitrary comm
 
 #### Extra Image Files
 
-If you need to have additional files present in the deployment image, you can use the special `copy` folder.
+If you need to have additional files present in the deployment image, you can use the special `files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
 
-Create a folder `copy` in your `docker` folder and place any files or directories in it. The contents will be copied to `~/copy` in the image.
-
-TODO:
-- Rename copy folder?
-- Copy to other location than DOCKER_HOME/copy? What if DOCKER_HOME is not set? 
+Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/files` in the image.
 
 #### GitLab CI Customization
 
