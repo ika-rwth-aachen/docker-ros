@@ -1,92 +1,103 @@
+<img src="assets/logo.png" height=130 align="right">
+
 # docker-ros
 
+*docker-ros* automatically builds development and deployment Docker images for your ROS-based repositories.
 
+## Features
 
-## Getting started
+*docker-ros* provides a generic [Dockerfile](Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. It also provides a [GitLab CI configuration](.gitlab-ci.template.yml) that automatically builds these Docker images. The development image contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The Dockerfile performs the following steps to automatically build these images:
+1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool).
+1. The ROS dependencies listed in each package's `package.xml` are installed by [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/).
+1. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed.
+1. *(optional)* A special folder `files/` is copied into the images, if needed.
+1. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed.
+1. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2). 
+1. *(deployment)* A custom launch command is configured to run on container start.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Integration
 
-## Add your files
+1. Add a `docker` folder to your repository and clone *docker-ros* there as a submodule.
+    ```bash
+    # ros-repository/
+    mkdir -p docker
+    git submodule add https://gitlab.ika.rwth-aachen.de/ops/docker-ros.git
+    cd docker
+    ```
+1. Copy the template [`docker-compose.yaml`](docker-compose.yaml) to your `docker` folder.
+    ```bash
+    # ros-repository/docker/
+    cp docker-ros/docker-compose.yaml .
+    ```
+1. Edit the copied `docker-compose.yaml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
+    - `x-base-image: &base-image`
+      - base image for the images to be built
+      - assumes that ROS/ROS2 is installed
+      - it is suggested to choose the most minimal [of our custom ROS images](https://gitlab.ika.rwth-aachen.de/automated-driving/docker#available-images)
+    - `x-dev-image: &dev-image`
+      - image name and tag of the development image to be built
+      - it is suggested to use `gitlab.ika.rwth-aachen.de:5050/<GROUP>/<REPOSITORy>:latest-dev`
+    - `x-run-image: &run-image`
+      - image name and tag of the deployment image to be built
+      - it is suggested to use `gitlab.ika.rwth-aachen.de:5050/<GROUP>/<REPOSITORy>:latest`
+    - `x-command: &command`
+      - default Dockerfile [`CMD`](https://docs.docker.com/engine/reference/builder/#cmd) command of the deployment image
+1. Create a new `.gitlab-ci.yml` file on the top level of your repository with the following contents. It will automatically include the pre-defined [`.gitlab-ci.template.yml`](.gitlab-ci.template.yml).
+    ```yaml
+    include:
+      - project: ops/docker-ros
+        ref: main
+        file: .gitlab-ci.template.yml
+    ```
+1. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`.
+1. Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder or push the changes to your repository to have the GitLab CI pipeline build the images automatically.
+    ```bash
+    # ros-repository/docker/
+    docker compose build dev run
+    ```
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+### Advanced Integration
 
+#### System Dependencies (apt)
+
+If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional.apt-dependencies` file.
+
+Create a file `additional.apt-dependencies` in your `docker` folder and list any other dependencies that need to be installed via apt.
+
+#### Custom Installation Script
+
+If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use the special `custom.sh` script.
+
+Create a script `custom.sh` in your `docker` folder that executes arbitrary commands as part of the image building process.
+
+#### Extra Image Files
+
+If you need to have additional files present in the deployment image, you can use the special `files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
+
+Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/files` in the image.
+
+### Git Credentials when Building Images Locally
+
+As part of the image build process, all dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool). This might fail due to missing Git credentials. You can pass Git credentials to build process by creating a special `.env` file.
+
+Create a file `.env` in your `docker` folder and specify username and password. If using GitLab, do not use your personal access credentials, but rather [create a temporary access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token).
 ```
-cd existing_repo
-git remote add origin https://gitlab.ika.rwth-aachen.de/ops/docker-ros.git
-git branch -M main
-git push -uf origin main
+GIT_HTTPS_USER="<TOKEN_NAME>"
+GIT_HTTPS_PASSWORD="<TOKEN_PASSWORD>"
 ```
 
-## Integrate with your tools
+#### GitLab CI Customization
 
-- [ ] [Set up project integrations](https://gitlab.ika.rwth-aachen.de/ops/docker-ros/-/settings/integrations)
+If needed, you can overwrite any of the [GitLab CI variables of the template CI configuration](https://gitlab.ika.rwth-aachen.de/ops/docker-ros/-/blob/main/.gitlab-ci.template.yml#L14) from your own `.gitlab-ci.yml`.
 
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+You can for example disable the [ROS Industrial CI](https://github.com/ros-industrial/industrial_ci) stage with a variable.
+```yaml
+include:
+  - project: ops/docker-ros
+    ref: main
+    file: .gitlab-ci.template.yml
+variables:
+  DISABLE_INDUSTRIAL_CI: 'true'
+```

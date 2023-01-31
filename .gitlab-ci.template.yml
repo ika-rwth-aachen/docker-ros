@@ -12,13 +12,13 @@ default:
 
 
 variables:
-  IMAGE_DEVEL:          gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest-dev
+  IMAGE_DEV:            gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest-dev
   IMAGE_RUN:            gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest
-  IMAGE_DEVEL_CI_AMD64: ${IMAGE_DEVEL}_ci-amd64_${CI_COMMIT_REF_SLUG}
-  IMAGE_DEVEL_CI_ARM64: ${IMAGE_DEVEL}_ci-arm64_${CI_COMMIT_REF_SLUG}
-  IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN}_ci-amd64_${CI_COMMIT_REF_SLUG}
-  IMAGE_RUN_CI_ARM64:   ${IMAGE_RUN}_ci-arm64_${CI_COMMIT_REF_SLUG}
-  IMAGE_CACHE:          ${IMAGE_DEVEL}
+  IMAGE_DEV_CI_AMD64:   ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-amd64
+  IMAGE_DEV_CI_ARM64:   ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-arm64
+  IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-amd64
+  IMAGE_RUN_CI_ARM64:   ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-arm64
+  IMAGE_CACHE:          ${IMAGE_DEV}
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
   DISABLE_INDUSTRIAL_CI: 'false'
@@ -38,15 +38,15 @@ stages:
   - Push Images
 
 
-devel-amd64:
+dev-amd64:
   stage: Build Images (amd64)
   script:
-    - docker compose build devel
-    - docker tag $IMAGE_DEVEL $IMAGE_DEVEL_CI_AMD64
-    - docker push $IMAGE_DEVEL_CI_AMD64
+    - docker compose build dev
+    - docker tag $IMAGE_DEV $IMAGE_DEV_CI_AMD64
+    - docker push $IMAGE_DEV_CI_AMD64
   variables:
     PLATFORM: linux/amd64
-    IMAGE_CACHE: $IMAGE_DEVEL_CI_AMD64
+    IMAGE_CACHE: $IMAGE_DEV_CI_AMD64
 
 run-amd64:
   stage: Build Images (amd64)
@@ -59,15 +59,15 @@ run-amd64:
     IMAGE_CACHE: $IMAGE_RUN_CI_AMD64
 
 
-devel-arm64:
+dev-arm64:
   stage: Build Images (arm64)
   script:
-    - docker compose build devel
-    - docker tag $IMAGE_DEVEL $IMAGE_DEVEL_CI_ARM64
-    - docker push $IMAGE_DEVEL_CI_ARM64
+    - docker compose build dev
+    - docker tag $IMAGE_DEV $IMAGE_DEV_CI_ARM64
+    - docker push $IMAGE_DEV_CI_ARM64
   variables:
     PLATFORM: linux/arm64
-    IMAGE_CACHE: $IMAGE_DEVEL_CI_ARM64
+    IMAGE_CACHE: $IMAGE_DEV_CI_ARM64
 
 run-arm64:
   stage: Build Images (arm64)
@@ -80,7 +80,7 @@ run-arm64:
     IMAGE_CACHE: $IMAGE_RUN_CI_ARM64
 
 
-Test devel-amd64:
+Test dev-amd64:
   stage: ROS Industrial CI
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true'
@@ -95,21 +95,21 @@ Test devel-amd64:
     TARGET_WORKSPACE: $ROS_WORKSPACE_DIR
     ADDITIONAL_DEBS: git
     BEFORE_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
-    DOCKER_IMAGE: $IMAGE_DEVEL_CI_AMD64
+    DOCKER_IMAGE: $IMAGE_DEV_CI_AMD64
     DOCKER_RUN_OPTS: -u root:root
 
 
-Push devel:
+Push dev:
   stage: Push Images
   only: [main]
   needs:
-    - devel-amd64
-    - devel-arm64
-    - job: Test devel-amd64
+    - dev-amd64
+    - dev-arm64
+    - job: Test dev-amd64
       optional: true
   script:
-    - docker manifest create $IMAGE_DEVEL --amend $IMAGE_DEVEL_CI_AMD64 --amend $IMAGE_DEVEL_CI_ARM64
-    - docker manifest push $IMAGE_DEVEL
+    - docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_AMD64 --amend $IMAGE_DEV_CI_ARM64
+    - docker manifest push $IMAGE_DEV
 
 Push run:
   stage: Push Images
