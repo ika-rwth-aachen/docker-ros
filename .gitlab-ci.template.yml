@@ -117,7 +117,7 @@ Push run:
   needs:
     - run-amd64
     - run-arm64
-    - job: Test devel-amd64
+    - job: Test dev-amd64
       optional: true
   script:
     - docker manifest create $IMAGE_RUN --amend $IMAGE_RUN_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64
