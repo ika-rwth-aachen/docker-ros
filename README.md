@@ -51,6 +51,7 @@ The Dockerfile performs the following steps to automatically build these images:
         ref: main
         file: .gitlab-ci.template.yml
     ```
+1. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`.
 1. Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder or push the changes to your repository to have the GitLab CI pipeline build the images automatically.
     ```bash
     # ros-repository/docker/
