@@ -77,6 +77,16 @@ If you need to have additional files present in the deployment image, you can us
 
 Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/files` in the image.
 
+### Git Credentials when Building Images Locally
+
+As part of the image build process, all dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool). This might fail due to missing Git credentials. You can pass Git credentials to build process by creating a special `.env` file.
+
+Create a file `.env` in your `docker` folder and specify username and password. If using GitLab, do not use your personal access credentials, but rather [create a temporary access token](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token).
+```
+GIT_HTTPS_USER="<TOKEN_NAME>"
+GIT_HTTPS_PASSWORD="<TOKEN_PASSWORD>"
+```
+
 #### GitLab CI Customization
 
 If needed, you can overwrite any of the [GitLab CI variables of the template CI configuration](https://gitlab.ika.rwth-aachen.de/ops/docker-ros/-/blob/main/.gitlab-ci.template.yml#L14) from your own `.gitlab-ci.yml`.
