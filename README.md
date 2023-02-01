@@ -23,8 +23,8 @@ The Dockerfile performs the following steps to automatically build these images:
     ```bash
     # ros-repository/
     mkdir -p docker
-    git submodule add https://gitlab.ika.rwth-aachen.de/ops/docker-ros.git
     cd docker
+    git submodule add https://gitlab.ika.rwth-aachen.de/ops/docker-ros.git
     ```
 1. Copy the template [`docker-compose.yaml`](docker-compose.yaml) to your `docker` folder.
     ```bash
