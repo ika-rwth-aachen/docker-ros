@@ -37,6 +37,8 @@ default:
   image: docker:20.10.22-git
   services:
     - docker:20.10.22-dind
+  tags:
+    - privileged
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker context create buildx-context
@@ -92,6 +94,7 @@ Test dev-amd64:
   stage: ROS Industrial CI
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true'
+  tags: []
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --update bash coreutils grep tar
