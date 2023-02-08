@@ -23,8 +23,7 @@ The Dockerfile performs the following steps to automatically build these images:
     ```bash
     # ros-repository/
     mkdir -p docker
-    cd docker
-    git submodule add https://gitlab.ika.rwth-aachen.de/ops/docker-ros.git
+    git submodule add <../RELATIVE/PATH/..>/ops/docker-ros.git docker/docker-ros
     ```
 1. Copy the template [`docker-compose.yaml`](docker-compose.yaml) to your `docker` folder.
     ```bash
@@ -35,7 +34,7 @@ The Dockerfile performs the following steps to automatically build these images:
     - `x-base-image: &base-image`
       - base image for the images to be built
       - assumes that ROS/ROS2 is installed
-      - it is suggested to choose the most minimal [of our custom ROS images](https://gitlab.ika.rwth-aachen.de/automated-driving/docker#available-images)
+      - it is suggested to choose the most minimal [of our custom ROS images](https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-base#available-images)
     - `x-dev-image: &dev-image`
       - image name and tag of the development image to be built
       - it is suggested to use `gitlab.ika.rwth-aachen.de:5050/<GROUP>/<REPOSITORy>:latest-dev`
@@ -47,7 +46,7 @@ The Dockerfile performs the following steps to automatically build these images:
 1. Create a new `.gitlab-ci.yml` file on the top level of your repository with the following contents. It will automatically include the pre-defined [`.gitlab-ci.template.yml`](.gitlab-ci.template.yml).
     ```yaml
     include:
-      - project: ops/docker-ros
+      - project: fb-fi/ops/docker-ros
         ref: main
         file: .gitlab-ci.template.yml
     ```
@@ -90,7 +89,7 @@ GIT_HTTPS_PASSWORD="<TOKEN_PASSWORD>"
 
 #### GitLab CI Customization
 
-If needed, you can overwrite any of the [GitLab CI variables of the template CI configuration](https://gitlab.ika.rwth-aachen.de/ops/docker-ros/-/blob/main/.gitlab-ci.template.yml#L14) from your own `.gitlab-ci.yml`.
+If needed, you can overwrite any of the [GitLab CI variables of the template CI configuration](https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros/-/blob/main/.gitlab-ci.template.yml#L14) from your own `.gitlab-ci.yml`.
 
 You can for example disable the [ROS Industrial CI](https://github.com/ros-industrial/industrial_ci) stage with a variable.
 ```yaml
