@@ -78,11 +78,17 @@ RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
+# set entrypoint
+COPY docker/docker-ros/entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+
 ############ dev ###############################################################
 FROM dependencies-install as dev
 
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
+
+CMD ["bash"]
 
 ############ build #############################################################
 FROM dev as build
@@ -102,10 +108,8 @@ FROM dependencies-install as run
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 
-# setup entrypoint
+# setup command
 ARG COMMAND
-COPY docker/docker-ros/entrypoint.sh /
 RUN echo ${COMMAND} > cmd.sh && \
     chmod a+x cmd.sh
-ENTRYPOINT ["/entrypoint.sh"]
 CMD ["./cmd.sh"]
