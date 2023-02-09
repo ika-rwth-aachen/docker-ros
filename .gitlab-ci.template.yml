@@ -16,6 +16,8 @@ variables:
   IMAGE_CACHE:          ${IMAGE_DEV}
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
+  DISABLE_ARCH_AMD64: 'false'
+  DISABLE_ARCH_ARM64: 'false'
   DISABLE_INDUSTRIAL_CI: 'false'
   GIT_HTTPS_USER: gitlab-ci-token
   GIT_HTTPS_PASSWORD: $CI_JOB_TOKEN
@@ -50,6 +52,8 @@ default:
 
 dev-amd64:
   stage: Build Images (amd64)
+  rules:
+    - if: $DISABLE_ARCHITECTURE_AMD64 != 'true'
   script:
     - docker compose build dev
     - docker tag $IMAGE_DEV $IMAGE_DEV_CI_AMD64
@@ -60,6 +64,8 @@ dev-amd64:
 
 run-amd64:
   stage: Build Images (amd64)
+  rules:
+    - if: $DISABLE_ARCHITECTURE_AMD64 != 'true'
   script:
     - docker compose build run
     - docker tag $IMAGE_RUN $IMAGE_RUN_CI_AMD64
@@ -71,6 +77,8 @@ run-amd64:
 
 dev-arm64:
   stage: Build Images (arm64)
+  rules:
+    - if: $DISABLE_ARCHITECTURE_ARM64 != 'true'
   script:
     - docker compose build dev
     - docker tag $IMAGE_DEV $IMAGE_DEV_CI_ARM64
@@ -81,6 +89,8 @@ dev-arm64:
 
 run-arm64:
   stage: Build Images (arm64)
+  rules:
+    - if: $DISABLE_ARCHITECTURE_ARM64 != 'true'
   script:
     - docker compose build run
     - docker tag $IMAGE_RUN $IMAGE_RUN_CI_ARM64
@@ -94,6 +104,7 @@ Test dev-amd64:
   stage: ROS Industrial CI
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true'
+    - if: $DISABLE_ARCHITECTURE_AMD64 != 'true'
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --update bash coreutils grep tar
