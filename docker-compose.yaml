@@ -1,6 +1,6 @@
-x-base-image: &base-image BASE_IMAGE  # e.g. gitlab.ika.rwth-aachen.de:5050/automated-driving/docker/ros2:latest
-x-dev-image:  &dev-image  DEV_IMAGE   # e.g. gitlab.ika.rwth-aachen.de:5050/ops/hello_world:latest-dev
-x-run-image:  &run-image  RUN_IMAGE   # e.g. gitlab.ika.rwth-aachen.de:5050/ops/hello_world:latest
+x-base-image: &base-image BASE_IMAGE  # e.g. gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/docker-base/ros2:latest
+x-dev-image:  &dev-image  DEV_IMAGE   # e.g. gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/hello_world:latest-dev
+x-run-image:  &run-image  RUN_IMAGE   # e.g. gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/hello_world:latest
 x-command:    &command    COMMAND     # e.g. ros2 topic pub "/ping" "std_msgs/msg/String" "{data: Hello World}"
 
 # ==============================================================================
