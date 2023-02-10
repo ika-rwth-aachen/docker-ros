@@ -4,8 +4,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE} as dependencies
 
 # create workspace folder structure
-ENV DOCKER_USER=dockeruser
-ENV WORKSPACE /home/$DOCKER_USER/ws
+ENV WORKSPACE /docker-ros/ws
 WORKDIR $WORKSPACE
 RUN mkdir -p src/target src/upstream src/downstream
 
@@ -64,7 +63,7 @@ ENV DOCKER_UID=
 ENV DOCKER_GID=
 
 # set workspace
-ENV WORKSPACE /home/$DOCKER_USER/ws
+ENV WORKSPACE /docker-ros/ws
 WORKDIR $WORKSPACE
 
 # copy contents of files-folder into image, if it exists (use yaml as existing dummy)

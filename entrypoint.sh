@@ -18,7 +18,6 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
             --password "$(openssl passwd -1 $DOCKER_USER)" \
             $DOCKER_USER && \
             touch /home/$DOCKER_USER/.sudo_as_admin_successful
-    cd /home/$DOCKER_USER
     exec gosu $DOCKER_USER "$@"
 else
     exec "$@"
