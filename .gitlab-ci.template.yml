@@ -118,6 +118,10 @@ Push dev:
     - dev-arm64
     - job: Test dev-amd64
       optional: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      variables:
+        IMAGE_DEV: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}-dev
   script:
     - docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_AMD64 --amend $IMAGE_DEV_CI_ARM64
     - docker manifest push $IMAGE_DEV
@@ -130,6 +134,10 @@ Push run:
     - run-arm64
     - job: Test dev-amd64
       optional: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      variables:
+        IMAGE_RUN: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}
   script:
     - docker manifest create $IMAGE_RUN --amend $IMAGE_RUN_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64
     - docker manifest push $IMAGE_RUN
