@@ -4,7 +4,7 @@ workflow:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"  # run merge request pipeline if triggered by merge request
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS  # don't run branch pipeline if open merge request exists
       when: never
-    - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit/tag
+    - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit
 
 
 variables:
