@@ -5,11 +5,21 @@ workflow:
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS  # don't run branch pipeline if open merge request exists
       when: never
     - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit
+    - if: $CI_COMMIT_TAG                                # run tag pipeline with specific image tags if triggered by tag
+      variables:
+        IMAGE_DEV_PUSH:     gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}-dev
+        IMAGE_RUN_PUSH:     gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}
+        IMAGE_DEV_CI_AMD64: ${IMAGE_DEV_PUSH}_ci-amd64
+        IMAGE_DEV_CI_ARM64: ${IMAGE_DEV_PUSH}_ci-arm64
+        IMAGE_RUN_CI_AMD64: ${IMAGE_RUN_PUSH}_ci-amd64
+        IMAGE_RUN_CI_ARM64: ${IMAGE_RUN_PUSH}_ci-arm64
 
 
 variables:
   IMAGE_DEV:            gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest-dev
   IMAGE_RUN:            gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest
+  IMAGE_DEV_PUSH:       ${IMAGE_DEV}
+  IMAGE_RUN_PUSH:       ${IMAGE_RUN}
   IMAGE_DEV_CI_AMD64:   ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-amd64
   IMAGE_DEV_CI_ARM64:   ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-arm64
   IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-amd64
@@ -112,24 +122,28 @@ Test dev-amd64:
 
 Push dev:
   stage: Push Images
-  only: [main]
   needs:
     - dev-amd64
     - dev-arm64
     - job: Test dev-amd64
       optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
   script:
-    - docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_AMD64 --amend $IMAGE_DEV_CI_ARM64
-    - docker manifest push $IMAGE_DEV
+    - docker manifest create $IMAGE_DEV_PUSH --amend $IMAGE_DEV_CI_AMD64 --amend $IMAGE_DEV_CI_ARM64
+    - docker manifest push $IMAGE_DEV_PUSH
 
 Push run:
   stage: Push Images
-  only: [main]
   needs:
     - run-amd64
     - run-arm64
     - job: Test dev-amd64
       optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_TAG
   script:
-    - docker manifest create $IMAGE_RUN --amend $IMAGE_RUN_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64
-    - docker manifest push $IMAGE_RUN
+    - docker manifest create $IMAGE_RUN_PUSH --amend $IMAGE_RUN_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64
+    - docker manifest push $IMAGE_RUN_PUSH
