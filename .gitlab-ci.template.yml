@@ -132,8 +132,8 @@ Push dev:
       optional: true
   script:
     - "if [ $DISABLE_ARCHITECTURE_AMD64 != 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 != 'true' ]; then docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_AMD64 --amend $IMAGE_DEV_CI_ARM64; fi"
-    - "if [ $DISABLE_ARCHITECTURE_AMD64 != 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64  = 'true' ]; then docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_AMD64; fi"
-    - "if [ $DISABLE_ARCHITECTURE_AMD64  = 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 != 'true' ]; then docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_ARM64; fi"
+    - "if [ $DISABLE_ARCHITECTURE_AMD64 != 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 = 'true' ]; then docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_AMD64; fi"
+    - "if [ $DISABLE_ARCHITECTURE_AMD64 = 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 != 'true' ]; then docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_ARM64; fi"
     - docker manifest push $IMAGE_DEV
 
 Push run:
@@ -148,6 +148,6 @@ Push run:
       optional: true
   script:
     - "if [ $DISABLE_ARCHITECTURE_AMD64 != 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 != 'true' ]; then docker manifest create $IMAGE_RUN --amend $IMAGE_run_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64; fi"
-    - "if [ $DISABLE_ARCHITECTURE_AMD64 != 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64  = 'true' ]; then docker manifest create $IMAGE_RUN --amend $IMAGE_run_CI_AMD64; fi"
-    - "if [ $DISABLE_ARCHITECTURE_AMD64  = 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 != 'true' ]; then docker manifest create $IMAGE_RUN --amend $IMAGE_run_CI_ARM64; fi"
+    - "if [ $DISABLE_ARCHITECTURE_AMD64 != 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 = 'true' ]; then docker manifest create $IMAGE_RUN --amend $IMAGE_run_CI_AMD64; fi"
+    - "if [ $DISABLE_ARCHITECTURE_AMD64 = 'true' ] && [ $DISABLE_ARCHITECTURE_ARM64 != 'true' ]; then docker manifest create $IMAGE_RUN --amend $IMAGE_run_CI_ARM64; fi"
     - docker manifest push $IMAGE_RUN
