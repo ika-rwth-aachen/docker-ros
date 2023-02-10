@@ -112,13 +112,13 @@ Test dev-amd64:
 
 Push dev:
   stage: Push Images
-  only: [main]
   needs:
     - dev-amd64
     - dev-arm64
     - job: Test dev-amd64
       optional: true
   rules:
+    - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_TAG
       variables:
         IMAGE_DEV: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}-dev
@@ -128,13 +128,13 @@ Push dev:
 
 Push run:
   stage: Push Images
-  only: [main]
   needs:
     - run-amd64
     - run-arm64
     - job: Test dev-amd64
       optional: true
   rules:
+    - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_TAG
       variables:
         IMAGE_RUN: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}
