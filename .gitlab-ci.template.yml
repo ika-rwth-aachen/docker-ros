@@ -5,6 +5,13 @@ workflow:
       when: never
     - if: $CI_COMMIT_BRANCH
     - if: $CI_COMMIT_TAG
+      variables:
+        IMAGE_DEV: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}-dev
+        IMAGE_RUN: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}
+        IMAGE_DEV_CI_AMD64: ${IMAGE_DEV}_ci-amd64
+        IMAGE_DEV_CI_ARM64: ${IMAGE_DEV}_ci-arm64
+        IMAGE_RUN_CI_AMD64: ${IMAGE_RUN}_ci-amd64
+        IMAGE_RUN_CI_ARM64: ${IMAGE_RUN}_ci-arm64
 
 
 variables:
@@ -120,8 +127,6 @@ Push dev:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_TAG
-      variables:
-        IMAGE_DEV: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}-dev
   script:
     - docker manifest create $IMAGE_DEV --amend $IMAGE_DEV_CI_AMD64 --amend $IMAGE_DEV_CI_ARM64
     - docker manifest push $IMAGE_DEV
@@ -136,8 +141,6 @@ Push run:
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
     - if: $CI_COMMIT_TAG
-      variables:
-        IMAGE_RUN: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}
   script:
     - docker manifest create $IMAGE_RUN --amend $IMAGE_RUN_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64
     - docker manifest push $IMAGE_RUN
