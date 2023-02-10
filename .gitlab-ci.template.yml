@@ -1,10 +1,11 @@
 workflow:
   rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+    - if: $CI_PIPELINE_SOURCE == "parent_pipeline"      # run child pipeline if triggered by parent pipeline
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"  # run merge request pipeline if triggered by merge request
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS  # don't run branch pipeline if open merge request exists
       when: never
-    - if: $CI_COMMIT_BRANCH
-    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit
+    - if: $CI_COMMIT_TAG                                # run tag pipeline with specific image tags if triggered by tag
       variables:
         IMAGE_DEV_PUSH:     gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}-dev
         IMAGE_RUN_PUSH:     gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:${CI_COMMIT_TAG}
