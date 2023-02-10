@@ -7,13 +7,13 @@ workflow:
 
 
 variables:
-  IMAGE_DEV:            gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest-dev
-  IMAGE_RUN:            gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest
-  IMAGE_DEV_CI_AMD64:   ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-amd64
-  IMAGE_DEV_CI_ARM64:   ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-arm64
-  IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-amd64
-  IMAGE_RUN_CI_ARM64:   ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-arm64
-  IMAGE_CACHE:          ${IMAGE_DEV}
+  IMAGE_DEV:          gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest-dev
+  IMAGE_RUN:          gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:latest
+  IMAGE_DEV_CI_AMD64: ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-amd64
+  IMAGE_DEV_CI_ARM64: ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-arm64
+  IMAGE_RUN_CI_AMD64: ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-amd64
+  IMAGE_RUN_CI_ARM64: ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-arm64
+  IMAGE_CACHE:        ${IMAGE_DEV}
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
   DISABLE_ARCH_AMD64: 'false'
@@ -122,7 +122,7 @@ Test dev-amd64:
 
 Push dev:
   stage: Push Images
-  only: [main]
+  only: [$CI_DEFAULT_BRANCH]
   needs:
     - dev-amd64
     - dev-arm64
@@ -134,7 +134,7 @@ Push dev:
 
 Push run:
   stage: Push Images
-  only: [main]
+  only: [$CI_DEFAULT_BRANCH]
   needs:
     - run-amd64
     - run-arm64
