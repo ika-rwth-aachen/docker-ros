@@ -124,8 +124,10 @@ Push dev:
   stage: Push Images
   only: [$CI_DEFAULT_BRANCH]
   needs:
-    - dev-amd64
-    - dev-arm64
+    - job: dev-amd64
+      optional: true
+    - job: dev-arm64
+      optional: true
     - job: Test dev-amd64
       optional: true
   script:
@@ -136,8 +138,10 @@ Push run:
   stage: Push Images
   only: [$CI_DEFAULT_BRANCH]
   needs:
-    - run-amd64
-    - run-arm64
+    - job: run-amd64
+      optional: true
+    - job: run-arm64
+      optional: true
     - job: Test dev-amd64
       optional: true
   script:
