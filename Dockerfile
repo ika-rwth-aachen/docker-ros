@@ -33,7 +33,8 @@ COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
 RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 
 # create install script with list of rosdep dependencies
-RUN apt-get update && \
+RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
+    apt-get update && \
     rosdep update && \
     if [ -x "$(command -v colcon)" ]; then export OS="ubuntu:jammy"; else export OS="ubuntu:focal"; fi && \
     set -o pipefail && \
