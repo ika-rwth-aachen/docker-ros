@@ -36,7 +36,8 @@ RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     apt-get update && \
     rosdep update && \
-    if [ "$ROS_DISTRO" = "rolling" ]; then export OS="ubuntu:jammy"; else export OS="ubuntu:$(lsb_release -c | awk '{print $2}')"; fi && \
+    export OS="ubuntu:$(lsb_release -c | awk '{print $2}')" && \
+    if [[ "$ROS_DISTRO" = "rolling" && "$OS" = "ubuntu:focal" ]]; then export OS="ubuntu:jammy"; fi && \
     set -o pipefail && \
     ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | tee -a $WORKSPACE/.install-dependencies.sh && \
     chmod +x $WORKSPACE/.install-dependencies.sh
