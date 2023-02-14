@@ -12,12 +12,14 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     useradd -s /bin/bash \
             -u $DOCKER_UID \
             -g $DOCKER_USER \
-            --create-home \
+            --no-create-home \
             --home-dir /home/$DOCKER_USER \
             --groups sudo,video \
             --password "$(openssl passwd -1 $DOCKER_USER)" \
             $DOCKER_USER && \
             touch /home/$DOCKER_USER/.sudo_as_admin_successful
+    cp -r /etc/skel/. /home/$DOCKER_USER
+    chown $DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER
     exec gosu $DOCKER_USER "$@"
 else
     exec "$@"
