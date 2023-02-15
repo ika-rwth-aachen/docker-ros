@@ -6,7 +6,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 [[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash
 [[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash
 
-# generate dockeruser with local user id
+# exec as dockeruser with configured UID/GID
 if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     groupadd -g $DOCKER_GID $DOCKER_USER
     useradd -s /bin/bash \
