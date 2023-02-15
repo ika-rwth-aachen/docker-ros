@@ -24,7 +24,6 @@ variables:
   IMAGE_DEV_CI_ARM64: ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-arm64
   IMAGE_RUN_CI_AMD64: ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-amd64
   IMAGE_RUN_CI_ARM64: ${IMAGE_RUN}_${CI_COMMIT_REF_SLUG}_ci-arm64
-  IMAGE_CACHE:        ${IMAGE_DEV}
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
   DISABLE_ARCH_AMD64: 'false'
@@ -115,7 +114,6 @@ Test dev-amd64:
   stage: ROS Industrial CI
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true'
-    - if: $DISABLE_ARCH_AMD64 != 'true'
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --update bash coreutils grep tar
