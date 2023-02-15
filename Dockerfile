@@ -68,7 +68,6 @@ WORKDIR $WORKSPACE
 
 # set colcon configuration directory, if needed
 ENV COLCON_HOME=$WORKSPACE/.colcon
-RUN mkdir $COLCON_HOME
 
 # copy contents of files-folder into image, if it exists (use yaml as existing dummy)
 COPY docker/docker-compose.yaml docker/files* /docker-ros/files/
