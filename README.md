@@ -100,3 +100,9 @@ include:
 variables:
   DISABLE_INDUSTRIAL_CI: 'true'
 ```
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `DISABLE_ARCH_AMD64` | toggle the build of amd64 images | `'false'` |
+| `DISABLE_ARCH_ARM64` | toggle the build of arm64 images | `'false'` |
+| `DISABLE_INDUSTRIAL_CI` | toggle the ROS Industrial CI test job | `'false'` |
