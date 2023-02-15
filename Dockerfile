@@ -110,7 +110,7 @@ COPY --from=build $WORKSPACE/install install
 
 # setup command
 ARG COMMAND
-RUN echo "#!/bin/bash" > cmd.sh && \
-    echo ${COMMAND} >> cmd.sh && \
-    chmod a+x cmd.sh
-CMD ["./cmd.sh"]
+RUN echo "#!/bin/bash" > .cmd.sh && \
+    echo ${COMMAND} >> .cmd.sh && \
+    chmod a+x .cmd.sh
+CMD ["./.cmd.sh"]
