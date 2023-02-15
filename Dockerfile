@@ -4,7 +4,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE} as dependencies
 
 # create workspace folder structure
-ENV WORKSPACE $DOCKER_HOME/ws
+ENV WORKSPACE /docker-ros/ws
 WORKDIR $WORKSPACE
 RUN mkdir -p src/target src/upstream src/downstream
 
@@ -56,8 +56,14 @@ FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
 
+# user setup
+USER root
+ENV DOCKER_USER=dockeruser
+ENV DOCKER_UID=
+ENV DOCKER_GID=
+
 # set workspace
-ENV WORKSPACE $DOCKER_HOME/ws
+ENV WORKSPACE /docker-ros/ws
 WORKDIR $WORKSPACE
 
 # copy contents of files-folder into image, if it exists (use yaml as existing dummy)
@@ -72,11 +78,17 @@ RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
+# set entrypoint
+COPY docker/docker-ros/entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
+
 ############ dev ###############################################################
 FROM dependencies-install as dev
 
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
+
+CMD ["bash"]
 
 ############ build #############################################################
 FROM dev as build
@@ -96,10 +108,9 @@ FROM dependencies-install as run
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 
-# setup entrypoint
+# setup command
 ARG COMMAND
-COPY docker/docker-ros/entrypoint.sh /
-RUN echo ${COMMAND} > cmd.sh && \
-    chmod a+x cmd.sh
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["./cmd.sh"]
+RUN echo "#!/bin/bash" > .cmd.sh && \
+    echo ${COMMAND} >> .cmd.sh && \
+    chmod a+x .cmd.sh
+CMD ["./.cmd.sh"]
