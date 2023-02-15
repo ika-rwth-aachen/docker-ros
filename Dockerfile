@@ -67,8 +67,8 @@ ENV WORKSPACE=/docker-ros/ws
 WORKDIR $WORKSPACE
 
 # copy contents of files-folder into image, if it exists (use yaml as existing dummy)
-COPY docker/docker-compose.yaml docker/files* /files/
-RUN rm /files/docker-compose.yaml
+COPY docker/docker-compose.yaml docker/files* /docker-ros/files/
+RUN rm /docker-ros/files/docker-compose.yaml
 
 # copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
