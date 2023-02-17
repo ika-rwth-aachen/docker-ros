@@ -7,8 +7,8 @@ workflow:
     - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit
     - if: $CI_COMMIT_TAG                                # run tag pipeline with specific image tags if triggered by tag
       variables:
-        IMAGE_DEV_PUSH:     gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH,,}:${CI_COMMIT_TAG}-dev
-        IMAGE_RUN_PUSH:     gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH,,}:${CI_COMMIT_TAG}
+        IMAGE_DEV_PUSH:     ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}-dev
+        IMAGE_RUN_PUSH:     ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}
         IMAGE_DEV_CI_AMD64: ${IMAGE_DEV_PUSH}_ci-amd64
         IMAGE_DEV_CI_ARM64: ${IMAGE_DEV_PUSH}_ci-arm64
         IMAGE_RUN_CI_AMD64: ${IMAGE_RUN_PUSH}_ci-amd64
@@ -16,8 +16,8 @@ workflow:
 
 
 variables:
-  IMAGE_DEV:          gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH,,}:latest-dev
-  IMAGE_RUN:          gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH,,}:latest
+  IMAGE_DEV:          ${CI_REGISTRY_IMAGE}:latest-dev
+  IMAGE_RUN:          ${CI_REGISTRY_IMAGE}:latest
   IMAGE_DEV_PUSH:     ${IMAGE_DEV}
   IMAGE_RUN_PUSH:     ${IMAGE_RUN}
   IMAGE_DEV_CI_AMD64: ${IMAGE_DEV}_${CI_COMMIT_REF_SLUG}_ci-amd64
