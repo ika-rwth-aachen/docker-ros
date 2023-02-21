@@ -1,0 +1,3 @@
+[submodule "ros1-ros2-bridge/docker/docker-ros"]
+	path = ros1-ros2-bridge/docker/docker-ros
+	url = https://gitlab.ika.rwth-aachen.de/ops/docker-ros.git
