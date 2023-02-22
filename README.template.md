@@ -1,3 +1,7 @@
+# zed-camera
+
+ROS driver for [Stereolabs ZED stereo cameras](https://www.stereolabs.com/)
+
 - [Nodes](#nodes)
   - [`zed_wrapper/zed_wrapper`](#zed_wrapperzed_wrapper)
 - [Usage of docker-ros Images](#usage-of-docker-ros-images)
