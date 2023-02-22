@@ -44,8 +44,8 @@ variables:
 stages:
   - Build dev Images
   - Build run Images
-  - ROS Industrial CI
-  - Push Images
+  - Test ROS Industrial CI
+  - Push Multi-Arch Images
 
 
 default:
@@ -125,7 +125,7 @@ run-arm64:
 
 
 Test dev-amd64:
-  stage: ROS Industrial CI
+  stage: Test ROS Industrial CI
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true'
   before_script:
@@ -165,7 +165,7 @@ Test dev-amd64:
     - docker manifest push ${IMAGE_RUN}
 
 Push:
-  stage: Push Images
+  stage: Push Multi-Arch Images
   needs:
     - !reference [.push, needs]
   rules:
@@ -178,7 +178,7 @@ Push:
     IMAGE_RUN: ${IMAGE_RUN_PUSH}
 
 Push latest:
-  stage: Push Images
+  stage: Push Multi-Arch Images
   needs:
     - !reference [.push, needs]
   rules:
@@ -191,7 +191,7 @@ Push latest:
     IMAGE_RUN: ${IMAGE_RUN_LATEST}
 
 Push tag:
-  stage: Push Images
+  stage: Push Multi-Arch Images
   needs:
     - !reference [.push, needs]
   rules:
