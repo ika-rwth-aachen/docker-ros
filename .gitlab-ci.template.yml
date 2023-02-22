@@ -111,7 +111,7 @@ run-amd64:
 
 run-arm64:
   stage: Build run Images
-  needs: [dev-amd64]
+  needs: [dev-arm64]
   rules:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   script:
@@ -148,6 +148,10 @@ Test dev-amd64:
     - job: dev-amd64
       optional: true
     - job: dev-arm64
+      optional: true
+    - job: run-amd64
+      optional: true
+    - job: run-arm64
       optional: true
     - job: Test dev-amd64
       optional: true
