@@ -3,10 +3,21 @@ ARG BASE_IMAGE
 ############ dependencies ######################################################
 FROM ${BASE_IMAGE} as dependencies
 
+USER root
+SHELL ["/bin/bash", "-c"]
+
 # create workspace folder structure
 ENV WORKSPACE=/docker-ros/ws
 WORKDIR $WORKSPACE
 RUN mkdir -p src/target src/upstream src/downstream
+
+# install ROS bootstrapping tools
+RUN apt-get update && \
+    apt-get install -y \
+        python3-rosdep \
+        python3-rosinstall \
+        python3-vcstool \
+    && rm -rf /var/lib/apt/lists/*
 
 # copy contents of repository
 COPY . src/repository
@@ -30,17 +41,22 @@ RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
         git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
     fi
 COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
+RUN apt-get update && \
+    apt-get install -y python-is-python3 && \
+    rm -rf /var/lib/apt/lists/*
 RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     apt-get update && \
+    rosdep init && \
     rosdep update && \
     export OS="ubuntu:$(lsb_release -c | awk '{print $2}')" && \
     if [[ "$ROS_DISTRO" = "rolling" && "$OS" = "ubuntu:focal" ]]; then export OS="ubuntu:jammy"; fi && \
     set -o pipefail && \
     ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | tee -a $WORKSPACE/.install-dependencies.sh && \
-    chmod +x $WORKSPACE/.install-dependencies.sh
+    chmod +x $WORKSPACE/.install-dependencies.sh && \
+    rm -rf /var/lib/apt/lists/*
 
 # add additionally specified apt dependencies to install script
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
@@ -56,8 +72,10 @@ FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
 
-# user setup
 USER root
+SHELL ["/bin/bash", "-c"]
+
+# user setup
 ENV DOCKER_USER=dockeruser
 ENV DOCKER_UID=
 ENV DOCKER_GID=
@@ -65,6 +83,16 @@ ENV DOCKER_GID=
 # set workspace
 ENV WORKSPACE=/docker-ros/ws
 WORKDIR $WORKSPACE
+
+# install ROS dev tools (rosdep, vcs, ...)
+RUN apt-get update && \
+    apt-get install -y \
+        python3-catkin-tools \
+        python3-rosdep \
+        python3-rosinstall \
+        python3-vcstool \
+        ros-dev-tools \
+    && rm -rf /var/lib/apt/lists/*
 
 # set colcon configuration directory, if needed
 ENV COLCON_HOME=$WORKSPACE/.colcon
