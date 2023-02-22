@@ -144,6 +144,13 @@ Test dev-amd64:
 
 
 .push:
+  needs:
+    - job: dev-amd64
+      optional: true
+    - job: dev-arm64
+      optional: true
+    - job: Test dev-amd64
+      optional: true
   rules:
     - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
       when: never
@@ -160,14 +167,10 @@ Test dev-amd64:
 Push:
   stage: Push Images
   needs:
-    - job: dev-amd64
-      optional: true
-    - job: dev-arm64
-      optional: true
-    - job: Test dev-amd64
-      optional: true
+    - !reference [.push, needs]
   rules:
     - !reference [.push, rules]
+    - when: on_success
   script:
     - !reference [.push, script]
   variables:
@@ -177,12 +180,7 @@ Push:
 Push latest:
   stage: Push Images
   needs:
-    - job: run-amd64
-      optional: true
-    - job: run-arm64
-      optional: true
-    - job: Test dev-amd64
-      optional: true
+    - !reference [.push, needs]
   rules:
     - !reference [.push, rules]
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
@@ -195,12 +193,7 @@ Push latest:
 Push tag:
   stage: Push Images
   needs:
-    - job: run-amd64
-      optional: true
-    - job: run-arm64
-      optional: true
-    - job: Test dev-amd64
-      optional: true
+    - !reference [.push, needs]
   rules:
     - !reference [.push, rules]
     - if: $CI_COMMIT_TAG
