@@ -60,54 +60,63 @@ default:
     - 'sed -i "/\  context:/a\  cache_from: [$IMAGE_CACHE]\n\  cache_to: [type=inline]" docker-compose.yaml'
 
 
+.build:
+  script:
+    - docker compose build ${TARGET}
+    - docker tag ${IMAGE_TARGET} ${IMAGE}
+    - docker push ${IMAGE}
+
 dev-amd64:
   stage: Build Images (amd64)
   rules:
     - if: $DISABLE_ARCH_AMD64 != 'true'
   script:
-    - docker compose build dev
-    - docker tag $IMAGE_DEV $IMAGE_DEV_CI_AMD64
-    - docker push $IMAGE_DEV_CI_AMD64
+    - !reference [.build, script]
   variables:
     PLATFORM: linux/amd64
-    IMAGE_CACHE: $IMAGE_DEV_CI_AMD64
+    TARGET: dev
+    IMAGE_TARGET: ${IMAGE_DEV}
+    IMAGE_CACHE: ${IMAGE_DEV_CI_AMD64}
+    IMAGE: ${IMAGE_DEV_CI_AMD64}
 
 run-amd64:
   stage: Build Images (amd64)
   rules:
     - if: $DISABLE_ARCH_AMD64 != 'true'
   script:
-    - docker compose build run
-    - docker tag $IMAGE_RUN $IMAGE_RUN_CI_AMD64
-    - docker push $IMAGE_RUN_CI_AMD64
+    - !reference [.build, script]
   variables:
     PLATFORM: linux/amd64
-    IMAGE_CACHE: $IMAGE_RUN_CI_AMD64
-
+    TARGET: run
+    IMAGE_TARGET: ${IMAGE_RUN}
+    IMAGE_CACHE: ${IMAGE_RUN_CI_AMD64}
+    IMAGE: ${IMAGE_RUN_CI_AMD64}
 
 dev-arm64:
   stage: Build Images (arm64)
   rules:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   script:
-    - docker compose build dev
-    - docker tag $IMAGE_DEV $IMAGE_DEV_CI_ARM64
-    - docker push $IMAGE_DEV_CI_ARM64
+    - !reference [.build, script]
   variables:
     PLATFORM: linux/arm64
-    IMAGE_CACHE: $IMAGE_DEV_CI_ARM64
+    TARGET: dev
+    IMAGE_TARGET: ${IMAGE_DEV}
+    IMAGE_CACHE: ${IMAGE_DEV_CI_ARM64}
+    IMAGE: ${IMAGE_DEV_CI_ARM64}
 
 run-arm64:
   stage: Build Images (arm64)
   rules:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   script:
-    - docker compose build run
-    - docker tag $IMAGE_RUN $IMAGE_RUN_CI_ARM64
-    - docker push $IMAGE_RUN_CI_ARM64
+    - !reference [.build, script]
   variables:
     PLATFORM: linux/arm64
-    IMAGE_CACHE: $IMAGE_RUN_CI_ARM64
+    TARGET: run
+    IMAGE_TARGET: ${IMAGE_RUN}
+    IMAGE_CACHE: ${IMAGE_RUN_CI_ARM64}
+    IMAGE: ${IMAGE_RUN_CI_ARM64}
 
 
 Test dev-amd64:
@@ -129,6 +138,16 @@ Test dev-amd64:
     DOCKER_RUN_OPTS: -u root:root
 
 
+.push:
+  rules:
+    - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
+      when: never
+  script:
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE} --amend ${IMAGE_AMD64} --amend ${IMAGE_ARM64}; fi
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMAGE} --amend ${IMAGE_AMD64}; fi
+    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE} --amend ${IMAGE_ARM64}; fi
+    - docker manifest push ${IMAGE}
+
 Push dev:
   stage: Push Images
   needs:
@@ -139,15 +158,15 @@ Push dev:
     - job: Test dev-amd64
       optional: true
   rules:
-    - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
-      when: never
+    - !reference [.push, rules]
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG
   script:
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create $IMAGE_DEV_PUSH --amend $IMAGE_DEV_CI_AMD64 --amend $IMAGE_DEV_CI_ARM64; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create $IMAGE_DEV_PUSH --amend $IMAGE_DEV_CI_AMD64; fi
-    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create $IMAGE_DEV_PUSH --amend $IMAGE_DEV_CI_ARM64; fi
-    - docker manifest push $IMAGE_DEV_PUSH
+    - !reference [.push, script]
+  variables:
+    IMAGE: ${IMAGE_RUN_PUSH}
+    IMAGE_AMD64: ${IMAGE_DEV_CI_AMD64}
+    IMAGE_ARM64: ${IMAGE_DEV_CI_ARM64}
 
 Push run:
   stage: Push Images
@@ -159,12 +178,12 @@ Push run:
     - job: Test dev-amd64
       optional: true
   rules:
-    - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
-      when: never
+    - !reference [.push, rules]
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_TAG
   script:
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create $IMAGE_RUN_PUSH --amend $IMAGE_RUN_CI_AMD64 --amend $IMAGE_RUN_CI_ARM64; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create $IMAGE_RUN_PUSH --amend $IMAGE_RUN_CI_AMD64; fi
-    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create $IMAGE_RUN_PUSH --amend $IMAGE_RUN_CI_ARM64; fi
-    - docker manifest push $IMAGE_RUN_PUSH
+    - !reference [.push, script]
+  variables:
+    IMAGE: ${IMAGE_RUN_PUSH}
+    IMAGE_AMD64: ${IMAGE_RUN_CI_AMD64}
+    IMAGE_ARM64: ${IMAGE_RUN_CI_ARM64}
