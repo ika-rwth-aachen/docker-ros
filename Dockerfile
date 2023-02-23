@@ -98,6 +98,9 @@ RUN apt-get update && \
 # set colcon configuration directory, if needed
 ENV COLCON_HOME=$WORKSPACE/.colcon
 
+# source ROS
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+
 # copy contents of files-folder into image, if it exists (use yaml as existing dummy)
 COPY docker/docker-compose.yaml docker/files* /docker-ros/files/
 RUN rm /docker-ros/files/docker-compose.yaml
@@ -127,18 +130,20 @@ FROM dev as build
 
 # build ROS workspace
 RUN if [ -x "$(command -v colcon)" ]; then \
-        source /opt/ros/${ROS_DISTRO}/setup.bash && \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
     elif [ -x "$(command -v catkin)" ]; then \
-        catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
     fi
+RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
+    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 ############ run ###############################################################
 FROM dependencies-install as run
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
+RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
+    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # setup command
 ARG COMMAND
