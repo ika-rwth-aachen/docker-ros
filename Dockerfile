@@ -84,9 +84,10 @@ ENV DOCKER_GID=
 ENV WORKSPACE=/docker-ros/ws
 WORKDIR $WORKSPACE
 
-# install ROS dev tools (rosdep, vcs, ...)
+# install ROS dev tools (rosdep, vcs, ...) and other essentials
 RUN apt-get update && \
     apt-get install -y \
+        gosu \
         python3-catkin-tools \
         python3-rosdep \
         python3-rosinstall \
