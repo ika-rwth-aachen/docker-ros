@@ -25,10 +25,10 @@ The Dockerfile performs the following steps to automatically build these images:
     mkdir -p docker
     git submodule add <../RELATIVE/PATH/..>/ops/docker-ros.git docker/docker-ros
     ```
-1. Copy the template [`docker-compose.yaml`](docker-compose.yaml) to your `docker` folder.
+1. Copy the template [`docker-compose.template.yaml`](docker-compose.template.yaml) to your `docker` folder.
     ```bash
     # ros-repository/docker/
-    cp docker-ros/docker-compose.yaml .
+    cp docker-ros/docker-compose.template.yaml docker-compose.yaml
     ```
 1. Edit the copied `docker-compose.yaml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
     - `x-base-image: &base-image`
