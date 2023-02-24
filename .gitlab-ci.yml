@@ -5,5 +5,5 @@ docker-ros:
   stage: Test
   trigger:
     project: fb-fi/ops/docker-ros-ci
-    ref: feature/ci-test-repo
+    branch: feature/ci-test-repo
     strategy: depend
