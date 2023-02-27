@@ -15,7 +15,6 @@ RUN mkdir -p src/target src/upstream src/downstream
 RUN apt-get update && \
     apt-get install -y \
         python3-rosdep \
-        python3-rosinstall \
         python3-vcstool \
     && rm -rf /var/lib/apt/lists/*
 
@@ -90,7 +89,6 @@ RUN apt-get update && \
         gosu \
         python3-catkin-tools \
         python3-rosdep \
-        python3-rosinstall \
         python3-vcstool \
         ros-dev-tools \
     && rm -rf /var/lib/apt/lists/*
