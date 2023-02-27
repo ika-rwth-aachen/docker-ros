@@ -14,6 +14,7 @@ RUN mkdir -p src/target src/upstream src/downstream
 # install ROS bootstrapping tools
 RUN apt-get update && \
     apt-get install -y \
+        git \
         python3-rosdep \
         python3-vcstool \
     && rm -rf /var/lib/apt/lists/*
