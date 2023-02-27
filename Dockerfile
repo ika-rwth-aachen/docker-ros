@@ -133,8 +133,6 @@ RUN if [ -x "$(command -v colcon)" ]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
     fi
-RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
-    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 ############ run ###############################################################
 FROM dependencies-install as run
