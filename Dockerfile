@@ -83,14 +83,21 @@ ENV DOCKER_GID=
 ENV WORKSPACE=/docker-ros/ws
 WORKDIR $WORKSPACE
 
-# install ROS dev tools (rosdep, vcs, ...) and other essentials
+# install essential ROS CLI tools
 RUN apt-get update && \
     apt-get install -y \
         build-essential \
         gosu \
-        python3-catkin-tools \
         python3-rosdep \
         python3-vcstool \
+    && source /opt/ros/$ROS_DISTRO/setup.bash && \
+    if [ "$ROS_VERSION" == "1" ]; then \
+        apt-get install -y \
+            python3-catkin-tools ; \
+    elif [ "$ROS_VERSION" == "2" ]; then \
+        apt-get install -y \
+            python3-colcon-core ; \
+    fi \
     && rm -rf /var/lib/apt/lists/*
 
 # set colcon configuration directory, if needed
