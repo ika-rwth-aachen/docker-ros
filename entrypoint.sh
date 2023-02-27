@@ -21,6 +21,9 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     chown -R $DOCKER_USER:$DOCKER_USER $WORKSPACE
     ln -s $WORKSPACE /home/$DOCKER_USER/ws
     cd /home/$DOCKER_USER/ws
+    echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> /home/$DOCKER_USER/.bashrc
+    echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> /home/$DOCKER_USER/.bashrc
+    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> /home/$DOCKER_USER/.bashrc
     exec gosu $DOCKER_USER "$@"
 else
     exec "$@"
