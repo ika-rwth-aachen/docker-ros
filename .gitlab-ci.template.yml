@@ -173,9 +173,6 @@ Push:
     - when: on_success
   script:
     - !reference [.push, script]
-  variables:
-    IMAGE_DEV: ${IMAGE_DEV_PUSH}
-    IMAGE_RUN: ${IMAGE_RUN_PUSH}
 
 Push latest:
   stage: Push Multi-Arch Images
