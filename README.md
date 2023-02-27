@@ -25,10 +25,10 @@ The Dockerfile performs the following steps to automatically build these images:
     mkdir -p docker
     git submodule add <../RELATIVE/PATH/..>/ops/docker-ros.git docker/docker-ros
     ```
-1. Copy the template [`docker-compose.yaml`](docker-compose.yaml) to your `docker` folder.
+1. Copy the template [`docker-compose.template.yaml`](docker-compose.template.yaml) to your `docker` folder.
     ```bash
     # ros-repository/docker/
-    cp docker-ros/docker-compose.yaml .
+    cp docker-ros/docker-compose.template.yaml docker-compose.yaml
     ```
 1. Edit the copied `docker-compose.yaml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
     - `x-base-image: &base-image`
@@ -50,6 +50,7 @@ The Dockerfile performs the following steps to automatically build these images:
         ref: main
         file: .gitlab-ci.template.yml
     ```
+1. Integrate the section *Usage of docker-ros Images* of the template [`README.template.yaml`](README.template.yaml) into your repository's README. For a proper and consistent documentation, it also makes sense to completely rebuild your README based on the template.
 1. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`.
 1. Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder or push the changes to your repository to have the GitLab CI pipeline build the images automatically.
     ```bash
