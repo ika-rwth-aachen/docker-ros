@@ -86,11 +86,11 @@ WORKDIR $WORKSPACE
 # install ROS dev tools (rosdep, vcs, ...) and other essentials
 RUN apt-get update && \
     apt-get install -y \
+        build-essential \
         gosu \
         python3-catkin-tools \
         python3-rosdep \
         python3-vcstool \
-        ros-dev-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # set colcon configuration directory, if needed
@@ -130,6 +130,7 @@ FROM dev as build
 RUN if [ -x "$(command -v colcon)" ]; then \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
     elif [ -x "$(command -v catkin)" ]; then \
+        catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
     fi
 RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
