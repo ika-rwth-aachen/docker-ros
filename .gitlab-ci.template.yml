@@ -159,13 +159,9 @@ Test dev-amd64:
     - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
       when: never
   script:
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64}; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_AMD64}; fi
-    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_ARM64}; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_AMD64}; fi
-    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - docker manifest push ${IMAGE_DEV}
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_AMD64} && docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_AMD64}; fi
+    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_ARM64}; fi
     - docker manifest push ${IMAGE_RUN}
 
 Push:
