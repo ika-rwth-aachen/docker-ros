@@ -88,8 +88,6 @@ RUN apt-get update && \
     apt-get install -y \
         build-essential \
         gosu \
-        python3-rosdep \
-        python3-vcstool \
     && source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [ "$ROS_VERSION" == "1" ]; then \
         apt-get install -y \
