@@ -3,15 +3,15 @@
 \<DESCRIPTION\>
 
 - [Nodes](#nodes)
-  - [`<PACKAGE>/<NODE>`](#packagenode)
+  - [\<PACKAGE\>/\<NODE\>](#packagenode)
 - [Usage of docker-ros Images](#usage-of-docker-ros-images)
+  - [Available Images](#available-images)
   - [Default Command](#default-command)
   - [Launch Files](#launch-files)
   - [Configuration Files](#configuration-files)
   - [Additional Remarks](#additional-remarks)
 - [Official Documentation](#official-documentation)
 
----
 
 ## Nodes
 
@@ -19,7 +19,7 @@
 | --- | --- | --- |
 | `<PACKAGE>` | `<NODE>` | \<DESCRIPTION\> |
 
-### `<PACKAGE>/<NODE>`
+### \<PACKAGE\>/\<NODE\>
 
 #### Subscribed Topics
 
@@ -61,9 +61,14 @@
 | --- | --- | --- |
 | `<PARAMETER/NAME>` | `<PARAMETER_TYPE>` | \<DESCRIPTION\> |
 
----
 
 ## Usage of docker-ros Images
+
+### Available Images
+
+| Tag | Description |
+| --- | --- |
+| `latest` | latest version |
 
 ### Default Command
 
@@ -87,7 +92,6 @@
 
 \-
 
----
 
 ## Official Documentation
 
