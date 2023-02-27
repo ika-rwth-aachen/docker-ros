@@ -159,11 +159,11 @@ Test dev-amd64:
     - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
       when: never
   script:
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_AMD64} && docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_AMD64}; fi
-    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - docker manifest push ${IMAGE_DEV}
-    - docker manifest push ${IMAGE_RUN}
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV_PUSH} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN_PUSH} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMAGE_DEV_PUSH} --amend ${IMAGE_DEV_CI_AMD64} && docker manifest create ${IMAGE_RUN_PUSH} --amend ${IMAGE_RUN_CI_AMD64}; fi
+    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV_PUSH} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN_PUSH} --amend ${IMAGE_RUN_CI_ARM64}; fi
+    - docker manifest push ${IMAGE_DEV_PUSH}
+    - docker manifest push ${IMAGE_RUN_PUSH}
 
 Push:
   stage: Push Multi-Arch Images
@@ -174,6 +174,9 @@ Push:
     - when: on_success
   script:
     - !reference [.push, script]
+  variables:
+    IMAGE_DEV_PUSH: ${IMAGE_DEV}
+    IMAGE_RUN_PUSH: ${IMAGE_RUN}
 
 Push latest:
   stage: Push Multi-Arch Images
@@ -185,8 +188,8 @@ Push latest:
   script:
     - !reference [.push, script]
   variables:
-    IMAGE_DEV: ${IMAGE_DEV_LATEST}
-    IMAGE_RUN: ${IMAGE_RUN_LATEST}
+    IMAGE_DEV_PUSH: ${IMAGE_DEV_LATEST}
+    IMAGE_RUN_PUSH: ${IMAGE_RUN_LATEST}
 
 Push tag:
   stage: Push Multi-Arch Images
@@ -198,5 +201,5 @@ Push tag:
   script:
     - !reference [.push, script]
   variables:
-    IMAGE_DEV: ${IMAGE_DEV_TAG}
-    IMAGE_RUN: ${IMAGE_RUN_TAG}
+    IMAGE_DEV_PUSH: ${IMAGE_DEV_TAG}
+    IMAGE_RUN_PUSH: ${IMAGE_RUN_TAG}
