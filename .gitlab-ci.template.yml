@@ -9,8 +9,8 @@ workflow:
 
 
 variables:
-  IMAGE_DEV_TARGET:   ${CI_REGISTRY_IMAGE}:ros2-dev # TODO: change back to latest-dev
-  IMAGE_RUN_TARGET:   ${CI_REGISTRY_IMAGE}:ros2     # TODO: change back to latest
+  IMAGE_DEV_TARGET:   ${CI_REGISTRY_IMAGE}:latest-dev
+  IMAGE_RUN_TARGET:   ${CI_REGISTRY_IMAGE}:latest
   IMAGE_DEV_CI:       ${IMAGE_DEV_TARGET}_${CI_COMMIT_REF_SLUG}_ci
   IMAGE_RUN_CI:       ${IMAGE_RUN_TARGET}_${CI_COMMIT_REF_SLUG}_ci
   IMAGE_DEV_CI_AMD64: ${IMAGE_DEV_CI}-amd64
@@ -161,7 +161,7 @@ Test dev-amd64:
     - docker manifest push ${IMG_DEV}
     - docker manifest push ${IMG_RUN}
 
-Push (CI):
+Push CI:
   stage: Push Multi-Arch Images
   needs:
     - !reference [.push, needs]
