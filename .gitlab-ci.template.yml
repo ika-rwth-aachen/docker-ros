@@ -6,26 +6,22 @@ workflow:
       when: never
     - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit
     - if: $CI_COMMIT_TAG                                # run tag pipeline with specific image tags if triggered by tag
-      variables:
-        IMAGE_DEV_CI_AMD64: ${IMAGE_DEV_TAG}_ci-amd64
-        IMAGE_DEV_CI_ARM64: ${IMAGE_DEV_TAG}_ci-arm64
-        IMAGE_RUN_CI_AMD64: ${IMAGE_RUN_TAG}_ci-amd64
-        IMAGE_RUN_CI_ARM64: ${IMAGE_RUN_TAG}_ci-arm64
 
 
 variables:
-  IMAGE_DEV_TARGET:   ${CI_REGISTRY_IMAGE}:latest-dev
-  IMAGE_RUN_TARGET:   ${CI_REGISTRY_IMAGE}:latest
-  IMAGE_DEV:          ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}-dev
-  IMAGE_RUN:          ${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_SLUG}
+  IMAGE_DEV_TARGET:   ${CI_REGISTRY_IMAGE}:ros2-dev # TODO: change back to latest-dev
+  IMAGE_RUN_TARGET:   ${CI_REGISTRY_IMAGE}:ros2     # TODO: change back to latest
+  IMAGE_DEV_CI:       ${IMAGE_DEV_TARGET}_${CI_COMMIT_REF_SLUG}_ci
+  IMAGE_RUN_CI:       ${IMAGE_RUN_TARGET}_${CI_COMMIT_REF_SLUG}_ci
+  IMAGE_DEV_CI_AMD64: ${IMAGE_DEV_CI}-amd64
+  IMAGE_DEV_CI_ARM64: ${IMAGE_DEV_CI}-arm64
+  IMAGE_RUN_CI_AMD64: ${IMAGE_RUN_CI}-amd64
+  IMAGE_RUN_CI_ARM64: ${IMAGE_RUN_CI}-arm64
   IMAGE_DEV_LATEST:   ${CI_REGISTRY_IMAGE}:latest-dev
   IMAGE_RUN_LATEST:   ${CI_REGISTRY_IMAGE}:latest
   IMAGE_DEV_TAG:      ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}-dev
   IMAGE_RUN_TAG:      ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}
-  IMAGE_DEV_CI_AMD64: ${IMAGE_DEV}_ci-amd64
-  IMAGE_DEV_CI_ARM64: ${IMAGE_DEV}_ci-arm64
-  IMAGE_RUN_CI_AMD64: ${IMAGE_RUN}_ci-amd64
-  IMAGE_RUN_CI_ARM64: ${IMAGE_RUN}_ci-arm64
+  PUSH_AS_LATEST:     'false'
   # -----
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
@@ -60,14 +56,14 @@ default:
     - docker buildx create --use buildx-context
     - cd $DOCKER_COMPOSE_DIR
     - 'sed -i "/\    image:/a\    platform: $PLATFORM" docker-compose.yaml'
-    - 'sed -i "/\  context:/a\  cache_from: [$IMAGE_CACHE]\n\  cache_to: [type=inline]" docker-compose.yaml'
+    - 'sed -i "/\  context:/a\  cache_from: [$IMG_CACHE]\n\  cache_to: [type=inline]" docker-compose.yaml'
 
 
 .build:
   script:
     - docker compose build ${TARGET}
-    - docker tag ${IMAGE_TARGET} ${IMAGE}
-    - docker push ${IMAGE}
+    - docker tag ${IMG_TARGET} ${IMG}
+    - docker push ${IMG}
 
 dev-amd64:
   stage: Build dev Images
@@ -78,9 +74,9 @@ dev-amd64:
   variables:
     PLATFORM: linux/amd64
     TARGET: dev
-    IMAGE_TARGET: ${IMAGE_DEV_TARGET}
-    IMAGE_CACHE: ${IMAGE_DEV_CI_AMD64}
-    IMAGE: ${IMAGE_DEV_CI_AMD64}
+    IMG_TARGET: ${IMAGE_DEV_TARGET}
+    IMG_CACHE: ${IMAGE_DEV_CI_AMD64}
+    IMG: ${IMAGE_DEV_CI_AMD64}
 
 dev-arm64:
   stage: Build dev Images
@@ -91,9 +87,9 @@ dev-arm64:
   variables:
     PLATFORM: linux/arm64
     TARGET: dev
-    IMAGE_TARGET: ${IMAGE_DEV_TARGET}
-    IMAGE_CACHE: ${IMAGE_DEV_CI_ARM64}
-    IMAGE: ${IMAGE_DEV_CI_ARM64}
+    IMG_TARGET: ${IMAGE_DEV_TARGET}
+    IMG_CACHE: ${IMAGE_DEV_CI_ARM64}
+    IMG: ${IMAGE_DEV_CI_ARM64}
 
 run-amd64:
   stage: Build run Images
@@ -105,9 +101,9 @@ run-amd64:
   variables:
     PLATFORM: linux/amd64
     TARGET: run
-    IMAGE_TARGET: ${IMAGE_RUN_TARGET}
-    IMAGE_CACHE: ${IMAGE_DEV_CI_AMD64}
-    IMAGE: ${IMAGE_RUN_CI_AMD64}
+    IMG_TARGET: ${IMAGE_RUN_TARGET}
+    IMG_CACHE: ${IMAGE_DEV_CI_AMD64}
+    IMG: ${IMAGE_RUN_CI_AMD64}
 
 run-arm64:
   stage: Build run Images
@@ -119,9 +115,9 @@ run-arm64:
   variables:
     PLATFORM: linux/arm64
     TARGET: run
-    IMAGE_TARGET: ${IMAGE_RUN_TARGET}
-    IMAGE_CACHE: ${IMAGE_DEV_CI_ARM64}
-    IMAGE: ${IMAGE_RUN_CI_ARM64}
+    IMG_TARGET: ${IMAGE_RUN_TARGET}
+    IMG_CACHE: ${IMAGE_DEV_CI_ARM64}
+    IMG: ${IMAGE_RUN_CI_ARM64}
 
 
 Test dev-amd64:
@@ -139,7 +135,7 @@ Test dev-amd64:
     TARGET_WORKSPACE: $ROS_WORKSPACE_DIR
     ADDITIONAL_DEBS: git
     BEFORE_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
-    DOCKER_IMAGE: $IMAGE_DEV_CI_AMD64
+    DOCKER_IMAGE: ${IMAGE_DEV_CI_AMD64}
     DOCKER_RUN_OPTS: -u root:root
 
 
@@ -159,26 +155,26 @@ Test dev-amd64:
     - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
       when: never
   script:
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV_PUSH} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN_PUSH} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMAGE_DEV_PUSH} --amend ${IMAGE_DEV_CI_AMD64} && docker manifest create ${IMAGE_RUN_PUSH} --amend ${IMAGE_RUN_CI_AMD64}; fi
-    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMAGE_DEV_PUSH} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMAGE_RUN_PUSH} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - docker manifest push ${IMAGE_DEV_PUSH}
-    - docker manifest push ${IMAGE_RUN_PUSH}
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
+    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_AMD64} && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_AMD64}; fi
+    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_ARM64}; fi
+    - docker manifest push ${IMG_DEV}
+    - docker manifest push ${IMG_RUN}
 
-Push:
+Push (CI):
   stage: Push Multi-Arch Images
   needs:
     - !reference [.push, needs]
   rules:
     - !reference [.push, rules]
-    - when: on_success
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
   script:
     - !reference [.push, script]
   variables:
-    IMAGE_DEV_PUSH: ${IMAGE_DEV}
-    IMAGE_RUN_PUSH: ${IMAGE_RUN}
+    IMG_DEV: ${IMAGE_DEV_CI}
+    IMG_RUN: ${IMAGE_RUN_CI}
 
-Push latest:
+Push:
   stage: Push Multi-Arch Images
   needs:
     - !reference [.push, needs]
@@ -188,8 +184,21 @@ Push latest:
   script:
     - !reference [.push, script]
   variables:
-    IMAGE_DEV_PUSH: ${IMAGE_DEV_LATEST}
-    IMAGE_RUN_PUSH: ${IMAGE_RUN_LATEST}
+    IMG_DEV: ${IMAGE_DEV_TARGET}
+    IMG_RUN: ${IMAGE_RUN_TARGET}
+
+Push latest:
+  stage: Push Multi-Arch Images
+  needs:
+    - !reference [.push, needs]
+  rules:
+    - !reference [.push, rules]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $PUSH_AS_LATEST == 'true'
+  script:
+    - !reference [.push, script]
+  variables:
+    IMG_DEV: ${IMAGE_DEV_LATEST}
+    IMG_RUN: ${IMAGE_RUN_LATEST}
 
 Push tag:
   stage: Push Multi-Arch Images
@@ -201,5 +210,5 @@ Push tag:
   script:
     - !reference [.push, script]
   variables:
-    IMAGE_DEV_PUSH: ${IMAGE_DEV_TAG}
-    IMAGE_RUN_PUSH: ${IMAGE_RUN_TAG}
+    IMG_DEV: ${IMAGE_DEV_TAG}
+    IMG_RUN: ${IMAGE_RUN_TAG}
