@@ -71,7 +71,7 @@ RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-depende
 FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
-ENV DOCKER_ROS=true
+ENV DOCKER_ROS=1
 
 USER root
 SHELL ["/bin/bash", "-c"]
