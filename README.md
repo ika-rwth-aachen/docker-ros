@@ -107,3 +107,6 @@ variables:
 | `DISABLE_ARCH_AMD64` | toggle the build of amd64 images | `'false'` |
 | `DISABLE_ARCH_ARM64` | toggle the build of arm64 images | `'false'` |
 | `DISABLE_INDUSTRIAL_CI` | toggle the ROS Industrial CI test job | `'false'` |
+| `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `docker-compose.yaml` | `'false'` |
+| `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `docker-compose.yaml` | `${CI_REGISTRY_IMAGE}:latest-dev` |
+| `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `docker-compose.yaml` | `${CI_REGISTRY_IMAGE}:latest` |

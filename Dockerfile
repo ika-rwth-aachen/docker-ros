@@ -95,7 +95,7 @@ RUN apt-get update && \
             python3-catkin-tools ; \
     elif [ "$ROS_VERSION" == "2" ]; then \
         apt-get install -y \
-            python3-colcon-core ; \
+            python3-colcon-common-extensions ; \
     fi \
     && rm -rf /var/lib/apt/lists/*
 
@@ -134,6 +134,7 @@ FROM dev as build
 
 # build ROS workspace
 RUN if [ -x "$(command -v colcon)" ]; then \
+        source /opt/ros/${ROS_DISTRO}/setup.bash && \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
     elif [ -x "$(command -v catkin)" ]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
