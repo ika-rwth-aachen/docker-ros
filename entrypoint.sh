@@ -21,7 +21,8 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     chown -R $DOCKER_USER:$DOCKER_USER $WORKSPACE
     ln -s $WORKSPACE /home/$DOCKER_USER/ws
     cd /home/$DOCKER_USER/ws
-    cp -r /root/.[a-zA-Z0-9]* /home/$DOCKER_USER
+    cp /root/.bashrc /home/$DOCKER_USER
+    chown $DOCKER_USER:$DOCKER_USER /home/$DOCKER_USER/.bashrc
     exec gosu $DOCKER_USER "$@"
 else
     exec "$@"
