@@ -124,6 +124,9 @@ run-arm64:
 
 Test dev-amd64:
   stage: Test ROS Industrial CI
+  needs:
+    - job: dev-amd64
+      optional: true
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true'
   before_script:
