@@ -52,6 +52,7 @@ default:
     - docker:20.10.22-dind
   tags:
     - privileged
+    - amd64
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker context create buildx-context
@@ -82,6 +83,7 @@ dev-amd64:
 
 dev-arm64:
   stage: Build dev Images
+  tags: [privileged, arm64]
   rules:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   script:
@@ -109,6 +111,7 @@ run-amd64:
 
 run-arm64:
   stage: Build run Images
+  tags: [privileged, arm64]
   needs: [dev-arm64]
   rules:
     - if: $DISABLE_ARCH_ARM64 != 'true'
