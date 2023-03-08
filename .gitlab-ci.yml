@@ -1,13 +1,14 @@
 stages:
-  - Test
+  - Build
 
-docker-ros:
-  stage: Test
+ros1:
+  stage: Build
   trigger:
-    project: fb-fi/ops/docker-ros-ci
-    branch: feature/no-submodule-required
+    include: ros1/.gitlab-ci.yml
     strategy: depend
-    forward:
-      yaml_variables: true
-  variables:
-    DOCKER_ROS_GIT_REF: $CI_COMMIT_SHA
+
+ros2:
+  stage: Build
+  trigger:
+    include: ros2/.gitlab-ci.yml
+    strategy: depend

@@ -1,0 +1,27 @@
+x-base-image: &base-image ros:noetic-ros-core
+x-dev-image:  &dev-image  gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/docker-ros-ci:ros1-dev
+x-run-image:  &run-image  gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/docker-ros-ci:ros1
+x-command:    &command    roscore
+
+# ==============================================================================
+
+x-build: &build
+  dockerfile: ./docker/docker-ros/Dockerfile
+  context: ../
+  args:
+    BASE_IMAGE: *base-image
+    COMMAND: *command
+    GIT_HTTPS_USER: $GIT_HTTPS_USER
+    GIT_HTTPS_PASSWORD: $GIT_HTTPS_PASSWORD
+
+services:
+  dev:
+    image: *dev-image
+    build:
+      target: dev
+      <<: *build
+  run:
+    image: *run-image
+    build:
+      target: run
+      <<: *build
