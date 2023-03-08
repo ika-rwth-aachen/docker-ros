@@ -5,5 +5,9 @@ docker-ros:
   stage: Test
   trigger:
     project: fb-fi/ops/docker-ros-ci
-    branch: main
+    branch: feature/no-submodule-required
     strategy: depend
+    forward:
+      yaml_variables: true
+  variables:
+    DOCKER_ROS_GIT_REF: $CI_COMMIT_SHA
