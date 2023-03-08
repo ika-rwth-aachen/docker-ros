@@ -25,7 +25,6 @@ variables:
   IMAGE_RUN_TAG:        ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}
   PUSH_AS_LATEST:       'false'
   # -----
-  DOCKER_ROS_GIT_URL: https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git
   DOCKER_ROS_GIT_REF: main
   DOCKER_COMPOSE_DIR: docker
   ROS_WORKSPACE_DIR: .
@@ -56,7 +55,7 @@ default:
     - privileged
     - amd64
   before_script:
-    - git clone --depth=1 $DOCKER_ROS_GIT_URL $DOCKER_COMPOSE_DIR/$CI_PROJECT_NAME
+    - git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git $DOCKER_COMPOSE_DIR/docker-ros
     - cd $DOCKER_COMPOSE_DIR/$CI_PROJECT_NAME
     - git fetch origin $DOCKER_ROS_GIT_REF
     - git checkout $DOCKER_ROS_GIT_REF
