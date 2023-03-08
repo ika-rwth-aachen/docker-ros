@@ -1,5 +1,5 @@
 include:
-  - file: .gitlab-ci.template.yml
+  - local: .gitlab-ci.template.yml
 
 variables:
   IMAGE_DEV_TARGET: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:ros1-dev
