@@ -57,7 +57,7 @@ default:
   before_script:
     - git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     - git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git $DOCKER_COMPOSE_DIR/docker-ros
-    - cd $DOCKER_COMPOSE_DIR/$CI_PROJECT_NAME
+    - cd $DOCKER_COMPOSE_DIR/docker-ros
     - git fetch origin $DOCKER_ROS_GIT_REF
     - git checkout $DOCKER_ROS_GIT_REF
     - cd -
