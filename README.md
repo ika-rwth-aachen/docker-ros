@@ -19,11 +19,10 @@ The Dockerfile performs the following steps to automatically build these images:
 
 ## Integration
 
-1. Add a `docker` folder to your repository and clone *docker-ros* there as a submodule.
+1. Add a `docker` folder to your repository.
     ```bash
     # ros-repository/
     mkdir -p docker
-    git submodule add <../RELATIVE/PATH/..>/ops/docker-ros.git docker/docker-ros
     ```
 1. Copy the template [`docker-compose.template.yaml`](docker-compose.template.yaml) to your `docker` folder.
     ```bash
@@ -52,9 +51,12 @@ The Dockerfile performs the following steps to automatically build these images:
     ```
 1. Integrate the section *Usage of docker-ros Images* of the template [`README.template.yaml`](README.template.yaml) into your repository's README. For a proper and consistent documentation, it also makes sense to completely rebuild your README based on the template.
 1. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`.
-1. Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder or push the changes to your repository to have the GitLab CI pipeline build the images automatically.
+1. Push the changes to your repository to have the GitLab CI pipeline build the images automatically.
+1. *(optional)* Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder. This requires having a local clone of the *docker-ros* repository.
     ```bash
-    # ros-repository/docker/
+    # ros-repository/
+    git submodule add <../RELATIVE/PATH/..>/ops/docker-ros.git docker/docker-ros
+    cd docker
     docker compose build dev run
     ```
 
@@ -107,6 +109,9 @@ variables:
 | `DISABLE_ARCH_AMD64` | toggle the build of amd64 images | `'false'` |
 | `DISABLE_ARCH_ARM64` | toggle the build of arm64 images | `'false'` |
 | `DISABLE_INDUSTRIAL_CI` | toggle the ROS Industrial CI test job | `'false'` |
-| `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `docker-compose.yaml` | `'false'` |
+| `DOCKER_COMPOSE_DIR` | path to directory in repository that contains the build `docker-compose.yaml` | `docker` |
+| `DOCKER_ROS_GIT_REF` | *docker-ros* Git reference to use; should match what is specified in `include/ref` in your `gitlab-ci.yaml` | `main` |
 | `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `docker-compose.yaml` | `${CI_REGISTRY_IMAGE}:latest-dev` |
 | `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `docker-compose.yaml` | `${CI_REGISTRY_IMAGE}:latest` |
+| `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `docker-compose.yaml` | `'false'` |
+| `ROS_DIR` | path to directory in repository that contains the ROS root including `.repos` | `.` |
