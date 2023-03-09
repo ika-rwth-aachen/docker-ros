@@ -4,11 +4,11 @@ stages:
 ros1:
   stage: Build
   trigger:
-    include: ros1/.gitlab-ci.yml
+    include: tests/ros1/.gitlab-ci.yml
     strategy: depend
 
 ros2:
   stage: Build
   trigger:
-    include: ros2/.gitlab-ci.yml
+    include: tests/ros2/.gitlab-ci.yml
     strategy: depend
