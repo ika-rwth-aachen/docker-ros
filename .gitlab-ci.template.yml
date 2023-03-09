@@ -59,7 +59,7 @@ default:
     - git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git $DOCKER_COMPOSE_DIR/docker-ros
     - cd $DOCKER_COMPOSE_DIR/docker-ros
     - git fetch origin $DOCKER_ROS_GIT_REF
-    - git checkout $DOCKER_ROS_GIT_REF
+    - git checkout FETCH_HEAD
     - cd -
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker context create buildx-context
