@@ -133,6 +133,14 @@ run-arm64:
     IMG: ${IMAGE_RUN_CI_ARM64}
 
 
+.test:
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - apk add --update bash coreutils grep tar
+    - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
+    - test -f $ROS_DIR/.repos || echo "repositories:" > $ROS_DIR/.repos
+  script: .industrial_ci/gitlab.sh
+
 Test dev-amd64:
   stage: Test ROS Industrial CI
   needs:
@@ -141,17 +149,34 @@ Test dev-amd64:
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true'
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --update bash coreutils grep tar
-    - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
-    - test -f $ROS_DIR/.repos || echo "repositories:" > $ROS_DIR/.repos
-  script: .industrial_ci/gitlab.sh
+    - !reference [.test, before_script]
+  script:
+    - !reference [.test, script]
   variables:
     UPSTREAM_WORKSPACE: $ROS_DIR/.repos
     TARGET_WORKSPACE: $ROS_DIR
     ADDITIONAL_DEBS: git
     AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_IMAGE: ${IMAGE_DEV_CI_AMD64}
+    DOCKER_RUN_OPTS: -u root:root
+
+Test dev-arm64:
+  stage: Test ROS Industrial CI
+  needs:
+    - job: dev-arm64
+      optional: true
+  rules:
+    - if: $DISABLE_INDUSTRIAL_CI != 'true'
+  before_script:
+    - !reference [.test, before_script]
+  script:
+    - !reference [.test, script]
+  variables:
+    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
+    TARGET_WORKSPACE: $ROS_DIR
+    ADDITIONAL_DEBS: git
+    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+    DOCKER_IMAGE: ${IMAGE_DEV_CI_ARM64}
     DOCKER_RUN_OPTS: -u root:root
 
 
@@ -166,6 +191,8 @@ Test dev-amd64:
     - job: run-arm64
       optional: true
     - job: Test dev-amd64
+      optional: true
+    - job: Test dev-arm64
       optional: true
   rules:
     - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
