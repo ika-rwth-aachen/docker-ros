@@ -2,8 +2,8 @@ include:
   - local: .gitlab-ci.template.yml
 
 variables:
-  PUSH_AS_LATEST: 'true'
+  DOCKER_COMPOSE_DIR: ros2/docker
   IMAGE_DEV_TARGET: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:ros2-dev
   IMAGE_RUN_TARGET: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:ros2
-  DOCKER_COMPOSE_DIR: ros2/docker
-  ROS_WORKSPACE_DIR: ros2
+  PUSH_AS_LATEST: 'true'
+  ROS_DIR: ros2

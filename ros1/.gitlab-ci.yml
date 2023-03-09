@@ -2,7 +2,7 @@ include:
   - local: .gitlab-ci.template.yml
 
 variables:
+  DOCKER_COMPOSE_DIR: ros1/docker
   IMAGE_DEV_TARGET: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:ros1-dev
   IMAGE_RUN_TARGET: gitlab.ika.rwth-aachen.de:5050/${CI_PROJECT_PATH}:ros1
-  DOCKER_COMPOSE_DIR: ros1/docker
-  ROS_WORKSPACE_DIR: ros1
+  ROS_DIR: ros1
