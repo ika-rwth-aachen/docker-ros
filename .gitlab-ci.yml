@@ -1,14 +1,7 @@
 stages:
-  - Build
+  - Test
 
-ros1:
-  stage: Build
-  trigger:
-    include: tests/ros1/.gitlab-ci.yml
-    strategy: depend
-
-ros2:
-  stage: Build
-  trigger:
-    include: tests/ros2/.gitlab-ci.yml
-    strategy: depend
+trigger:
+  stage: Test
+  script:
+    - curl --fail --request POST --form token=$DOCKER_ROS_CI_TRIGGER_TOKEN --form ref=main --form "variables[DOCKER_ROS_GIT_REF]=$CI_COMMIT_SHA" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline"
