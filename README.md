@@ -48,7 +48,7 @@ The Dockerfile performs the following steps to automatically build these images:
 5. Integrate the section *Usage of docker-ros Images* of the template [`README.template.yaml`](templates/README.template.yaml) into your repository's README. For a proper and consistent documentation, it also makes sense to completely rebuild your README based on the template.
 6. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`.
 7. Push the changes to your repository to have the GitLab CI pipeline build the images automatically.
-8. *(optional)* Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder. This requires having a local clone of the *docker-ros* repository in your `docker` folder.
+8. *(optional)* Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder. This requires having a local clone of the *docker-ros* repository in your `docker` folder. If you commit the submodule, note that the CI will work with the submodule's commit.
     ```bash
     # ros-repository/
     git submodule add <../RELATIVE/PATH/..>/ops/docker-ros.git docker/docker-ros
@@ -76,7 +76,7 @@ If you need to have additional files present in the deployment image, you can us
 
 Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/docker-ros/files` in the image.
 
-### Git Credentials when Building Images Locally
+#### Git Credentials when Building Images Locally
 
 As part of the image build process, all dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool). This might fail due to missing Git credentials. You can pass Git credentials to build process by creating a special `.env` file.
 
@@ -84,6 +84,20 @@ Create a file `.env` in your `docker` folder and specify username and password. 
 ```
 GIT_HTTPS_USER="<TOKEN_NAME>"
 GIT_HTTPS_PASSWORD="<TOKEN_PASSWORD>"
+```
+
+#### Fixed *docker-ros* version in CI
+
+By default, the latest *docker-ros* `main` commit is used when the images are built in CI (see [Integration](#integration) step 4). You can specify a different Git reference by modifying your `.gitlab-ci.yml`.
+
+```yaml
+include:
+  - project: fb-fi/ops/docker-ros
+    ref: <GIT_REF>                            # docker-ros Git ref for CI template
+    file: templates/.gitlab-ci.template.yml
+
+variables:
+  DOCKER_ROS_GIT_REF: <GIT_REF>               # docker-ros Git ref for Dockerfile etc.
 ```
 
 #### GitLab CI Customization
