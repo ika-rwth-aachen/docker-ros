@@ -3,6 +3,16 @@ stages:
 
 trigger:
   stage: Test
-  image: curlimages/curl
+  image: badouralix/curl-jq
   script:
-    - curl --fail --request POST --form token=$DOCKER_ROS_CI_TRIGGER_TOKEN --form ref=main --form "variables[DOCKER_ROS_GIT_REF]=$CI_COMMIT_SHA" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline"
+    - mkdir artifacts
+    - curl --fail --request POST --form token=$DOCKER_ROS_CI_TRIGGER_TOKEN --form ref=main --form "variables[DOCKER_ROS_GIT_REF]=$CI_COMMIT_SHA" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" | jq -r .id > artifacts/id
+  artifacts:
+    paths: [artifacts]
+
+monitor:
+  stage: Test
+  image: badouralix/curl-jq
+  needs: [trigger]
+  script:
+    - 'curl --silent --header "PRIVATE-TOKEN: $DOCKER_ROS_CI_TRIGGER_TOKEN" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$(cat artifacts/id)" | jq -r .status'
