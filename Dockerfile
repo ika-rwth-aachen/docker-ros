@@ -65,13 +65,14 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
-RUN apt-get update -y && \
-    apt-get install -y gettext && \
-    find . -type f -name "custom.sh" -exec cat {} \; | envsubst "$(printf '${%s} ' $(env | cut -d'=' -f1))" >> $WORKSPACE/.install-dependencies.sh
+RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
 
 ############ dependencies-install ##############################################
 FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
+ARG GIT_HTTPS_URL
+ARG GIT_HTTPS_USER
+ARG GIT_HTTPS_PASSWORD
 ENV TARGETARCH=${TARGETARCH}
 ENV DOCKER_ROS=1
 
