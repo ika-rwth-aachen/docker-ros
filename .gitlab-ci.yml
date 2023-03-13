@@ -1,21 +1,34 @@
 stages:
-  - Test
+  - Trigger
+  - Watch
+
 
 default:
   image: badouralix/curl-jq
 
-trigger:
-  stage: Test
+
+.trigger:
+  stage: Trigger
   script:
     - mkdir artifacts
-    - curl --silent --fail --request POST --form token=$DOCKER_ROS_CI_TRIGGER_TOKEN --form ref=main --form "variables[DOCKER_ROS_GIT_REF]=$CI_COMMIT_SHA" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" | jq -r .id > artifacts/id
+    - curl --silent --fail --request POST --form token=$DOCKER_ROS_CI_TRIGGER_TOKEN --form ref=$DOCKER_ROS_CI_GIT_REF --form "variables[DOCKER_ROS_GIT_REF]=$CI_COMMIT_SHA" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" | jq -r .id > artifacts/id
   artifacts:
     paths: [artifacts]
     expire_in: 1h
 
-monitor:
-  stage: Test
-  needs: [trigger]
+Trigger ROS1:
+  extends: .trigger
+  variables:
+    DOCKER_ROS_CI_GIT_REF: main
+
+Trigger ROS2:
+  extends: .trigger
+  variables:
+    DOCKER_ROS_CI_GIT_REF: ros2
+  
+
+.watch:
+  stage: Watch
   script:
     - PIPELINE_ID=$(cat artifacts/id)
     - |-
@@ -31,3 +44,11 @@ monitor:
           exit 1
         fi
       done
+
+Watch ROS1:
+  extends: .watch
+  needs: [Trigger ROS1]
+
+Watch ROS2:
+  extends: .watch
+  needs: [Trigger ROS2]
