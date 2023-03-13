@@ -22,9 +22,9 @@ The Dockerfile performs the following steps to automatically build these images:
 1. Add a `docker` folder to your repository.
     ```bash
     # ros-repository/
-    mkdir -p docker
+    mkdir docker
     ```
-2. Copy the template [`docker-compose.template.yaml`](templates/docker-compose.template.yaml) to your `docker` folder.
+2. Copy the template [`docker-compose.template.yaml`](templates/docker-compose.template.yaml) to your `docker` folder as `docker-compose.yaml`.
 3. Edit the copied `docker-compose.yaml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
     - `x-base-image: &base-image`
       - base image for the images to be built
