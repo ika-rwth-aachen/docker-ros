@@ -55,7 +55,7 @@ default:
     - privileged
     - amd64
   before_script:
-    - |- 
+    - |-
       if [[ ! -d $DOCKER_COMPOSE_DIR/docker-ros ]]; then
         git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
         git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git $DOCKER_COMPOSE_DIR/docker-ros
