@@ -70,6 +70,9 @@ RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-depende
 ############ dependencies-install ##############################################
 FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
+ARG GIT_HTTPS_URL
+ARG GIT_HTTPS_USER
+ARG GIT_HTTPS_PASSWORD
 ENV TARGETARCH=${TARGETARCH}
 ENV DOCKER_ROS=1
 
