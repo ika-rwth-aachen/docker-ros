@@ -16,4 +16,4 @@ monitor:
   image: badouralix/curl-jq
   needs: [trigger]
   script:
-    - 'curl --silent --header "PRIVATE-TOKEN: $DOCKER_ROS_CI_TRIGGER_TOKEN" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$(cat artifacts/id)" | jq -r .status'
+    - 'curl --silent --header "PRIVATE-TOKEN: glpat-zLd3yAyqsAjQg2cZDpV_" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$(cat artifacts/id)" | jq -r .status'
