@@ -20,7 +20,7 @@ monitor:
     - PIPELINE_ID=$(cat artifacts/id)
     - |-
       while true; do
-        sleep 15
+        sleep 30
         PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: $DOCKER_ROS_CI_READ_PIPELINE_TOKEN" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" | jq -r .status)
         echo "Pipeline status: $PIPELINE_STATUS (https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros-ci/-/pipelines/$PIPELINE_ID)"
         if [[ $PIPELINE_STATUS == "success" ]]; then
