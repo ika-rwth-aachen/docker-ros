@@ -7,6 +7,7 @@
 - [Usage of docker-ros Images](#usage-of-docker-ros-images)
   - [Available Images](#available-images)
   - [Default Command](#default-command)
+  - [Environment Variables](#environment-variables)
   - [Launch Files](#launch-files)
   - [Configuration Files](#configuration-files)
   - [Additional Remarks](#additional-remarks)
@@ -75,6 +76,12 @@
 ```bash
 <DEFAULT_DOCKER_COMMAND_IN_RUN_IMAGE>
 ```
+
+### Environment Variables
+
+| Variable | Description |
+| --- | --- |
+| `<VARIABLE>` | \<DESCRIPTION\> |
 
 ### Launch Files
 
