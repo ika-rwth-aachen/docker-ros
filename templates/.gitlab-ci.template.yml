@@ -146,7 +146,9 @@ Test dev-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: $DISABLE_INDUSTRIAL_CI != 'true' && $DISABLE_ARCH_AMD64 != 'true'
+    - if: $DISABLE_INDUSTRIAL_CI == 'true'
+      when: never
+    - if: $DISABLE_ARCH_AMD64 != 'true' || $DOCKER_IMAGE != $IMAGE_DEV_CI_AMD64
   variables:
     UPSTREAM_WORKSPACE: $ROS_DIR/.repos
     TARGET_WORKSPACE: $ROS_DIR
@@ -163,7 +165,9 @@ Test dev-arm64:
     - job: dev-arm64
       optional: true
   rules:
-    - if: $DISABLE_INDUSTRIAL_CI != 'true' && $DISABLE_ARCH_ARM64 != 'true'
+      - if: $DISABLE_INDUSTRIAL_CI == 'true'
+        when: never
+      - if: $DISABLE_ARCH_ARM64 != 'true' || $DOCKER_IMAGE != $IMAGE_DEV_CI_ARM64
   variables:
     UPSTREAM_WORKSPACE: $ROS_DIR/.repos
     TARGET_WORKSPACE: $ROS_DIR
