@@ -133,6 +133,12 @@ run-arm64:
 
 
 .test:
+  variables:
+    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
+    TARGET_WORKSPACE: $ROS_DIR
+    ADDITIONAL_DEBS: git
+    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+    DOCKER_RUN_OPTS: -u root:root
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --update bash coreutils grep tar
@@ -149,12 +155,7 @@ Test dev-amd64:
   rules:
     - if: $DISABLE_INDUSTRIAL_CI != 'true' && $DISABLE_ARCH_AMD64 != 'true'
   variables:
-    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
-    TARGET_WORKSPACE: $ROS_DIR
-    ADDITIONAL_DEBS: git
-    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_IMAGE: ${IMAGE_DEV_CI_AMD64}
-    DOCKER_RUN_OPTS: -u root:root
 
 Test dev-arm64:
   stage: Test ROS Industrial CI
@@ -166,12 +167,7 @@ Test dev-arm64:
   rules:
       - if: $DISABLE_INDUSTRIAL_CI != 'true' && $DISABLE_ARCH_ARM64 != 'true'
   variables:
-    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
-    TARGET_WORKSPACE: $ROS_DIR
-    ADDITIONAL_DEBS: git
-    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_IMAGE: ${IMAGE_DEV_CI_ARM64}
-    DOCKER_RUN_OPTS: -u root:root
 
 
 .push:
