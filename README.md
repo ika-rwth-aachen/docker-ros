@@ -119,6 +119,7 @@ variables:
 | `DISABLE_ARCH_AMD64` | toggle the build of amd64 images | `'false'` |
 | `DISABLE_ARCH_ARM64` | toggle the build of arm64 images | `'false'` |
 | `DISABLE_INDUSTRIAL_CI` | toggle the ROS Industrial CI test job | `'false'` |
+| `DISABLE_PUSH` | toggle the push of built images | `'false'`
 | `DOCKER_COMPOSE_DIR` | path to directory in repository that contains the build `docker-compose.yaml` | `docker` |
 | `DOCKER_ROS_GIT_REF` | *docker-ros* Git reference to use; should match what is specified in `include/ref` in your `gitlab-ci.yaml` | `main` |
 | `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `docker-compose.yaml` | `${CI_REGISTRY_IMAGE}:latest-dev` |
