@@ -31,6 +31,7 @@ variables:
   DISABLE_ARCH_AMD64: 'false'
   DISABLE_ARCH_ARM64: 'false'
   DISABLE_INDUSTRIAL_CI: 'false'
+  DISABLE_PUSH: 'false'
   GIT_HTTPS_USER: gitlab-ci-token
   GIT_HTTPS_PASSWORD: $CI_JOB_TOKEN
   # -----
@@ -132,6 +133,12 @@ run-arm64:
 
 
 .test:
+  variables:
+    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
+    TARGET_WORKSPACE: $ROS_DIR
+    ADDITIONAL_DEBS: git
+    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+    DOCKER_RUN_OPTS: -u root:root
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --update bash coreutils grep tar
@@ -146,16 +153,9 @@ Test dev-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: $DISABLE_INDUSTRIAL_CI == 'true'
-      when: never
-    - if: $DISABLE_ARCH_AMD64 != 'true' || $DOCKER_IMAGE != $IMAGE_DEV_CI_AMD64
+    - if: $DISABLE_INDUSTRIAL_CI != 'true' && $DISABLE_ARCH_AMD64 != 'true'
   variables:
-    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
-    TARGET_WORKSPACE: $ROS_DIR
-    ADDITIONAL_DEBS: git
-    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_IMAGE: ${IMAGE_DEV_CI_AMD64}
-    DOCKER_RUN_OPTS: -u root:root
 
 Test dev-arm64:
   stage: Test ROS Industrial CI
@@ -165,16 +165,9 @@ Test dev-arm64:
     - job: dev-arm64
       optional: true
   rules:
-      - if: $DISABLE_INDUSTRIAL_CI == 'true'
-        when: never
-      - if: $DISABLE_ARCH_ARM64 != 'true' || $DOCKER_IMAGE != $IMAGE_DEV_CI_ARM64
+      - if: $DISABLE_INDUSTRIAL_CI != 'true' && $DISABLE_ARCH_ARM64 != 'true'
   variables:
-    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
-    TARGET_WORKSPACE: $ROS_DIR
-    ADDITIONAL_DEBS: git
-    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_IMAGE: ${IMAGE_DEV_CI_ARM64}
-    DOCKER_RUN_OPTS: -u root:root
 
 
 .push:
@@ -192,7 +185,7 @@ Test dev-arm64:
     - job: Test dev-arm64
       optional: true
   rules:
-    - if: $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
+    - if: $DISABLE_PUSH == 'true' || $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
       when: never
   script:
     - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
