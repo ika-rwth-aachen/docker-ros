@@ -5,11 +5,28 @@ FROM ${BASE_IMAGE} as dependencies
 
 USER root
 SHELL ["/bin/bash", "-c"]
+ARG DEBIAN_FRONTEND=noninteractive
 
 # create workspace folder structure
 ENV WORKSPACE=/docker-ros/ws
 WORKDIR $WORKSPACE
 RUN mkdir -p src/target src/upstream src/downstream
+
+# setup keys and sources.list for ROS packages
+ARG ROS_VERSION=1
+ARG ROS_DISTRO=noetic
+ENV ROS_VERSION=${ROS_VERSION}
+ENV ROS_DISTRO=${ROS_DISTRO}
+RUN RUN apt-get update && \
+    apt-get install -y gnupg && \\
+    if [ "$ROS_VERSION" = "1" ]; then \
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
+        echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list ; \
+    elif [ "$ROS_VERSION" = "2" ]; then \
+        curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null ; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
 
 # install ROS bootstrapping tools
 RUN apt-get update && \
@@ -81,11 +98,33 @@ ENV DOCKER_ROS=1
 
 USER root
 SHELL ["/bin/bash", "-c"]
+ARG DEBIAN_FRONTEND=noninteractive
 
 # user setup
 ENV DOCKER_USER=dockeruser
 ENV DOCKER_UID=
 ENV DOCKER_GID=
+
+# setup keys and sources.list for ROS packages
+ARG ROS_VERSION=1
+ARG ROS_DISTRO=noetic
+ENV ROS_VERSION=${ROS_VERSION}
+ENV ROS_DISTRO=${ROS_DISTRO}
+RUN RUN apt-get update && \
+    apt-get install -y gnupg && \\
+    if [ "$ROS_VERSION" = "1" ]; then \
+        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
+        echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list ; \
+    elif [ "$ROS_VERSION" = "2" ]; then \
+        curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null ; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
+
+# install ROS core
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ros-${ROS_DISTRO}-ros-core && \
+    rm -rf /var/lib/apt/lists/*
 
 # ROS setup
 ENV RCUTILS_COLORIZED_OUTPUT=1
