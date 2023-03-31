@@ -159,7 +159,5 @@ RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.
 
 # setup command
 ARG COMMAND
-RUN echo "#!/bin/bash" > .cmd.sh && \
-    echo ${COMMAND} >> .cmd.sh && \
-    chmod a+x .cmd.sh
-CMD ["./.cmd.sh"]
+ENV DEFAULT_CMD=${COMMAND}
+CMD ${DEFAULT_CMD}
