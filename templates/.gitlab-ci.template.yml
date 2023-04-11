@@ -78,7 +78,7 @@ default:
 
 .build:
   script:
-    - docker compose build ${TARGET}
+    - docker compose build ${TARGET} -f $DOCKER_COMPOSE_FILE
     - docker tag ${IMG_TARGET} ${IMG}
     - docker push ${IMG}
 
