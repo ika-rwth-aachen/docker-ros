@@ -113,9 +113,10 @@ ENV COLCON_HOME=$WORKSPACE/.colcon
 # source ROS
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
-# copy contents of files-folder into image, if it exists (use yaml as existing dummy)
-COPY docker/docker-compose.yml docker/files* /docker-ros/files/
-RUN rm /docker-ros/files/docker-compose.yml
+# copy contents of files-folder into image, if it exists
+RUN touch docker/dummy.yml
+COPY docker/dummy.yml docker/files* /docker-ros/files/
+RUN rm /docker-ros/files/dummy.yml
 
 # copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
