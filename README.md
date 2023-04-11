@@ -24,8 +24,8 @@ The Dockerfile performs the following steps to automatically build these images:
     # ros-repository/
     mkdir docker
     ```
-2. Copy the template [`docker-compose.template.yaml`](templates/docker-compose.template.yaml) to your `docker` folder as `docker-compose.yaml`.
-3. Edit the copied `docker-compose.yaml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
+2. Copy the template [`docker-compose.template.yaml`](templates/docker-compose.template.yaml) to your `docker` folder as `docker-compose.yml`.
+3. Edit the copied `docker-compose.yml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
     - `x-base-image: &base-image`
       - base image for the images to be built
       - assumes that ROS/ROS2 is installed
@@ -120,9 +120,9 @@ variables:
 | `DISABLE_ARCH_ARM64` | toggle the build of arm64 images | `'false'` |
 | `DISABLE_INDUSTRIAL_CI` | toggle the ROS Industrial CI test job | `'false'` |
 | `DISABLE_PUSH` | toggle the push of built images | `'false'`
-| `DOCKER_COMPOSE_DIR` | path to directory in repository that contains the build `docker-compose.yaml` | `docker` |
+| `DOCKER_COMPOSE_DIR` | path to directory in repository that contains the build `docker-compose.yml` | `docker` |
 | `DOCKER_ROS_GIT_REF` | *docker-ros* Git reference to use; should match what is specified in `include/ref` in your `gitlab-ci.yaml` | `main` |
-| `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `docker-compose.yaml` | `${CI_REGISTRY_IMAGE}:latest-dev` |
-| `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `docker-compose.yaml` | `${CI_REGISTRY_IMAGE}:latest` |
-| `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `docker-compose.yaml` | `'false'` |
+| `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `docker-compose.yml` | `${CI_REGISTRY_IMAGE}:latest-dev` |
+| `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `docker-compose.yml` | `${CI_REGISTRY_IMAGE}:latest` |
+| `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `docker-compose.yml` | `'false'` |
 | `ROS_DIR` | path to directory in repository that contains ROS packages | `.` |
