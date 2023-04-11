@@ -28,7 +28,7 @@ The Dockerfile performs the following steps to automatically build these images:
 3. Edit the copied `docker-compose.yaml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
     - `x-base-image: &base-image`
       - base image for the images to be built
-      - assumes that ROS/ROS2 is installed
+      - any Ubuntu-based image is supported
       - it is suggested to choose the most minimal [of our custom ROS images](https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-base#available-images)
     - `x-dev-image: &dev-image`
       - image name and tag of the development image to be built
