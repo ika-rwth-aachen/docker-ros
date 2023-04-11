@@ -70,8 +70,6 @@ default:
     - docker context create buildx-context
     - docker buildx create --use buildx-context
     - cd $DOCKER_COMPOSE_DIR
-    - ls
-    - echo $DOCKER_COMPOSE_FILE
     - 'sed -i "/\    image:/a\    platform: $PLATFORM" $DOCKER_COMPOSE_FILE'
     - 'sed -i "/\  context:/a\  cache_from: [$IMG_CACHE]\n\  cache_to: [type=inline]" $DOCKER_COMPOSE_FILE'
 
