@@ -121,11 +121,6 @@ RUN apt-get update && \
     fi && \
     rm -rf /var/lib/apt/lists/*
 
-# install ROS core
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends ros-${ROS_DISTRO}-ros-core && \
-    rm -rf /var/lib/apt/lists/*
-
 # ROS setup
 ENV RCUTILS_COLORIZED_OUTPUT=1
 ENV WORKSPACE=/docker-ros/ws
