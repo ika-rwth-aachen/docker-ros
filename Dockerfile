@@ -118,6 +118,9 @@ RUN apt-get update && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
     rm -rf /var/lib/apt/lists/*
 
+# set colcon configuration directory, if needed
+ENV COLCON_HOME=$WORKSPACE/.colcon
+
 # copy contents of files-folder into image, if it exists (use yaml as existing dummy)
 COPY docker/docker-compose.yaml docker/files* /docker-ros/files/
 RUN rm /docker-ros/files/docker-compose.yaml
@@ -144,9 +147,6 @@ RUN apt-get update && \
             python3-colcon-common-extensions ; \
     fi \
     && rm -rf /var/lib/apt/lists/*
-
-# set colcon configuration directory, if needed
-ENV COLCON_HOME=$WORKSPACE/.colcon
 
 # source ROS
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
