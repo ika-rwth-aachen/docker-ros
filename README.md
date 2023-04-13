@@ -24,7 +24,7 @@ The Dockerfile performs the following steps to automatically build these images:
     # ros-repository/
     mkdir docker
     ```
-2. Copy the template [`docker-compose.template.yaml`](templates/docker-compose.template.yaml) to your `docker` folder as `docker-compose.yml`.
+2. Copy the template [`docker-compose.template.yml`](templates/docker-compose.template.yml) to your `docker` folder as `docker-compose.yml`.
 3. Edit the copied `docker-compose.yml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
     - `x-base-image: &base-image`
       - base image for the images to be built
@@ -45,7 +45,7 @@ The Dockerfile performs the following steps to automatically build these images:
         ref: main
         file: templates/.gitlab-ci.template.yml
     ```
-5. Integrate the section *Usage of docker-ros Images* of the template [`README.template.yaml`](templates/README.template.yaml) into your repository's README. For a proper and consistent documentation, it also makes sense to completely rebuild your README based on the template.
+5. Integrate the section *Usage of docker-ros Images* of the template [`README.template.md`](templates/README.template.md) into your repository's README. For a proper and consistent documentation, it also makes sense to completely rebuild your README based on the template.
 6. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`. It also makes sense to reset the default *Keep the most recent* setting to nothing.
 7. Push the changes to your repository to have the GitLab CI pipeline build the images automatically.
 8. *(optional)* Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder. This requires having a local clone of the *docker-ros* repository in your `docker` folder. If you commit the submodule, note that the CI will work with the submodule's commit.
@@ -122,7 +122,7 @@ variables:
 | `DISABLE_PUSH` | toggle the push of built images | `'false'`
 | `DOCKER_COMPOSE_FILE` | name of the docker compose build file | `docker-compose.yml` |
 | `DOCKER_COMPOSE_DIR` | path to directory in repository that contains the build file `DOCKER_COMPOSE_FILE` | `docker` |
-| `DOCKER_ROS_GIT_REF` | *docker-ros* Git reference to use; should match what is specified in `include/ref` in your `gitlab-ci.yaml` | `main` |
+| `DOCKER_ROS_GIT_REF` | *docker-ros* Git reference to use; should match what is specified in `include/ref` in your `gitlab-ci.yml` | `main` |
 | `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `DOCKER_COMPOSE_FILE` | `${CI_REGISTRY_IMAGE}:latest-dev` |
 | `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `DOCKER_COMPOSE_FILE` | `${CI_REGISTRY_IMAGE}:latest` |
 | `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `DOCKER_COMPOSE_FILE` | `'false'` |
