@@ -70,8 +70,8 @@ default:
     - docker context create buildx-context
     - docker buildx create --use buildx-context
     - cd $DOCKER_COMPOSE_DIR
-    - ln -s $(echo "${DOCKER_COMPOSE_FILE%.*}").yml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
-    - ln -s $(echo "${DOCKER_COMPOSE_FILE%.*}").yaml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
+    - ln $(echo "${DOCKER_COMPOSE_FILE%.*}").yml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
+    - ln $(echo "${DOCKER_COMPOSE_FILE%.*}").yaml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
     - 'sed -i "/\    image:/a\    platform: $PLATFORM" $DOCKER_COMPOSE_FILE'
     - 'sed -i "/\  context:/a\  cache_from: [$IMG_CACHE]\n\  cache_to: [type=inline]" $DOCKER_COMPOSE_FILE'
 
