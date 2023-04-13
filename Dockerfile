@@ -5,11 +5,24 @@ FROM ${BASE_IMAGE} as dependencies
 
 USER root
 SHELL ["/bin/bash", "-c"]
+ARG DEBIAN_FRONTEND=noninteractive
 
 # create workspace folder structure
 ENV WORKSPACE=/docker-ros/ws
 WORKDIR $WORKSPACE
 RUN mkdir -p src/target src/upstream src/downstream
+
+# setup keys and sources.list for ROS packages
+ARG ROS_DISTRO
+ENV ROS_DISTRO=${ROS_DISTRO}
+RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
+RUN apt-get update && \
+    apt-get install -y curl gnupg && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
+    echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list && \
+    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
+    rm -rf /var/lib/apt/lists/*
 
 # install ROS bootstrapping tools
 RUN apt-get update && \
@@ -81,6 +94,7 @@ ENV DOCKER_ROS=1
 
 USER root
 SHELL ["/bin/bash", "-c"]
+ARG DEBIAN_FRONTEND=noninteractive
 
 # user setup
 ENV DOCKER_USER=dockeruser
@@ -90,7 +104,23 @@ ENV DOCKER_GID=
 # ROS setup
 ENV RCUTILS_COLORIZED_OUTPUT=1
 ENV WORKSPACE=/docker-ros/ws
+ENV COLCON_HOME=$WORKSPACE/.colcon
 WORKDIR $WORKSPACE
+
+# setup keys and sources.list for ROS packages
+ARG ROS_DISTRO
+ENV ROS_DISTRO=${ROS_DISTRO}
+RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
+RUN apt-get update && \
+    apt-get install -y curl gnupg && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
+    echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list && \
+    curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
+    rm -rf /var/lib/apt/lists/*
+
+# copy contents of files-folder into image
+ADD docker/files* /docker-ros/files/
 
 # install essential ROS CLI tools
 RUN apt-get update && \
@@ -107,15 +137,6 @@ RUN apt-get update && \
     fi \
     && rm -rf /var/lib/apt/lists/*
 
-# set colcon configuration directory, if needed
-ENV COLCON_HOME=$WORKSPACE/.colcon
-
-# source ROS
-RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
-
-# copy contents of files-folder into image
-ADD docker/files* /docker-ros/files/
-
 # copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
 
@@ -123,6 +144,9 @@ COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install
 RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
+
+# source ROS
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # set entrypoint
 COPY docker/docker-ros/entrypoint.sh /

@@ -28,7 +28,7 @@ The Dockerfile performs the following steps to automatically build these images:
 3. Edit the copied `docker-compose.yml` to specify key information about the images built for your repository. Note that only the top section of the file requires changes.
     - `x-base-image: &base-image`
       - base image for the images to be built
-      - assumes that ROS/ROS2 is installed
+      - any Ubuntu-based image is supported
       - it is suggested to choose the most minimal [of our custom ROS images](https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-base#available-images)
     - `x-dev-image: &dev-image`
       - image name and tag of the development image to be built
@@ -46,7 +46,7 @@ The Dockerfile performs the following steps to automatically build these images:
         file: templates/.gitlab-ci.template.yml
     ```
 5. Integrate the section *Usage of docker-ros Images* of the template [`README.template.yaml`](templates/README.template.yaml) into your repository's README. For a proper and consistent documentation, it also makes sense to completely rebuild your README based on the template.
-6. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`.
+6. In your GitLab project, go to *Settings / General / Visibility, project features, permissions* and enable the *Container registry* to store the automatically built Docker images. Then go to *Settings / Packages and registries / Edit cleanup rules* and configure an image cleanup rule to *Remove tags matching* `.*_ci-.*`. It also makes sense to reset the default *Keep the most recent* setting to nothing.
 7. Push the changes to your repository to have the GitLab CI pipeline build the images automatically.
 8. *(optional)* Build the images locally using [`docker compose`](https://docs.docker.com/compose/) from the `docker` folder. This requires having a local clone of the *docker-ros* repository in your `docker` folder. If you commit the submodule, note that the CI will work with the submodule's commit.
     ```bash
