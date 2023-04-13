@@ -104,6 +104,7 @@ ENV DOCKER_GID=
 # ROS setup
 ENV RCUTILS_COLORIZED_OUTPUT=1
 ENV WORKSPACE=/docker-ros/ws
+ENV COLCON_HOME=$WORKSPACE/.colcon
 WORKDIR $WORKSPACE
 
 # setup keys and sources.list for ROS packages
@@ -122,14 +123,6 @@ RUN apt-get update && \
 COPY docker/docker-compose.yaml docker/files* /docker-ros/files/
 RUN rm /docker-ros/files/docker-compose.yaml
 
-# copy install script from dependencies stage
-COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
-
-# install dependencies
-RUN apt-get update && \
-    $WORKSPACE/.install-dependencies.sh && \
-    rm -rf /var/lib/apt/lists/*
-
 # install essential ROS CLI tools
 RUN apt-get update && \
     apt-get install -y \
@@ -145,8 +138,13 @@ RUN apt-get update && \
     fi \
     && rm -rf /var/lib/apt/lists/*
 
-# set colcon configuration directory, if needed
-ENV COLCON_HOME=$WORKSPACE/.colcon
+# copy install script from dependencies stage
+COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
+
+# install dependencies
+RUN apt-get update && \
+    $WORKSPACE/.install-dependencies.sh && \
+    rm -rf /var/lib/apt/lists/*
 
 # source ROS
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
