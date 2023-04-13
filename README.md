@@ -120,9 +120,10 @@ variables:
 | `DISABLE_ARCH_ARM64` | toggle the build of arm64 images | `'false'` |
 | `DISABLE_INDUSTRIAL_CI` | toggle the ROS Industrial CI test job | `'false'` |
 | `DISABLE_PUSH` | toggle the push of built images | `'false'`
-| `DOCKER_COMPOSE_DIR` | path to directory in repository that contains the build `docker-compose.yml` | `docker` |
+| `DOCKER_COMPOSE_FILE` | name of the docker compose build file | `docker-compose.yml` |
+| `DOCKER_COMPOSE_DIR` | path to directory in repository that contains the build file `DOCKER_COMPOSE_FILE` | `docker` |
 | `DOCKER_ROS_GIT_REF` | *docker-ros* Git reference to use; should match what is specified in `include/ref` in your `gitlab-ci.yaml` | `main` |
-| `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `docker-compose.yml` | `${CI_REGISTRY_IMAGE}:latest-dev` |
-| `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `docker-compose.yml` | `${CI_REGISTRY_IMAGE}:latest` |
-| `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `docker-compose.yml` | `'false'` |
+| `IMAGE_DEV_TARGET` | dev image tag, must match the one defined in `DOCKER_COMPOSE_FILE` | `${CI_REGISTRY_IMAGE}:latest-dev` |
+| `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `DOCKER_COMPOSE_FILE` | `${CI_REGISTRY_IMAGE}:latest` |
+| `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `DOCKER_COMPOSE_FILE` | `'false'` |
 | `ROS_DIR` | path to directory in repository that contains ROS packages | `.` |
