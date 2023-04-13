@@ -27,6 +27,7 @@ variables:
   # -----
   DOCKER_ROS_GIT_REF: main
   DOCKER_COMPOSE_DIR: docker
+  DOCKER_COMPOSE_FILE: docker-compose.yml
   ROS_DIR: .
   DISABLE_ARCH_AMD64: 'false'
   DISABLE_ARCH_ARM64: 'false'
@@ -69,13 +70,15 @@ default:
     - docker context create buildx-context
     - docker buildx create --use buildx-context
     - cd $DOCKER_COMPOSE_DIR
-    - 'sed -i "/\    image:/a\    platform: $PLATFORM" docker-compose.yaml'
-    - 'sed -i "/\  context:/a\  cache_from: [$IMG_CACHE]\n\  cache_to: [type=inline]" docker-compose.yaml'
+    - ln $(echo "${DOCKER_COMPOSE_FILE%.*}").yml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
+    - ln $(echo "${DOCKER_COMPOSE_FILE%.*}").yaml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
+    - 'sed -i "/\    image:/a\    platform: $PLATFORM" $DOCKER_COMPOSE_FILE'
+    - 'sed -i "/\  context:/a\  cache_from: [$IMG_CACHE]\n\  cache_to: [type=inline]" $DOCKER_COMPOSE_FILE'
 
 
 .build:
   script:
-    - docker compose build ${TARGET}
+    - docker compose -f $DOCKER_COMPOSE_FILE build ${TARGET}
     - docker tag ${IMG_TARGET} ${IMG}
     - docker push ${IMG}
 

@@ -119,9 +119,8 @@ RUN apt-get update && \
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null && \
     rm -rf /var/lib/apt/lists/*
 
-# copy contents of files-folder into image, if it exists (use yaml as existing dummy)
-COPY docker/docker-compose.yaml docker/files* /docker-ros/files/
-RUN rm /docker-ros/files/docker-compose.yaml
+# copy contents of files-folder into image
+ADD docker/files* /docker-ros/files/
 
 # install essential ROS CLI tools
 RUN apt-get update && \
