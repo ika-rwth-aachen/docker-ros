@@ -177,6 +177,7 @@ FROM dependencies-install as run
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
+RUN ldconfig
 RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
     echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
