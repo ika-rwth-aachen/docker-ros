@@ -137,7 +137,6 @@ run-arm64:
 
 .test:
   variables:
-    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
     TARGET_WORKSPACE: $ROS_DIR
     ADDITIONAL_DEBS: git
     AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
@@ -146,7 +145,11 @@ run-arm64:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - apk add --update bash coreutils grep tar
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
-    - test -f $ROS_DIR/.repos || echo "repositories:" > $ROS_DIR/.repos
+    - mkdir /tmp/vcs_repos
+    - UPSTREAM_WORKSPACE=$(python recursive_vcs_import.py $ROS_DIR /tmp/vcs_repos | tail -1)
+    - if [ -z "$UPSTREAM_WORKSPACE" ]; then; else; echo "repositories:" > $ROS_DIR/.repos; UPSTREAM_WORKSPACE=$ROS_DIR/.repos fi;
+    - echo $UPSTREAM_WORKSPACE
+    - export UPSTREAM_WORKSPACE
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:
