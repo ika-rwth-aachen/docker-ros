@@ -146,8 +146,7 @@ run-arm64:
     - cd -
     - apk add --update bash coreutils grep tar python3 py3-pip
     - pip install vcstool
-    - mkdir /tmp/vcs_repos
-    - UPSTREAM_WORKSPACE=$(python3 $DOCKER_COMPOSE_DIR/docker-ros/recursive_vcs_import.py $ROS_DIR /tmp/vcs_repos | tail -1)
+    - UPSTREAM_WORKSPACE=$(python3 $DOCKER_COMPOSE_DIR/docker-ros/recursive_vcs_import.py $ROS_DIR | tail -1)
     - if [ -z "$UPSTREAM_WORKSPACE" ]; then echo "repositories:" > $ROS_DIR/.repos; UPSTREAM_WORKSPACE=$ROS_DIR/.repos; fi
     - echo $UPSTREAM_WORKSPACE
     - export UPSTREAM_WORKSPACE
