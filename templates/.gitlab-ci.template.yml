@@ -148,7 +148,7 @@ run-arm64:
     - pip install vcstool
     - mkdir /tmp/vcs_repos
     - UPSTREAM_WORKSPACE=$(python3 $DOCKER_COMPOSE_DIR/docker-ros/recursive_vcs_import.py $ROS_DIR /tmp/vcs_repos | tail -1)
-    - if [ -z "$UPSTREAM_WORKSPACE" ]; then; else; echo "repositories:" > $ROS_DIR/.repos; UPSTREAM_WORKSPACE=$ROS_DIR/.repos fi;
+    - if [ -z "$UPSTREAM_WORKSPACE" ]; then echo "repositories:" > $ROS_DIR/.repos; UPSTREAM_WORKSPACE=$ROS_DIR/.repos; fi
     - echo $UPSTREAM_WORKSPACE
     - export UPSTREAM_WORKSPACE
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
