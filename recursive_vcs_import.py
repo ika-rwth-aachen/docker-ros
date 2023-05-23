@@ -35,7 +35,7 @@ def main():
         
         cloned_repos.append(next_repo)
         
-    print(" ".join([str(repo) for repo in found_repos]))
+    print(" ".join([str(repo) for repo in set(found_repos)]))
 
 
 if __name__ == "__main__":
