@@ -143,6 +143,7 @@ run-arm64:
     DOCKER_RUN_OPTS: -u root:root
   before_script:
     - *default_before_script
+    - cd -
     - apk add --update bash coreutils grep tar python3 py3-pip
     - pip install vcstool
     - mkdir /tmp/vcs_repos
