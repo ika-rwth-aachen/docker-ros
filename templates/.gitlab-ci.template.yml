@@ -143,13 +143,14 @@ run-arm64:
     DOCKER_RUN_OPTS: -u root:root
   before_script:
     - *default_before_script
-    - apk add --update bash coreutils grep tar
-    - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
+    - apk add --update bash coreutils grep tar python3 py3-pip
+    - pip install vcstool
     - mkdir /tmp/vcs_repos
-    - UPSTREAM_WORKSPACE=$(python recursive_vcs_import.py $ROS_DIR /tmp/vcs_repos | tail -1)
+    - UPSTREAM_WORKSPACE=$(python3 $DOCKER_COMPOSE_DIR/docker-ros/recursive_vcs_import.py $ROS_DIR /tmp/vcs_repos | tail -1)
     - if [ -z "$UPSTREAM_WORKSPACE" ]; then; else; echo "repositories:" > $ROS_DIR/.repos; UPSTREAM_WORKSPACE=$ROS_DIR/.repos fi;
     - echo $UPSTREAM_WORKSPACE
     - export UPSTREAM_WORKSPACE
+    - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:
