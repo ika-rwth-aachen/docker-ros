@@ -72,7 +72,7 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # add additionally specified apt dependencies to install script
-ARG ADDITIONAL_DEBS_FILE="additional-debs.txt"
+ARG ADDITIONAL_DEBS_FILE="docker/additional-debs.txt"
 ARG ADDITIONAL_DEBS_RECURSIVE="true"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
@@ -84,7 +84,7 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add additionally specified pip dependencies to install script
-ARG ADDITIONAL_PIP_FILE="additional-pip-requirements.txt"
+ARG ADDITIONAL_PIP_FILE="docker/additional-pip-requirements.txt"
 ARG ADDITIONAL_PIP_RECURSIVE="true"
 RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
@@ -96,7 +96,7 @@ RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
-ARG CUSTOM_SCRIPT_FILE="custom.sh"
+ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
 ARG CUSTOM_SCRIPT_RECURSIVE="true"
 RUN if [[ $CUSTOM_SCRIPT_RECURSIVE == 'true' ]]; then \
         find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec cat {} >> $WORKSPACE/.install-dependencies.sh \; \
@@ -144,8 +144,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # copy contents of files-folder into image
-ARG ADDITIONAL_FILES_DIR="additional-files"
-ADD docker/${ADDITIONAL_FILES_DIR}* /docker-ros/$(basename ${ADDITIONAL_FILES_DIR})/
+ARG ADDITIONAL_FILES_DIR="docker/additional-files"
+ADD ${ADDITIONAL_FILES_DIR}* /docker-ros/$(basename ${ADDITIONAL_FILES_DIR})/
 
 # install essential ROS CLI tools
 RUN apt-get update && \
