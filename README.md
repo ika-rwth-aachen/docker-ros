@@ -134,3 +134,5 @@ docker-ros build args
 | --- | --- | --- |
 | `ADDITIONAL_DEBS_FILE` | filename or filepath of file containing additional system dependencies | `additional-debs.txt` |
 | `ADDITIONAL_DEBS_RECURSIVE` | whether to recursively find files named `ADDITIONAL_DEBS_FILE` | `'true'` |
+| `CUSTOM_SCRIPT_FILE` | filename or filepath of file containing custom script for dependency installation | `custom.sh` |
+| `CUSTOM_SCRIPT_RECURSIVE` | whether to recursively find files named `CUSTOM_SCRIPT_FILE` | `'true'` |
