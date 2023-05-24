@@ -78,7 +78,7 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
-RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
+RUN find . -type f -name "custom.sh" -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \;
 
 # remove now obsolete docker folder from copied repository content to avoid redundancies
 RUN rm -rf src/target/docker
