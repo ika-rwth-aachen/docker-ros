@@ -25,6 +25,7 @@ jobs:
       - name: Check Pipeline Status
         id: check_status
         run: |
+          echo TEST ${{ needs.trigger_pipeline.outputs.dispatch.outputs.run_id }}
           while true; do
             sleep 30
             PIPELINE_STATUS=$(curl --silent --header "Authorization: Bearer ${{ secrets.PAT }}" "https://api.github.com/repos/owner/other-repository/actions/runs/${{ needs.trigger_pipeline.outputs.dispatch.outputs.run_id }}" | jq -r '.status')
