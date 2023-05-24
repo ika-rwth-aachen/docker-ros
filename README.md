@@ -13,7 +13,7 @@ The Dockerfile performs the following steps to automatically build these images:
 1. The ROS dependencies listed in each package's `package.xml` are installed by [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/).
 1. *(optional)* Additional system dependencies from a special file `additional-debs.txt` are installed via `apt`, if needed.
 1. *(optional)* Additional Python dependencies from a special file `additional-pip-requirements.txt` are installed via `pip`, if needed.
-1. *(optional)* A special folder `files/` is copied into the images, if needed.
+1. *(optional)* A special folder `additional-files/` is copied into the images, if needed.
 1. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed.
 1. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2). 
 1. *(deployment)* A custom launch command is configured to run on container start.
