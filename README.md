@@ -127,3 +127,10 @@ variables:
 | `IMAGE_RUN_TARGET` | run image tag, must match the one defined in `DOCKER_COMPOSE_FILE` | `${CI_REGISTRY_IMAGE}:latest` |
 | `PUSH_AS_LATEST` | push `latest` tag in addition to the tag defined in `DOCKER_COMPOSE_FILE` | `'false'` |
 | `ROS_DIR` | path to directory in repository that contains ROS packages | `.` |
+
+docker-ros build args
+
+| Variable | Description | Default |
+| --- | --- | --- |
+| `ADDITIONAL_DEBS_FILE` | filename or filepath of file containing additional system dependencies | `additional-debs.txt` |
+| `ADDITIONAL_DEBS_RECURSIVE` | whether to recursively find files named `ADDITIONAL_DEBS_FILE` | `'true'` |

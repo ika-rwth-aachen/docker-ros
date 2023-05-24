@@ -72,9 +72,15 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # add additionally specified apt dependencies to install script
+ARG ADDITIONAL_DEBS_FILE="additional-debs.txt"
+ARG ADDITIONAL_DEBS_RECURSIVE="true"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
-    find . -type f -name "additional-debs.txt" -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
+    if [[ $ADDITIONAL_DEBS_RECURSIVE == 'true' ]]; then \
+        find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+    else \
+        test -f ${ADDITIONAL_DEBS_FILE} && cat ${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+    fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
