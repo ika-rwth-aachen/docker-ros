@@ -5,7 +5,7 @@ inputs:
   docker-compose-file:
     description: 'docker-compose-file'
     required: false
-    default: 'docker-compose.yml'
+    default: 'docker-compose.yaml'
   docker-compose-dir:
     description: 'docker-compose-dir'
     required: false
