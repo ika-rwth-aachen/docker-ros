@@ -140,9 +140,9 @@ docker-ros build args
 | Variable | Description | Default |
 | --- | --- | --- |
 | `ADDITIONAL_DEBS_FILE` | filename or filepath of file containing additional system dependencies | `docker/additional-debs.txt` |
-| `ADDITIONAL_DEBS_RECURSIVE` | whether to recursively find files named `ADDITIONAL_DEBS_FILE` | `'true'` |
+| `ADDITIONAL_DEBS_RECURSIVE` | whether to recursively find files named `ADDITIONAL_DEBS_FILE` | `'false'` |
 | `ADDITIONAL_PIP_FILE` | filename or filepath of file containing additional pip dependencies | `docker/additional-pip-requirements.txt` |
-| `ADDITIONAL_PIP_RECURSIVE` | whether to recursively find files named `ADDITIONAL_PIP_FILE` | `'true'` |
+| `ADDITIONAL_PIP_RECURSIVE` | whether to recursively find files named `ADDITIONAL_PIP_FILE` | `'false'` |
 | `CUSTOM_SCRIPT_FILE` | filename or filepath of file containing custom script for dependency installation | `docker/custom.sh` |
-| `CUSTOM_SCRIPT_RECURSIVE` | whether to recursively find files named `CUSTOM_SCRIPT_FILE` | `'true'` |
+| `CUSTOM_SCRIPT_RECURSIVE` | whether to recursively find files named `CUSTOM_SCRIPT_FILE` | `'false'` |
 | `ADDITIONAL_FILES_DIR` | path of directory containing additional files to be copied into the image | `docker/additional-files` |

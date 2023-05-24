@@ -73,7 +73,7 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
 
 # add additionally specified apt dependencies to install script
 ARG ADDITIONAL_DEBS_FILE="docker/additional-debs.txt"
-ARG ADDITIONAL_DEBS_RECURSIVE="true"
+ARG ADDITIONAL_DEBS_RECURSIVE="false"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_DEBS_RECURSIVE == 'true' ]]; then \
@@ -85,7 +85,7 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
 
 # add additionally specified pip dependencies to install script
 ARG ADDITIONAL_PIP_FILE="docker/additional-pip-requirements.txt"
-ARG ADDITIONAL_PIP_RECURSIVE="true"
+ARG ADDITIONAL_PIP_RECURSIVE="false"
 RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_PIP_RECURSIVE == 'true' ]]; then \
@@ -97,7 +97,7 @@ RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
 
 # add custom installation commands to install script
 ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
-ARG CUSTOM_SCRIPT_RECURSIVE="true"
+ARG CUSTOM_SCRIPT_RECURSIVE="false"
 RUN if [[ $CUSTOM_SCRIPT_RECURSIVE == 'true' ]]; then \
         find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec cat {} >> $WORKSPACE/.install-dependencies.sh \; \
     else \
