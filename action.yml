@@ -22,5 +22,5 @@ runs:
     - name: setup docker buildx
       uses: docker/setup-buildx-action@v2
     - name: docker build
-      run: docker compose -f ${{ inputs.docker-compose-file }}/${{ inputs.docker-compose-file }} build ${TARGET}
+      run: docker compose -f ${{ inputs.docker-compose-dir }}/${{ inputs.docker-compose-file }} build ${TARGET}
       shell: bash
