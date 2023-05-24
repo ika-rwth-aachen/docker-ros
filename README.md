@@ -79,9 +79,9 @@ Create a script `custom.sh` in your `docker` folder that executes arbitrary comm
 
 #### Extra Image Files
 
-If you need to have additional files present in the deployment image, you can use the special `files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
+If you need to have additional files present in the deployment image, you can use the special `additional-files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
 
-Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/docker-ros/files` in the image.
+Create a folder `additional-files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/docker-ros/additional-files` in the image.
 
 #### Git Credentials when Building Images Locally
 
@@ -145,3 +145,4 @@ docker-ros build args
 | `ADDITIONAL_PIP_RECURSIVE` | whether to recursively find files named `ADDITIONAL_PIP_FILE` | `'true'` |
 | `CUSTOM_SCRIPT_FILE` | filename or filepath of file containing custom script for dependency installation | `custom.sh` |
 | `CUSTOM_SCRIPT_RECURSIVE` | whether to recursively find files named `CUSTOM_SCRIPT_FILE` | `'true'` |
+| `ADDITIONAL_FILES_DIR` | path of directory containing additional files to be copied into the image | `additional-files` |

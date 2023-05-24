@@ -144,7 +144,8 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # copy contents of files-folder into image
-ADD docker/files* /docker-ros/files/
+ARG ADDITIONAL_FILES_DIR="additional-files"
+ADD docker/${ADDITIONAL_FILES_DIR}* /docker-ros/$(basename ${ADDITIONAL_FILES_DIR})/
 
 # install essential ROS CLI tools
 RUN apt-get update && \
