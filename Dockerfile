@@ -83,6 +83,18 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
+# add additionally specified pip dependencies to install script
+ARG ADDITIONAL_PIP_FILE="additional-pip-requirements.txt"
+ARG ADDITIONAL_PIP_RECURSIVE="true"
+RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
+    set -o pipefail && \
+    if [[ $ADDITIONAL_PIP_RECURSIVE == 'true' ]]; then \
+        find . -type f -name $(basename {ADDITIONAL_PIP_FILE}) -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+    else \
+        test -f ${ADDITIONAL_PIP_FILE} && cat ${ADDITIONAL_PIP_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+    fi && \
+    echo ";" >> $WORKSPACE/.install-dependencies.sh
+
 # add custom installation commands to install script
 ARG CUSTOM_SCRIPT_FILE="custom.sh"
 ARG CUSTOM_SCRIPT_RECURSIVE="true"
@@ -139,6 +151,7 @@ RUN apt-get update && \
     apt-get install -y \
         build-essential \
         gosu \
+        python3-pip \
     && source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [ "$ROS_VERSION" == "1" ]; then \
         apt-get install -y \

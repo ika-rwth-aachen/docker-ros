@@ -12,6 +12,7 @@ The Dockerfile performs the following steps to automatically build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool).
 1. The ROS dependencies listed in each package's `package.xml` are installed by [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/).
 1. *(optional)* Additional system dependencies from a special file `additional-debs.txt` are installed via `apt`, if needed.
+1. *(optional)* Additional Python dependencies from a special file `additional-pip-requirements.txt` are installed via `pip`, if needed.
 1. *(optional)* A special folder `files/` is copied into the images, if needed.
 1. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed.
 1. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2). 
@@ -63,6 +64,12 @@ The Dockerfile performs the following steps to automatically build these images:
 If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional-debs.txt` file.
 
 Create a file `additional-debs.txt` in your `docker` folder and list any other dependencies that need to be installed via `apt`.
+
+#### Python Dependencies (`pip`)
+
+If your ROS-based repository requires Python dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional-pip-requirements.txt` file.
+
+Create a file `additional-pip-requirements.txt` in your `docker` folder and list any other dependencies (and version number) that need to be installed via `pip`.
 
 #### Custom Installation Script
 
@@ -134,5 +141,7 @@ docker-ros build args
 | --- | --- | --- |
 | `ADDITIONAL_DEBS_FILE` | filename or filepath of file containing additional system dependencies | `additional-debs.txt` |
 | `ADDITIONAL_DEBS_RECURSIVE` | whether to recursively find files named `ADDITIONAL_DEBS_FILE` | `'true'` |
+| `ADDITIONAL_PIP_FILE` | filename or filepath of file containing additional pip dependencies | `additional-pip-requirements.txt` |
+| `ADDITIONAL_PIP_RECURSIVE` | whether to recursively find files named `ADDITIONAL_PIP_FILE` | `'true'` |
 | `CUSTOM_SCRIPT_FILE` | filename or filepath of file containing custom script for dependency installation | `custom.sh` |
 | `CUSTOM_SCRIPT_RECURSIVE` | whether to recursively find files named `CUSTOM_SCRIPT_FILE` | `'true'` |
