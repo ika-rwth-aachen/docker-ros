@@ -11,7 +11,7 @@
 The Dockerfile performs the following steps to automatically build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool).
 1. The ROS dependencies listed in each package's `package.xml` are installed by [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/).
-1. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed.
+1. *(optional)* Additional system dependencies from a special file `additional-debs.txt` are installed via `apt`, if needed.
 1. *(optional)* A special folder `files/` is copied into the images, if needed.
 1. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed.
 1. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2). 
@@ -58,11 +58,11 @@ The Dockerfile performs the following steps to automatically build these images:
 
 ### Advanced Integration
 
-#### System Dependencies (apt)
+#### System Dependencies (`apt`)
 
-If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional.apt-dependencies` file.
+If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional-debs.txt` file.
 
-Create a file `additional.apt-dependencies` in your `docker` folder and list any other dependencies that need to be installed via apt.
+Create a file `additional-debs.txt` in your `docker` folder and list any other dependencies that need to be installed via `apt`.
 
 #### Custom Installation Script
 
