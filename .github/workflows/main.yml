@@ -5,34 +5,33 @@ jobs:
     name: Trigger docker-ros-ci workflow
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger docker-ros-ci using repository-dispatch
-        id: repository-dispatch
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
-          repository: ika-rwth-aachen/docker-ros-ci
-          ref: feature/github-workflow
-          event-type: my-event
-          #client-payload: '{"ref": "feature/github-workflow"}'
-    #   - name: Trigger by API
-    #     run: |
-    #       curl -X POST -H "Authorization: Bearer ${{ secrets.PAT }}" -H "Accept: application/vnd.github.v3+json" -d '{"ref":"feature/github-workflow"}' "https://api.github.com/repos/ika-rwth-aachen/docker-ros-ci/actions/workflows/main.yml/dispatches"
-  watch_workflow:
-    name: Watch docker-ros-ci workflow run  
-    runs-on: ubuntu-latest
-    needs: trigger_workflow
-    steps:
-      - name: Check Pipeline Status
-        id: check_status
+    #   - name: Trigger docker-ros-ci using repository-dispatch
+    #     id: repository-dispatch
+    #     uses: peter-evans/repository-dispatch@v2
+    #     with:
+    #       token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
+    #       repository: ika-rwth-aachen/docker-ros-ci
+    #       event-type: my-event
+    #       client-payload: '{"ref": "feature/github-workflow"}'
+      - name: Trigger by API
         run: |
-          echo TEST ${{ needs.trigger_pipeline.outputs.dispatch.outputs.run_id }}
-          while true; do
-            sleep 30
-            PIPELINE_STATUS=$(curl --silent --header "Authorization: Bearer ${{ secrets.PAT }}" "https://api.github.com/repos/owner/other-repository/actions/runs/${{ needs.trigger_pipeline.outputs.dispatch.outputs.run_id }}" | jq -r '.status')
-            echo "Pipeline status: $PIPELINE_STATUS"
-            if [[ $PIPELINE_STATUS == "completed" ]]; then
-              break
-            elif [[ $PIPELINE_STATUS == "failure" || $PIPELINE_STATUS == "cancelled" ]]; then
-              exit 1
-            fi
-          done
+          curl -X POST -H "Authorization: Bearer ${{ secrets.PAT }}" -H "Accept: application/vnd.github.v3+json" -d '{"ref":"feature/github-workflow"}' "https://api.github.com/repos/ika-rwth-aachen/docker-ros-ci/actions/workflows/main.yml/dispatches"
+#   watch_workflow:
+#     name: Watch docker-ros-ci workflow run  
+#     runs-on: ubuntu-latest
+#     needs: trigger_workflow
+#     steps:
+#       - name: Check Pipeline Status
+#         id: check_status
+#         run: |
+#           echo TEST ${{ needs.trigger_pipeline.outputs.dispatch.outputs.run_id }}
+#           while true; do
+#             sleep 30
+#             PIPELINE_STATUS=$(curl --silent --header "Authorization: Bearer ${{ secrets.PAT }}" "https://api.github.com/repos/owner/other-repository/actions/runs/${{ needs.trigger_pipeline.outputs.dispatch.outputs.run_id }}" | jq -r '.status')
+#             echo "Pipeline status: $PIPELINE_STATUS"
+#             if [[ $PIPELINE_STATUS == "completed" ]]; then
+#               break
+#             elif [[ $PIPELINE_STATUS == "failure" || $PIPELINE_STATUS == "cancelled" ]]; then
+#               exit 1
+#             fi
+#           done
