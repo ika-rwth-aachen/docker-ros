@@ -10,6 +10,10 @@ inputs:
     description: 'docker-compose-dir'
     required: false
     default: 'docker'
+  token:
+    description: 'access token for cloning docker-ros'
+    required: true
+    default: ''
 outputs:
   random-number:
     description: "Random number"
@@ -25,7 +29,7 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: ika-rwth-aachen/docker-ros
-        token: ${{ secrets.PAT }}
+        token: ${{ inputs.token }}
         path: ${{ inputs.docker-compose-dir }}/docker-ros
     - name: docker build
       run: docker compose -f ${{ inputs.docker-compose-dir }}/${{ inputs.docker-compose-file }} build ${TARGET}
