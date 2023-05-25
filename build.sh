@@ -47,7 +47,7 @@ fi
 # build image(s)
 for (( i=0; i<${#_TARGETS[*]}; ++i)); do
     echo "Building stage '${_TARGETS[$i]}' for platform '${_PLATFORM}' as '${_TAGS[$i]}' ..."
-    docker build \
+    docker buildx build \
         --file docker-ros/Dockerfile \
         --target "${_TARGETS[$i]}" \
         --platform "${_PLATFORM}" \
