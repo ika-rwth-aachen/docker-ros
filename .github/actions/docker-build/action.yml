@@ -18,7 +18,7 @@ runs:
   using: "composite"
   steps:
     - name: docker build
-      run: docker compose -f $DOCKER_COMPOSE_DIR/$DOCKER_COMPOSE_FILE build ${{ inputs.target }}
+      run: docker compose -f ${DOCKER_COMPOSE_DIR}/${DOCKER_COMPOSE_FILE} build ${{ inputs.target }}
       shell: bash
     - name: docker tag
       run: docker tag ${{ inputs.target-image }} ${{ inputs.image-name }}

@@ -17,39 +17,27 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: pwd0
-      run: pwd && ls -la && echo $GITHUB_WORKSPACE
-      shell: bash
     - name: checkout code 
       uses: actions/checkout@v3
-    - name: pwd1
-      run: pwd
-      shell: bash
     - name: setup docker buildx
       uses: docker/setup-buildx-action@v2
-    - name: pwd2
-      run: pwd
-      shell: bash
     - name: checkout docker-ros 
       uses: actions/checkout@v3
       with:
         repository: ika-rwth-aachen/docker-ros
         token: ${{ inputs.token }}
-        path: $DOCKER_COMPOSE_DIR/docker-ros
-    - name: pwd3
-      run: pwd && ls -la && ls -la ros1 && ls -la ros1/docker && ls -la ros1/docker/docker-ros
-      shell: bash
+        path: ${{ env.DOCKER_COMPOSE_DIR }}/docker-ros
     - name: docker build dev
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       with:
         platform: amd64
         target: dev
-        target-image: ghcr.io/$GIHUB_REPOSITORY:latest-dev
-        image-name: ghcr.io/${GIHUB_REPOSITORY}_ci-amd64-dev
+        target-image: ghcr.io/${{ env.GIHUB_REPOSITORY }}:latest-dev
+        image-name: ghcr.io/${{ env.GIHUB_REPOSITORY }}_ci-amd64-dev
     - name: docker build run
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       with:
         platform: amd64
         target: run
-        target-image: ghcr.io/$GIHUB_REPOSITORY:latest
-        image-name: ghcr.io/${GIHUB_REPOSITORY}_ci-amd64
+        target-image: ghcr.io/${{ env.GIHUB_REPOSITORY }}:latest
+        image-name: ghcr.io/${{ env.GIHUB_REPOSITORY }}_ci-amd64
