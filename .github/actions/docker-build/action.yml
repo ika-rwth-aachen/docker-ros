@@ -8,13 +8,15 @@ description: 'Docker build action'
 #   BASE_IMAGE
 #   IMAGE
 #   COMMAND
+#   ROS_DIR
+#   DOCKER_DIR
   
 runs:
   using: "composite"
   steps:
 
     - name: docker build
-      run: ${DOCKER_DIR}/docker-ros/build.sh
+      run: cd ${ROS_DIR} && ${GITHUB_WORKSPACE}/${DOCKER_DIR}/docker-ros/build.sh
       shell: bash
 
     - name: docker push

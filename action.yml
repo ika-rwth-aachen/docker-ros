@@ -3,6 +3,7 @@ name: 'Hello World'
 description: 'Greet someone'
 # TODO: move env (not supported) to inputs?
 env:
+  ROS_DIR: .
   DOCKER_DIR: docker
 inputs:
   token:
