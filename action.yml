@@ -37,7 +37,7 @@ runs:
         token: ${{ inputs.token }}
         path: $DOCKER_COMPOSE_DIR/docker-ros
     - name: pwd3
-      run: pwd
+      run: pwd && ls -la && ls -la ros1 && ls -la ros1/docker && ls -la ros1/docker/docker-ros
       shell: bash
     - name: docker build dev
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
