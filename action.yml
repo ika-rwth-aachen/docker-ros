@@ -32,12 +32,12 @@ runs:
       with:
         platform: amd64
         target: dev
-        target-image: ghcr.io/${{ env.GITHUB_REPOSITORY }}:latest-dev
-        image-name: ghcr.io/${{ env.GITHUB_REPOSITORY }}_ci-amd64-dev
+        target-image: ghcr.io/${{ github.repository }}:latest-dev
+        image-name: ghcr.io/${{ github.repository }}:latest-dev_${{ github.ref_name }}_ci-amd64
     - name: docker build run
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       with:
         platform: amd64
         target: run
-        target-image: ghcr.io/${{ env.GITHUB_REPOSITORY }}:latest
-        image-name: ghcr.io/${{ env.GITHUB_REPOSITORY }}_ci-amd64
+        target-image: ghcr.io/${{ github.repository }}:latest
+        image-name: ghcr.io/${{ github.repository }}:latest_${{ github.ref_name }}_ci-amd64
