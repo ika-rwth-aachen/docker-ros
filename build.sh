@@ -39,7 +39,7 @@ docker buildx build \
     --target "${_TARGET}" \
     --platform "${_PLATFORM}" \
     --tag "${_IMAGE}" \
-    --load \
+    --push \
     $(if [[ -n "${_CACHE_FROM}" ]]; then echo "--cache-from ${_CACHE_FROM}"; fi) \
     $(if [[ -n "${_CACHE_TO}" ]]; then echo "--cache-to ${_CACHE_TO}"; fi) \
     --build-arg BASE_IMAGE="${_BASE_IMAGE}" \

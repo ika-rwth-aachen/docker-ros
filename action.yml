@@ -59,6 +59,9 @@ runs:
         username: ${{ inputs.docker-registry-username }}
         password: ${{ inputs.docker-registry-password }}
 
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+
     - name: setup docker buildx
       uses: docker/setup-buildx-action@v2
 
@@ -73,17 +76,17 @@ runs:
     - name: docker build dev
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       env:
-        PLATFORM: amd64 # TODO: hardcoded (also see ci-amd64 postfix below)
+        PLATFORM: amd64,arm64 # TODO: hardcoded (also see ci-amd64 postfix below)
         TARGET: dev
         BASE_IMAGE: ${{ inputs.base-image }}
-        IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
+        IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
         COMMAND: ${{ inputs.command }} # TODO: command not needed for dev image
 
     - name: docker build run
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       env:
-        PLATFORM: amd64
+        PLATFORM: amd64,arm64
         TARGET: run
         BASE_IMAGE: ${{ inputs.base-image }}
-        IMAGE: ${{ inputs.run-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
+        IMAGE: ${{ inputs.run-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
         COMMAND: ${{ inputs.command }}
