@@ -8,6 +8,7 @@ _COMMAND="${COMMAND}"
 _DEV_IMAGE="${DEV_IMAGE}"
 _GIT_HTTPS_PASSWORD="${GIT_HTTPS_PASSWORD}"
 _GIT_HTTPS_USER="${GIT_HTTPS_USER}"
+_PLATFORM="${PLATFORM}"
 _RUN_IMAGE="${RUN_IMAGE}"
 _TARGET="${TARGET}"
 
@@ -18,12 +19,14 @@ source .env
 [[ -z "${_DEV_IMAGE}" ]]            && _DEV_IMAGE="${DEV_IMAGE}"
 [[ -z "${_GIT_HTTPS_PASSWORD}" ]]   && _TARGET="${GIT_HTTPS_PASSWORD}"
 [[ -z "${_GIT_HTTPS_USER}" ]]       && _TARGET="${GIT_HTTPS_USER}"
+[[ -z "${_PLATFORM}" ]]             && _RUN_IMAGE="${PLATFORM}"
 [[ -z "${_RUN_IMAGE}" ]]            && _RUN_IMAGE="${RUN_IMAGE}"
 [[ -z "${_TARGET}" ]]               && _TARGET="${TARGET}"
 
-# check for required environment variables
+# check for required environment variables or set defaults
 [[ -z "${_BASE_IMAGE}" ]]   && echo "Environment variable 'BASE_IMAGE' is required" && exit 1
 [[ -z "${_COMMAND}" ]]      && echo "Environment variable 'COMMAND' is required"    && exit 1
+_PLATFORM="${_PLATFORM:-$(dpkg --print-architecture)}"
 
 # evaluate which targets to build
 if [[ -z "${_TARGET}" ]]; then
@@ -39,10 +42,11 @@ fi
 
 # build image(s)
 for (( i=0; i<${#_TARGETS[*]}; ++i)); do
-    echo "Building stage '${_TARGETS[$i]}' as '${_TAGS[$i]}' ..."
+    echo "Building stage '${_TARGETS[$i]}' for platform '${_PLATFORM}' as '${_TAGS[$i]}' ..."
     docker build \
         --file docker-ros/Dockerfile \
         --target "${_TARGETS[$i]}" \
+        --platform "${_PLATFORM}" \
         --tag "${_TAGS[$i]}" \
         --build-arg BASE_IMAGE="${_BASE_IMAGE}" \
         --build-arg COMMAND="${_COMMAND}" \
@@ -51,5 +55,5 @@ for (( i=0; i<${#_TARGETS[*]}; ++i)); do
         ..
 done
 for (( i=0; i<${#_TARGETS[*]}; ++i)); do
-    echo "Successfully built stage '${_TARGETS[$i]}' as '${_TAGS[$i]}'"
+    echo "Successfully built stage '${_TARGETS[$i]}' for platform ${_PLATFORM} as '${_TAGS[$i]}'"
 done
