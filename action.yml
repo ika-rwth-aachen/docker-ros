@@ -17,6 +17,10 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - id: slugify-ref-name
+      uses: gacts/github-slug@v1
+      with:
+        to-slug: ${{ github.ref_name }}
     - name: checkout code 
       uses: actions/checkout@v3
     - name: setup docker buildx
@@ -33,11 +37,11 @@ runs:
         platform: amd64
         target: dev
         target-image: ghcr.io/${{ github.repository }}:latest-dev
-        image-name: ghcr.io/${{ github.repository }}:latest-dev_${{ github.ref_name }}_ci-amd64
+        image-name: ghcr.io/${{ github.repository }}:latest-dev_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
     - name: docker build run
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       with:
         platform: amd64
         target: run
         target-image: ghcr.io/${{ github.repository }}:latest
-        image-name: ghcr.io/${{ github.repository }}:latest_${{ github.ref_name }}_ci-amd64
+        image-name: ghcr.io/${{ github.repository }}:latest_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
