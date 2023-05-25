@@ -14,10 +14,6 @@ inputs:
   image-name:
     description: 'image name'
     required: true
-  image-cache:
-    description: 'image to cache from'
-    required: false
-    default: ${{ inputs.image-name }}
 runs:
   using: "composite"
   steps:
