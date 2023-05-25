@@ -5,17 +5,17 @@ jobs:
     name: Trigger docker-ros-ci workflow
     runs-on: ubuntu-latest
     steps:
-    #   - name: Trigger docker-ros-ci using repository-dispatch
-    #     id: repository-dispatch
-    #     uses: peter-evans/repository-dispatch@v2
-    #     with:
-    #       token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
-    #       repository: ika-rwth-aachen/docker-ros-ci
-    #       event-type: my-event
-    #       client-payload: '{"ref": "feature/github-workflow"}'
-      - name: Trigger by API
-        run: |
-          curl -X POST -H "Authorization: Bearer ${{ secrets.PAT }}" -H "Accept: application/vnd.github.v3+json" -d '{"ref":"feature/github-workflow"}' "https://api.github.com/repos/ika-rwth-aachen/docker-ros-ci/actions/workflows/main.yml/dispatches"
+      - name: Trigger Workflow and Wait
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: ika-rwth-aachen
+          repo: docker-ros-ci
+          github_token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
+          ref: feature/github-workflow
+          workflow_file_name: mail.yml
+      #- name: Trigger by API
+      #  run: |
+      #    curl -X POST -H "Authorization: Bearer ${{ secrets.PAT }}" -H "Accept: application/vnd.github.v3+json" -d '{"ref":"feature/github-workflow"}' "https://api.github.com/repos/ika-rwth-aachen/docker-ros-ci/actions/workflows/main.yml/dispatches"
 #   watch_workflow:
 #     name: Watch docker-ros-ci workflow run  
 #     runs-on: ubuntu-latest
