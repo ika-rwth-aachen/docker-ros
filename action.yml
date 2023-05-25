@@ -17,6 +17,9 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: pwd0
+      run: pwd && ls -la && echo $GITHUB_WORKSPACE
+      shell: bash
     - name: checkout code 
       uses: actions/checkout@v3
     - name: pwd1
