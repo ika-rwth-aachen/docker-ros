@@ -65,7 +65,7 @@ runs:
       uses: actions/checkout@v3
       with:
         repository: ika-rwth-aachen/docker-ros
-        ref: ${{ github.ref_name }} # TODO: desired behavior?
+        ref: feature/github-action # TODO: desired behavior?
         token: ${{ inputs.token }}
         path: ${{ env.DOCKER_DIR }}/docker-ros
 
