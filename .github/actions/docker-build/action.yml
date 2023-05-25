@@ -26,5 +26,7 @@ runs:
       shell: bash
     - name: docker tag
       run: docker tag ${{ inputs.target-image }} ${{ inputs.image-name }}
+      shell: bash
     - name: docker push
       run: docker push ${{ inputs.image-name }}
+      shell: bash
