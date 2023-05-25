@@ -12,7 +12,7 @@ jobs:
           repo: docker-ros-ci
           github_token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
           ref: feature/github-workflow
-          workflow_file_name: mail.yml
+          workflow_file_name: main.yml
       #- name: Trigger by API
       #  run: |
       #    curl -X POST -H "Authorization: Bearer ${{ secrets.PAT }}" -H "Accept: application/vnd.github.v3+json" -d '{"ref":"feature/github-workflow"}' "https://api.github.com/repos/ika-rwth-aachen/docker-ros-ci/actions/workflows/main.yml/dispatches"
