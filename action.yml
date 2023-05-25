@@ -34,7 +34,7 @@ runs:
         target-image: ghcr.io/$GIHUB_REPOSITORY:latest-dev
         image-name: ghcr.io/${GIHUB_REPOSITORY}_ci-amd64-dev
     - name: docker build run
-      uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build/action.yml@feature/github-action
+      uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       with:
         platform: amd64
         target: run
