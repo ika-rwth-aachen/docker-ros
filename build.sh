@@ -6,16 +6,20 @@ set -e
 _BASE_IMAGE="${BASE_IMAGE}"
 _COMMAND="${COMMAND}"
 _DEV_IMAGE="${DEV_IMAGE}"
+_GIT_HTTPS_PASSWORD="${GIT_HTTPS_PASSWORD}"
+_GIT_HTTPS_USER="${GIT_HTTPS_USER}"
 _RUN_IMAGE="${RUN_IMAGE}"
 _TARGET="${TARGET}"
 
 # load (unset) variables from .env file
 source .env
-[[ -z "${_BASE_IMAGE}" ]]   && _BASE_IMAGE="${BASE_IMAGE}"
-[[ -z "${_COMMAND}" ]]      && _COMMAND="${COMMAND}"
-[[ -z "${_DEV_IMAGE}" ]]    && _DEV_IMAGE="${DEV_IMAGE}"
-[[ -z "${_RUN_IMAGE}" ]]    && _RUN_IMAGE="${RUN_IMAGE}"
-[[ -z "${_TARGET}" ]]       && _TARGET="${TARGET}"
+[[ -z "${_BASE_IMAGE}" ]]           && _BASE_IMAGE="${BASE_IMAGE}"
+[[ -z "${_COMMAND}" ]]              && _COMMAND="${COMMAND}"
+[[ -z "${_DEV_IMAGE}" ]]            && _DEV_IMAGE="${DEV_IMAGE}"
+[[ -z "${_GIT_HTTPS_PASSWORD}" ]]   && _TARGET="${GIT_HTTPS_PASSWORD}"
+[[ -z "${_GIT_HTTPS_USER}" ]]       && _TARGET="${GIT_HTTPS_USER}"
+[[ -z "${_RUN_IMAGE}" ]]            && _RUN_IMAGE="${RUN_IMAGE}"
+[[ -z "${_TARGET}" ]]               && _TARGET="${TARGET}"
 
 # check for required environment variables
 [[ -z "${_BASE_IMAGE}" ]]   && echo "Environment variable 'BASE_IMAGE' is required" && exit 1
@@ -42,6 +46,8 @@ for (( i=0; i<${#_TARGETS[*]}; ++i)); do
         --tag "${_TAGS[$i]}" \
         --build-arg BASE_IMAGE="${_BASE_IMAGE}" \
         --build-arg COMMAND="${_COMMAND}" \
+        --build-arg GIT_HTTPS_PASSWORD="${_GIT_HTTPS_PASSWORD}" \
+        --build-arg GIT_HTTPS_USER="${_GIT_HTTPS_USER}" \
         ..
 done
 for (( i=0; i<${#_TARGETS[*]}; ++i)); do
