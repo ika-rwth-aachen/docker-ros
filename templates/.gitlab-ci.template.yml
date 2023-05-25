@@ -26,8 +26,7 @@ variables:
   PUSH_AS_LATEST:       'false'
   # -----
   DOCKER_ROS_GIT_REF: main
-  DOCKER_COMPOSE_DIR: docker
-  DOCKER_COMPOSE_FILE: docker-compose.yml
+  DOCKER_DIR: docker
   ROS_DIR: .
   DISABLE_ARCH_AMD64: 'false'
   DISABLE_ARCH_ARM64: 'false'
@@ -57,11 +56,12 @@ default:
     - privileged
     - amd64
   before_script:
+    - apk add bash
     - |-
-      if [[ ! -d $DOCKER_COMPOSE_DIR/docker-ros ]]; then
+      if [[ ! -d $DOCKER_DIR/docker-ros ]]; then
         git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
-        git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git $DOCKER_COMPOSE_DIR/docker-ros
-        cd $DOCKER_COMPOSE_DIR/docker-ros
+        git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git $DOCKER_DIR/docker-ros
+        cd $DOCKER_DIR/docker-ros
         git fetch origin $DOCKER_ROS_GIT_REF
         git checkout FETCH_HEAD
         cd -
@@ -69,18 +69,13 @@ default:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - docker context create buildx-context
     - docker buildx create --use buildx-context
-    - cd $DOCKER_COMPOSE_DIR
-    - ln $(echo "${DOCKER_COMPOSE_FILE%.*}").yml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
-    - ln $(echo "${DOCKER_COMPOSE_FILE%.*}").yaml ${DOCKER_COMPOSE_FILE} 2> /dev/null || true
-    - 'sed -i "/\    image:/a\    platform: $PLATFORM" $DOCKER_COMPOSE_FILE'
-    - 'sed -i "/\  context:/a\  cache_from: [$IMG_CACHE]\n\  cache_to: [type=inline]" $DOCKER_COMPOSE_FILE'
+    - cd $DOCKER_DIR
 
 
 .build:
   script:
-    - docker compose -f $DOCKER_COMPOSE_FILE build ${TARGET}
-    - docker tag ${IMG_TARGET} ${IMG}
-    - docker push ${IMG}
+    - ./docker-ros/build.sh
+    - docker push ${IMAGE}
 
 dev-amd64:
   stage: Build dev Images
@@ -90,9 +85,8 @@ dev-amd64:
   variables:
     PLATFORM: linux/amd64
     TARGET: dev
-    IMG_TARGET: ${IMAGE_DEV_TARGET}
-    IMG_CACHE: ${IMAGE_DEV_CI_AMD64}
-    IMG: ${IMAGE_DEV_CI_AMD64}
+    IMAGE: ${IMAGE_DEV_CI_AMD64}
+    CACHE_FROM: ${IMAGE_DEV_CI_AMD64}
 
 dev-arm64:
   stage: Build dev Images
@@ -103,9 +97,8 @@ dev-arm64:
   variables:
     PLATFORM: linux/arm64
     TARGET: dev
-    IMG_TARGET: ${IMAGE_DEV_TARGET}
-    IMG_CACHE: ${IMAGE_DEV_CI_ARM64}
-    IMG: ${IMAGE_DEV_CI_ARM64}
+    IMAGE: ${IMAGE_DEV_CI_ARM64}
+    CACHE_FROM: ${IMAGE_DEV_CI_ARM64}
 
 run-amd64:
   stage: Build run Images
@@ -116,9 +109,8 @@ run-amd64:
   variables:
     PLATFORM: linux/amd64
     TARGET: run
-    IMG_TARGET: ${IMAGE_RUN_TARGET}
-    IMG_CACHE: ${IMAGE_DEV_CI_AMD64}
-    IMG: ${IMAGE_RUN_CI_AMD64}
+    IMAGE: ${IMAGE_RUN_CI_AMD64}
+    CACHE_FROM: ${IMAGE_DEV_CI_AMD64}
 
 run-arm64:
   stage: Build run Images
@@ -130,9 +122,8 @@ run-arm64:
   variables:
     PLATFORM: linux/arm64
     TARGET: run
-    IMG_TARGET: ${IMAGE_RUN_TARGET}
-    IMG_CACHE: ${IMAGE_DEV_CI_ARM64}
-    IMG: ${IMAGE_RUN_CI_ARM64}
+    IMAGE: ${IMAGE_RUN_CI_ARM64}
+    CACHE_FROM: ${IMAGE_DEV_CI_ARM64}
 
 
 .test:

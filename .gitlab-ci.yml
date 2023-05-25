@@ -19,12 +19,7 @@ default:
 Trigger ROS1:
   extends: .trigger
   variables:
-    DOCKER_ROS_CI_GIT_REF: main
-
-Trigger ROS2:
-  extends: .trigger
-  variables:
-    DOCKER_ROS_CI_GIT_REF: ros2
+    DOCKER_ROS_CI_GIT_REF: test/docker-ros-refactor
   
 
 .watch:
@@ -48,7 +43,3 @@ Trigger ROS2:
 Watch ROS1:
   extends: .watch
   needs: [Trigger ROS1]
-
-Watch ROS2:
-  extends: .watch
-  needs: [Trigger ROS2]
