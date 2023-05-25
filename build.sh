@@ -14,7 +14,7 @@ _PLATFORM="${PLATFORM}"
 _TARGET="${TARGET}"
 
 # load (unset) variables from .env file
-source .env
+[[ -f .env ]] && source .env # TODO: configurable/flexible .env file
 [[ -z "${_BASE_IMAGE}" ]]           && _BASE_IMAGE="${BASE_IMAGE}"
 [[ -z "${_CACHE_FROM}" ]]           && _CACHE_FROM="${CACHE_FROM}"
 [[ -z "${_CACHE_TO}" ]]             && _CACHE_TO="${CACHE_TO}"
@@ -35,7 +35,7 @@ _TARGET="${_TARGET:-run}"
 # build image
 echo "Building stage '${_TARGET}' for platform '${_PLATFORM}' as '${_IMAGE}' ..."
 docker buildx build \
-    --file docker-ros/Dockerfile \
+    --file $(dirname $0)/Dockerfile \
     --target "${_TARGET}" \
     --platform "${_PLATFORM}" \
     --tag "${_IMAGE}" \
@@ -46,5 +46,5 @@ docker buildx build \
     --build-arg COMMAND="${_COMMAND}" \
     --build-arg GIT_HTTPS_PASSWORD="${_GIT_HTTPS_PASSWORD}" \
     --build-arg GIT_HTTPS_USER="${_GIT_HTTPS_USER}" \
-    ..
+    .
 echo "Successfully built stage '${_TARGET}' for platform '${_PLATFORM}' as '${_IMAGE}'"
