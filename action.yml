@@ -1,15 +1,10 @@
 # action.yml
 name: 'Hello World'
 description: 'Greet someone'
+env:
+  DOCKER_COMPOSE_DIR: docker
+  DOCKER_COMPOSE_FILE: docker-compose.yml
 inputs:
-  docker-compose-file:
-    description: 'docker-compose-file'
-    required: false
-    default: 'docker-compose.yaml'
-  docker-compose-dir:
-    description: 'docker-compose-dir'
-    required: false
-    default: 'docker'
   token:
     description: 'access token for cloning docker-ros'
     required: true
@@ -31,6 +26,17 @@ runs:
         repository: ika-rwth-aachen/docker-ros
         token: ${{ inputs.token }}
         path: ${{ inputs.docker-compose-dir }}/docker-ros
-    - name: docker build
-      run: docker compose -f ${{ inputs.docker-compose-dir }}/${{ inputs.docker-compose-file }} build ${TARGET}
-      shell: bash
+    - name: docker build dev
+      uses: ./.github/actions/docker-build.yml
+      with:
+        platform: amd64
+        target: dev
+        target-image: ghcr.io/$GIHUB_REPOSITORY:latest-dev
+        image-name: ghcr.io/${GIHUB_REPOSITORY}_ci-amd64-dev
+    - name: docker build run
+      uses: ./.github/actions/docker-build.yml
+      with:
+        platform: amd64
+        target: run
+        target-image: ghcr.io/$GIHUB_REPOSITORY:latest
+        image-name: ghcr.io/${GIHUB_REPOSITORY}_ci-amd64
