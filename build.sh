@@ -51,6 +51,7 @@ for (( i=0; i<${#_TARGETS[*]}; ++i)); do
         --file docker-ros/Dockerfile \
         --target "${_TARGETS[$i]}" \
         --platform "${_PLATFORM}" \
+        --load \
         --tag "${_TAGS[$i]}" \
         $(if [[ -n "${_CACHE_FROM}" ]]; then echo "--cache-from ${_CACHE_FROM}"; fi) \
         $(if [[ -n "${_CACHE_TO}" ]]; then echo "--cache-to ${_CACHE_TO}"; fi) \
@@ -61,5 +62,5 @@ for (( i=0; i<${#_TARGETS[*]}; ++i)); do
         ..
 done
 for (( i=0; i<${#_TARGETS[*]}; ++i)); do
-    echo "Successfully built stage '${_TARGETS[$i]}' for platform ${_PLATFORM} as '${_TAGS[$i]}'"
+    echo "Successfully built stage '${_TARGETS[$i]}' for platform '${_PLATFORM}' as '${_TAGS[$i]}'"
 done
