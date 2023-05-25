@@ -1,31 +1,22 @@
 name: 'Docker build'
 description: 'Docker build action'
 
-inputs:
-  platform:
-    description: 'target platform (e.g. amd64 / arm64)'
-    required: true
-  target:
-    description: 'docker target stage'
-    required: true
-  target-image:
-    description: 'image name in compose file'
-    required: true
-  image-name:
-    description: 'image name'
-    required: true
+# TODO: document somewhere?
+# required envvars
+#   PLATFORM
+#   TARGET
+#   BASE_IMAGE
+#   IMAGE
+#   COMMAND
+  
 runs:
   using: "composite"
   steps:
 
     - name: docker build
-      run: docker compose -f ${DOCKER_COMPOSE_DIR}/${DOCKER_COMPOSE_FILE} build ${{ inputs.target }}
-      shell: bash
-
-    - name: docker tag
-      run: docker tag ${{ inputs.target-image }} ${{ inputs.image-name }}
+      run: ${DOCKER_DIR}/docker-ros/build.sh
       shell: bash
 
     - name: docker push
-      run: docker push ${{ inputs.image-name }}
+      run: docker push ${IMAGE}
       shell: bash

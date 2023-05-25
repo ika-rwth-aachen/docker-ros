@@ -3,14 +3,13 @@ name: 'Hello World'
 description: 'Greet someone'
 # TODO: move env (not supported) to inputs?
 env:
-  DOCKER_COMPOSE_DIR: docker
-  DOCKER_COMPOSE_FILE: docker-compose.yml
+  DOCKER_DIR: docker
 inputs:
   token:
     description: 'access token for cloning docker-ros'
     required: true
     default: ''
-  docker-registry:
+  docker-registry: # TODO: infer from image name
     description: 'docker registry'
     required: false
     default: ghcr.io
@@ -22,6 +21,20 @@ inputs:
     description: 'docker registry username'
     required: false
     default: ${{ github.token }}
+  base-image:
+    description: 'base image'
+    required: true
+  dev-image:
+    description: 'dev image'
+    required: false
+    default: ghcr.io/${{ github.repository }}:latest-dev
+  run-image:
+    description: 'run image'
+    required: false
+    default: ghcr.io/${{ github.repository }}:latest
+  command:
+    description: 'command'
+    required: true
 outputs:
   random-number:
     description: "Random number"
@@ -53,20 +66,22 @@ runs:
       with:
         repository: ika-rwth-aachen/docker-ros
         token: ${{ inputs.token }}
-        path: ${{ env.DOCKER_COMPOSE_DIR }}/docker-ros
+        path: ${{ env.DOCKER_DIR }}/docker-ros
 
     - name: docker build dev
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
-      with:
-        platform: amd64
-        target: dev
-        target-image: ghcr.io/${{ github.repository }}:latest-dev
-        image-name: ghcr.io/${{ github.repository }}:latest-dev_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
-  
+      env:
+        PLATFORM: amd64 # TODO: hardcoded (also see ci-amd64 postfix below)
+        TARGET: dev
+        BASE_IMAGE: ${{ inputs.base-image }}
+        IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
+        COMMAND: ${{ inputs.command }} # TODO: command not needed for dev image
+
     - name: docker build run
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
-      with:
-        platform: amd64
-        target: run
-        target-image: ghcr.io/${{ github.repository }}:latest
-        image-name: ghcr.io/${{ github.repository }}:latest_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
+      env:
+        PLATFORM: amd64
+        TARGET: run
+        BASE_IMAGE: ${{ inputs.base-image }}
+        IMAGE: ${{ inputs.run-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci-amd64
+        COMMAND: ${{ inputs.command }}
