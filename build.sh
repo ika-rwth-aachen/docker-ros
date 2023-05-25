@@ -4,6 +4,8 @@ set -e
 
 # load environment variables
 _BASE_IMAGE="${BASE_IMAGE}"
+_CACHE_FROM="${CACHE_FROM}"
+_CACHE_TO="${CACHE_TO}"
 _COMMAND="${COMMAND}"
 _DEV_IMAGE="${DEV_IMAGE}"
 _GIT_HTTPS_PASSWORD="${GIT_HTTPS_PASSWORD}"
@@ -15,6 +17,8 @@ _TARGET="${TARGET}"
 # load (unset) variables from .env file
 source .env
 [[ -z "${_BASE_IMAGE}" ]]           && _BASE_IMAGE="${BASE_IMAGE}"
+[[ -z "${_CACHE_FROM}" ]]           && _CACHE_FROM="${CACHE_FROM}"
+[[ -z "${_CACHE_TO}" ]]             && _CACHE_TO="${CACHE_TO}"
 [[ -z "${_COMMAND}" ]]              && _COMMAND="${COMMAND}"
 [[ -z "${_DEV_IMAGE}" ]]            && _DEV_IMAGE="${DEV_IMAGE}"
 [[ -z "${_GIT_HTTPS_PASSWORD}" ]]   && _TARGET="${GIT_HTTPS_PASSWORD}"
@@ -48,6 +52,8 @@ for (( i=0; i<${#_TARGETS[*]}; ++i)); do
         --target "${_TARGETS[$i]}" \
         --platform "${_PLATFORM}" \
         --tag "${_TAGS[$i]}" \
+        $(if [[ -n "${_CACHE_FROM}" ]]; then echo "--cache-from ${_CACHE_FROM}"; fi) \
+        $(if [[ -n "${_CACHE_TO}" ]]; then echo "--cache-to ${_CACHE_TO}"; fi) \
         --build-arg BASE_IMAGE="${_BASE_IMAGE}" \
         --build-arg COMMAND="${_COMMAND}" \
         --build-arg GIT_HTTPS_PASSWORD="${_GIT_HTTPS_PASSWORD}" \
