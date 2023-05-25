@@ -27,14 +27,14 @@ runs:
         token: ${{ inputs.token }}
         path: $DOCKER_COMPOSE_DIR/docker-ros
     - name: docker build dev
-      uses: ./.github/actions/docker-build.yml
+      uses: ./.github/actions/docker-build
       with:
         platform: amd64
         target: dev
         target-image: ghcr.io/$GIHUB_REPOSITORY:latest-dev
         image-name: ghcr.io/${GIHUB_REPOSITORY}_ci-amd64-dev
     - name: docker build run
-      uses: ./.github/actions/docker-build.yml
+      uses: ./.github/actions/docker-build
       with:
         platform: amd64
         target: run
