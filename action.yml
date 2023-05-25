@@ -76,7 +76,7 @@ runs:
     - name: docker build dev
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       env:
-        PLATFORM: amd64,arm64 # TODO: hardcoded (also see ci-amd64 postfix below)
+        PLATFORM: amd64 #,arm64 # TODO: hardcoded (also see ci-amd64 postfix below)
         TARGET: dev
         BASE_IMAGE: ${{ inputs.base-image }}
         IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
@@ -85,8 +85,17 @@ runs:
     - name: docker build run
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       env:
-        PLATFORM: amd64,arm64
+        PLATFORM: amd64 #,arm64
         TARGET: run
         BASE_IMAGE: ${{ inputs.base-image }}
         IMAGE: ${{ inputs.run-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
         COMMAND: ${{ inputs.command }}
+
+    - name: industrial ci
+      uses: ros-industrial/industrial_ci@master
+      env:
+        UPSTREAM_WORKSPACE: ${{ env.ROS_DIR }}/.repos
+        TARGET_WORKSPACE: ${{ env.ROS_DIR }}
+        ADDITIONAL_DEBS: git # TODO AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+        DOCKER_RUN_OPTS: -u root:root
+        DOCKER_IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
