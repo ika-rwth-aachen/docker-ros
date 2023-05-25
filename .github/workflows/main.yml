@@ -13,4 +13,4 @@ jobs:
           ref: feature/github-workflow
           workflow_file_name: main.yml
           github_token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
-          client-payload: '{"ref": "${{ env.GITHUB_REF_NAME }}"}'
+          client_payload: '{"ref": "${{ github.ref_name }}"}'
