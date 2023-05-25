@@ -1,6 +1,7 @@
 # action.yml
 name: 'Hello World'
 description: 'Greet someone'
+# TODO: move env (not supported) to inputs?
 env:
   DOCKER_COMPOSE_DIR: docker
   DOCKER_COMPOSE_FILE: docker-compose.yml
@@ -18,14 +19,23 @@ runs:
   steps:
     - name: checkout code 
       uses: actions/checkout@v3
+    - name: pwd1
+      run: pwd
+      shell: bash
     - name: setup docker buildx
       uses: docker/setup-buildx-action@v2
+    - name: pwd2
+      run: pwd
+      shell: bash
     - name: checkout docker-ros 
       uses: actions/checkout@v3
       with:
         repository: ika-rwth-aachen/docker-ros
         token: ${{ inputs.token }}
         path: $DOCKER_COMPOSE_DIR/docker-ros
+    - name: pwd3
+      run: pwd
+      shell: bash
     - name: docker build dev
       uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
       with:
