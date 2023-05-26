@@ -32,6 +32,12 @@ DEV_IMAGE="${DEV_IMAGE:-${IMAGE}-dev}" # TODO: what if IMAGE has no TAG?
 CI_POSTFIX="ci"
 CI_ARCH_POSTFIX="PLATFORM"
 
+# write image name for industrial_ci to output
+# TODO: GitHub-only
+industrial_ci_image=${IMAGE}
+[[ "${TARGET}" == *"dev"* ]] && industrial_ci_image=${DEV_IMAGE}
+echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}_${CI_POSTFIX}-$(dpkg --print-architecture)" >> "${GITHUB_OUTPUT}"
+
 # parse (potentially) comma-separated lists to arrays
 IFS="," read -ra TARGETS <<< "${TARGET}"
 IFS="," read -ra PLATFORMS <<< "${PLATFORM}"

@@ -75,6 +75,7 @@ runs:
         password: ${{ inputs.registry-password }}
 
     - name: Build images
+      id: build-images
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/ci.sh
       shell: bash
@@ -86,4 +87,11 @@ runs:
         IMAGE: ${{ inputs.image }}
         DEV_IMAGE: ${{ inputs.dev-image }}
 
-    # TODO: industrial_ci
+    - name: Run industrial_ci
+      uses: ros-industrial/industrial_ci@master
+      env:
+        UPSTREAM_WORKSPACE: ${{ env.ROS_DIR }}/.repos
+        TARGET_WORKSPACE: ${{ inputs.build-context }}
+        ADDITIONAL_DEBS: git # TODO AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+        DOCKER_RUN_OPTS: -u root:root
+        DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
