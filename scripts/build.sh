@@ -1,5 +1,11 @@
 #!/bin/bash
 
+set -e
+
+ROOT_PATH="$(realpath "$(cd -P "$(dirname "${0}")" && pwd)"/..)"
+source "${ROOT_PATH}/scripts/utils.sh"
+
+
 build_image() {
 
     echo "Building stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}' ..."
@@ -16,5 +22,17 @@ build_image() {
         .
     echo "Successfully built stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}'"
     # TODO: GIT_HTTPS
-    # TODO: support local build
 }
+
+
+# check if script is executed
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # check for required variables and set defaults for optional variables
+    TARGET="${TARGET:-run}"
+    PLATFORM="${PLATFORM:-$(dpkg --print-architecture)}"
+    require_var "BASE_IMAGE"
+    require_var "IMAGE"
+    [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
+    ENABLE_IMAGE_PUSH="${ENABLE_IMAGE_PUSH:-false}"
+    build_image
+fi

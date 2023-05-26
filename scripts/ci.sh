@@ -2,23 +2,10 @@
 
 set -e
 
-DOCKER_ROS_PATH="$(realpath "$(cd -P "$(dirname "${0}")" && pwd)"/..)"
-source "${DOCKER_ROS_PATH}/scripts/build.sh"
+ROOT_PATH="$(realpath "$(cd -P "$(dirname "${0}")" && pwd)"/..)"
+source "${ROOT_PATH}/scripts/build.sh"
+source "${ROOT_PATH}/scripts/utils.sh"
 
-require_var() {
-    if [[ -z "${!1}" ]]; then
-        echo "Environment variable '${1}' is required"
-        exit 1
-    fi
-}
-
-open_log_group() {
-    echo "::group::[docker-ros] ${1}"
-}
-
-close_log_group() {
-    echo "::endgroup::"
-}
 
 # check for required variables and set defaults for optional variables
 TARGET="${TARGET:-run}"
