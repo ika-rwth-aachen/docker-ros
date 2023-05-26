@@ -74,11 +74,11 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
 # add additionally specified apt dependencies to install script
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
-    find . -type f -name "additional.apt-dependencies" -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
+    find . -type f -name "additional.apt-dependencies" -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
-RUN find . -type f -name "custom.sh" -exec cat {} >> $WORKSPACE/.install-dependencies.sh \;
+RUN find . -type f -name "custom.sh" -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \;
 
 # remove now obsolete docker folder from copied repository content to avoid redundancies
 RUN rm -rf src/target/docker
