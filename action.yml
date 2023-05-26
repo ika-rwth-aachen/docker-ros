@@ -81,8 +81,8 @@ runs:
     - name: Build images
       id: build-images
       working-directory: ${{ inputs.build-context }}
-      run: docker/docker-ros/ci.sh
       shell: bash
+      run: docker/docker-ros/ci.sh
       env:
         PLATFORM: ${{ inputs.platform }}
         TARGET: ${{ inputs.target }}
@@ -92,8 +92,8 @@ runs:
         DEV_IMAGE: ${{ inputs.dev-image }}
 
     - name: Set up industrial_ci
-      run: test -f ${{ inputs.build-context }}/.repos || echo "repositories:" > ${{ inputs.build-context }}/.repos
       shell: bash
+      run: test -f ${{ inputs.build-context }}/.repos || echo "repositories:" > ${{ inputs.build-context }}/.repos
 
     - name: Run industrial_ci
       uses: ros-industrial/industrial_ci@master
@@ -105,3 +105,17 @@ runs:
         DOCKER_RUN_OPTS: -u root:root
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
+
+    - name: Push images
+      working-directory: ${{ inputs.build-context }}
+      shell: bash
+      run: docker/docker-ros/push.sh
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        TARGET: ${{ inputs.target }}
+        BASE_IMAGE: ${{ inputs.base-image }}
+        COMMAND: ${{ inputs.command }}
+        IMAGE: ${{ inputs.image }}
+        DEV_IMAGE: ${{ inputs.dev-image }}
+      # TODO: use same script for push and ci
+      # TODO: push branch names
