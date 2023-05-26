@@ -4,7 +4,7 @@ build_image() {
 
     echo "Building stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}' ..."
     docker buildx build \
-        --file $(dirname $0)/Dockerfile \
+        --file $(dirname $0)/../docker/Dockerfile \
         --target "${TARGET}" \
         --platform "${PLATFORM}" \
         --tag "${IMAGE}" \
@@ -16,4 +16,5 @@ build_image() {
         .
     echo "Successfully built stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}'"
     # TODO: GIT_HTTPS
+    # TODO: support local build
 }

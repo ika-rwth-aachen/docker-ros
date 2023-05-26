@@ -53,7 +53,7 @@ ARG GIT_HTTPS_PASSWORD=
 RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
         git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
     fi
-COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
+COPY docker/docker-ros/docker/recursive_vcs_import.py /usr/local/bin
 RUN apt-get update && \
     apt-get install -y python-is-python3 && \
     rm -rf /var/lib/apt/lists/*
@@ -149,7 +149,7 @@ RUN apt-get update && \
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # set entrypoint
-COPY docker/docker-ros/entrypoint.sh /
+COPY docker/docker-ros/docker/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 
 ############ dev ###############################################################

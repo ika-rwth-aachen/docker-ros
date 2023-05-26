@@ -2,8 +2,8 @@
 
 set -e
 
-DOCKER_ROS_PATH="$(cd -P "$(dirname "${0}")" && pwd)"
-source "${DOCKER_ROS_PATH}/build.sh"
+DOCKER_ROS_PATH="$(realpath "$(cd -P "$(dirname "${0}")" && pwd)"/..)"
+source "${DOCKER_ROS_PATH}/scripts/build.sh"
 
 require_var() {
     if [[ -z "${!1}" ]]; then

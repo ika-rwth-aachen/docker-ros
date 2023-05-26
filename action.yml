@@ -82,7 +82,7 @@ runs:
       id: build-images
       working-directory: ${{ inputs.build-context }}
       shell: bash
-      run: docker/docker-ros/ci.sh
+      run: docker/docker-ros/scripts/ci.sh
       env:
         PLATFORM: ${{ inputs.platform }}
         TARGET: ${{ inputs.target }}
@@ -109,7 +109,7 @@ runs:
     - name: Push images
       working-directory: ${{ inputs.build-context }}
       shell: bash
-      run: docker/docker-ros/ci.sh
+      run: docker/docker-ros/scripts/ci.sh
       env:
         PLATFORM: ${{ inputs.platform }}
         TARGET: ${{ inputs.target }}
