@@ -8,7 +8,7 @@ build_image() {
         --target "${TARGET}" \
         --platform "${PLATFORM}" \
         --tag "${IMAGE}" \
-        --push \
+        --load \
         $(if [[ -n "${CACHE_FROM}" ]]; then echo "--cache-from ${CACHE_FROM}"; fi) \
         $(if [[ -n "${CACHE_TO}" ]]; then echo "--cache-to ${CACHE_TO}"; fi) \
         --build-arg BASE_IMAGE="${BASE_IMAGE}" \
