@@ -54,6 +54,12 @@ runs:
   using: "composite"
   steps:
 
+    - name: Slugify ref name
+      id: slugify-ref-name
+      uses: gacts/github-slug@v1
+      with:
+        to-slug: ${{ github.ref_name }}
+
     - name: Checkout repository
       uses: actions/checkout@v3
 
@@ -119,4 +125,4 @@ runs:
         DEV_IMAGE: ${{ inputs.dev-image }}
         ENABLE_IMAGE_PUSH: true
         ENABLE_MULTIARCH_BUILD: true
-        IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && '_${{ steps.slugify-ref-name.outputs.slug }}_ci' || '' }}
+        IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && "_${{ steps.slugify-ref-name.outputs.slug }}_ci" || "" }}
