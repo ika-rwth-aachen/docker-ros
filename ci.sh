@@ -20,10 +20,6 @@ close_log_group() {
     echo "::endgroup::"
 }
 
-# set constant variables
-CI_POSTFIX="ci"
-CI_ARCH_POSTFIX="PLATFORM"
-
 # check for required variables and set defaults for optional variables
 TARGET="${TARGET:-run}"
 PLATFORM="${PLATFORM:-$(dpkg --print-architecture)}"
@@ -31,9 +27,9 @@ require_var "BASE_IMAGE"
 require_var "IMAGE"
 [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
 DEV_IMAGE="${DEV_IMAGE:-${IMAGE}-dev}" # TODO: what if IMAGE has no TAG?
-ENABLE_IMAGE_CI_POSTFIX="${ENABLE_IMAGE_CI_POSTFIX:-false}"
 ENABLE_IMAGE_PUSH="${ENABLE_IMAGE_PUSH:-false}"
 ENABLE_MULTIARCH_BUILD="${ENABLE_MULTIARCH_BUILD:-false}"
+IMAGE_POSTFIX="${IMAGE_POSTFIX:-""}"
 
 # write image name for industrial_ci to output
 # TODO: GitHub-only
@@ -57,7 +53,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         open_log_group "Build ${TARGET} image (${PLATFORM})"
         image="${IMAGE}"
         [[ "${TARGET}" == "dev" ]] && image="${DEV_IMAGE}"
-        [[ "${ENABLE_IMAGE_CI_POSTFIX}" == "true" ]] && image="${image}_${CI_POSTFIX}-${!CI_ARCH_POSTFIX}"
+        [[ -n "${IMAGE_POSTFIX}" ]] && image="${image}${!IMAGE_POSTFIX}"
         IMAGE="${image}" build_image
         close_log_group
     done
