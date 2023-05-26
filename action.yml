@@ -91,11 +91,15 @@ runs:
         IMAGE: ${{ inputs.image }}
         DEV_IMAGE: ${{ inputs.dev-image }}
 
+    - name: Set up industrial_ci
+      run: test -f ${{ inputs.build-context }}/.repos || echo "repositories:" > ${{ inputs.build-context }}/.repos
+      shell: bash
+
     - name: Run industrial_ci
       uses: ros-industrial/industrial_ci@master
       if: ${{ inputs.enable-industrial-ci == 'true' }}
       env:
-        UPSTREAM_WORKSPACE: ${{ env.ROS_DIR }}/.repos
+        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
         TARGET_WORKSPACE: ${{ inputs.build-context }}
         ADDITIONAL_DEBS: git # TODO AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
         DOCKER_RUN_OPTS: -u root:root
