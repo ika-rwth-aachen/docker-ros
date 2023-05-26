@@ -45,6 +45,10 @@ inputs:
     description: "Docker registry password"
     default: ${{ github.token }}
 
+  enable-industrial-ci:
+    description: "Enable industrial_ci"
+    default: "false"
+
 
 runs:
   using: "composite"
@@ -89,6 +93,7 @@ runs:
 
     - name: Run industrial_ci
       uses: ros-industrial/industrial_ci@master
+      if: ${{ inputs.enable-industrial-ci == 'true' }}
       env:
         UPSTREAM_WORKSPACE: ${{ env.ROS_DIR }}/.repos
         TARGET_WORKSPACE: ${{ inputs.build-context }}
