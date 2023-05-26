@@ -20,17 +20,20 @@ close_log_group() {
     echo "::endgroup::"
 }
 
-# check for required variables set defaults for optional variables
+# set constant variables
+CI_POSTFIX="ci"
+CI_ARCH_POSTFIX="PLATFORM"
+
+# check for required variables and set defaults for optional variables
 TARGET="${TARGET:-run}"
 PLATFORM="${PLATFORM:-$(dpkg --print-architecture)}"
 require_var "BASE_IMAGE"
 require_var "IMAGE"
 [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
 DEV_IMAGE="${DEV_IMAGE:-${IMAGE}-dev}" # TODO: what if IMAGE has no TAG?
-
-# set constant variables
-CI_POSTFIX="ci"
-CI_ARCH_POSTFIX="PLATFORM"
+ENABLE_IMAGE_CI_POSTFIX="${ENABLE_IMAGE_CI_POSTFIX:-false}"
+ENABLE_IMAGE_PUSH="${ENABLE_IMAGE_PUSH:-false}"
+ENABLE_MULTIARCH_BUILD="${ENABLE_MULTIARCH_BUILD:-false}"
 
 # write image name for industrial_ci to output
 # TODO: GitHub-only
@@ -40,7 +43,11 @@ echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}_${CI_POSTFIX}-$(dpkg --print-ar
 
 # parse (potentially) comma-separated lists to arrays
 IFS="," read -ra TARGETS <<< "${TARGET}"
-IFS="," read -ra PLATFORMS <<< "${PLATFORM}"
+if [[ "${ENABLE_MULTIARCH_BUILD}" == "true" ]]; then
+    IFS="," read -ra PLATFORMS <<< "${PLATFORM}"
+else
+    PLATFORMS=( "${PLATFORM}" )
+fi
 unset TARGET
 unset PLATFORM
 
@@ -50,8 +57,8 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         open_log_group "Build ${TARGET} image (${PLATFORM})"
         image="${IMAGE}"
         [[ "${TARGET}" == "dev" ]] && image="${DEV_IMAGE}"
-        ci_image="${image}_${CI_POSTFIX}-${!CI_ARCH_POSTFIX}"
-        IMAGE="${ci_image}" build_image
+        [[ "${ENABLE_IMAGE_CI_POSTFIX}" == "true" ]] && image="${image}_${CI_POSTFIX}-${!CI_ARCH_POSTFIX}"
+        IMAGE="${image}" build_image
         close_log_group
     done
 done

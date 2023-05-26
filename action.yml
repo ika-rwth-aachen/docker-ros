@@ -90,6 +90,7 @@ runs:
         COMMAND: ${{ inputs.command }}
         IMAGE: ${{ inputs.image }}
         DEV_IMAGE: ${{ inputs.dev-image }}
+        ENABLE_IMAGE_CI_POSTFIX: true
 
     - name: Set up industrial_ci
       shell: bash
@@ -109,7 +110,7 @@ runs:
     - name: Push images
       working-directory: ${{ inputs.build-context }}
       shell: bash
-      run: docker/docker-ros/push.sh
+      run: docker/docker-ros/ci.sh
       env:
         PLATFORM: ${{ inputs.platform }}
         TARGET: ${{ inputs.target }}
@@ -117,5 +118,6 @@ runs:
         COMMAND: ${{ inputs.command }}
         IMAGE: ${{ inputs.image }}
         DEV_IMAGE: ${{ inputs.dev-image }}
-      # TODO: use same script for push and ci
+        ENABLE_IMAGE_PUSH: true
+        ENABLE_MULTIARCH_BUILD: true
       # TODO: push branch names
