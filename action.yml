@@ -1,96 +1,89 @@
-# action.yml
-name: 'Hello World'
-description: 'Greet someone'
-# TODO: move env (not supported) to inputs?
-env:
-  ROS_DIR: .
-  DOCKER_DIR: docker
+name: "docker-ros"
+description: "docker-ros automatically builds development and deployment Docker images for your ROS-based repositories."
+
 inputs:
-  token:
+
+  token: # TODO: remove, once repos are public
     description: 'access token for cloning docker-ros'
     required: true
     default: ''
-  docker-registry: # TODO: infer from image name
-    description: 'docker registry'
-    required: false
-    default: ghcr.io
-  docker-registry-username:
-    description: 'docker registry username'
-    required: false
-    default: ${{ github.actor }}
-  docker-registry-password:
-    description: 'docker registry username'
-    required: false
-    default: ${{ github.token }}
+
+  target:
+    description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
+    default: "run"
+  
+  platform:
+    description: "Target platform architecture (comma-separated list) [amd64|arm64|...]"
+  
   base-image:
-    description: 'base image'
+    description: "Base image name:tag"
     required: true
-  dev-image:
-    description: 'dev image'
-    required: false
-    default: ghcr.io/${{ github.repository }}:latest-dev
-  run-image:
-    description: 'run image'
-    required: false
-    default: ghcr.io/${{ github.repository }}:latest
+  
   command:
-    description: 'command'
-    required: true
-outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-number }}
+    description: "Launch command of run image (required if target=run)"
+  
+  image:
+    description: "Image name:tag of run image"
+    default: ghcr.io/${{ github.repository }}:latest
+
+  dev-image:
+    description: "Image name:tag of dev image"
+
+  build-context:
+    description: "Build context of Docker build process"
+    default: ${{ github.workspace }}
+
+  registry: # TODO: infer from image name
+    description: "Docker registry to push images to"
+    default: ghcr.io
+
+  registry-username:
+    description: "Docker registry username"
+    default: ${{ github.actor }}
+
+  registry-password:
+    description: "Docker registry password"
+    default: ${{ github.token }}
+
+
 runs:
   using: "composite"
   steps:
 
-    - id: slugify-ref-name
-      uses: gacts/github-slug@v1
-      with:
-        to-slug: ${{ github.ref_name }}
-
-    - name: checkout code 
+    - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: docker login
-      uses: docker/login-action@v2
-      with:
-        registry: ${{ inputs.docker-registry }}
-        username: ${{ inputs.docker-registry-username }}
-        password: ${{ inputs.docker-registry-password }}
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v2
-
-    - name: setup docker buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: checkout docker-ros 
+    - name: Checkout docker-ros
       uses: actions/checkout@v3
       with:
         repository: ika-rwth-aachen/docker-ros
         ref: feature/github-action # TODO: desired behavior?
         token: ${{ inputs.token }}
-        path: ${{ env.DOCKER_DIR }}/docker-ros
+        path: ${{ inputs.build-context }}/docker/docker-ros
 
-    - name: docker build
-      run: |
-            cd ${ROS_DIR}
-            ${GITHUB_WORKSPACE}/${DOCKER_DIR}/docker-ros/ci.sh
+    - name: Set up QEMU for architecture emulation
+      uses: docker/setup-qemu-action@v2
+
+    - name: Set up Docker buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-password }}
+
+    - name: Build images
+      working-directory: ${{ inputs.build-context }}
+      run: docker/docker-ros/ci.sh
       shell: bash
       env:
-        PLATFORM: amd64
-        TARGET: dev,run
+        PLATFORM: ${{ inputs.platform }}
+        TARGET: ${{ inputs.target }}
         BASE_IMAGE: ${{ inputs.base-image }}
-        COMMAND: ${{ inputs.command }} # TODO: command not needed for dev image
-        IMAGE: ${{ inputs.run-image }}_${{ steps.slugify-ref-name.outputs.slug }}
-        DEV_IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}
+        COMMAND: ${{ inputs.command }}
+        IMAGE: ${{ inputs.image }}
+        DEV_IMAGE: ${{ inputs.dev-image }}
 
-    - name: industrial ci
-      uses: ros-industrial/industrial_ci@master
-      env:
-        UPSTREAM_WORKSPACE: ${{ env.ROS_DIR }}/.repos
-        TARGET_WORKSPACE: ${{ env.ROS_DIR }}
-        ADDITIONAL_DEBS: git # TODO AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
-        DOCKER_RUN_OPTS: -u root:root
-        DOCKER_IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
+    # TODO: industrial_ci

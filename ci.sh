@@ -20,15 +20,13 @@ close_log_group() {
     echo "::endgroup::"
 }
 
-# set defaults for optional variables
+# check for required variables set defaults for optional variables
 TARGET="${TARGET:-run}"
 PLATFORM="${PLATFORM:-$(dpkg --print-architecture)}"
-
-# check for required variables
 require_var "BASE_IMAGE"
+require_var "IMAGE"
 [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
-[[ "${TARGET}" == *"dev"* ]] && require_var "DEV_IMAGE"
-[[ "${TARGET}" == *"run"* ]] && require_var "IMAGE"
+DEV_IMAGE="${DEV_IMAGE:-${IMAGE}-dev}" # TODO: what if IMAGE has no TAG?
 
 # set constant variables
 CI_POSTFIX="ci"
