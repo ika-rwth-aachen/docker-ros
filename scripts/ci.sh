@@ -43,7 +43,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         image="${IMAGE}"
         [[ "${TARGET}" == "dev" ]] && image="${DEV_IMAGE}"
         [[ -n "${IMAGE_POSTFIX}" ]] && image="${image}${IMAGE_POSTFIX}"
-        [[ "${ENABLE_MULTIARCH_BUILD}" != "true" ]] && image="${image}-${TARGET}"
+        [[ "${ENABLE_MULTIARCH_BUILD}" != "true" ]] && image="${image}-${PLATFORM}"
         IMAGE="${image}" build_image
         close_log_group
     done
