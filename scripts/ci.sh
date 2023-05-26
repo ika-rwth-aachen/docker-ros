@@ -29,13 +29,15 @@ require_var "IMAGE"
 DEV_IMAGE="${DEV_IMAGE:-${IMAGE}-dev}" # TODO: what if IMAGE has no TAG?
 ENABLE_IMAGE_PUSH="${ENABLE_IMAGE_PUSH:-false}"
 ENABLE_MULTIARCH_BUILD="${ENABLE_MULTIARCH_BUILD:-false}"
-IMAGE_POSTFIX="${IMAGE_POSTFIX:-""}"
+IMAGE_POSTFIX="${IMAGE_POSTFIX:-"_ci"}"
 
 # write image name for industrial_ci to output
 # TODO: GitHub-only
-industrial_ci_image=${IMAGE}
-[[ "${TARGET}" == *"dev"* ]] && industrial_ci_image=${DEV_IMAGE}
-echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}_${CI_POSTFIX}-$(dpkg --print-architecture)" >> "${GITHUB_OUTPUT}"
+industrial_ci_image="${IMAGE}"
+[[ "${TARGET}" == *"dev"* ]] && industrial_ci_image="${DEV_IMAGE}"
+industrial_ci_image="${industrial_ci_image}${IMAGE_POSTFIX}"
+[[ "${ENABLE_MULTIARCH_BUILD}" != "true" ]] && industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
+echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 
 # parse (potentially) comma-separated lists to arrays
 IFS="," read -ra TARGETS <<< "${TARGET}"
@@ -53,7 +55,8 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         open_log_group "Build ${TARGET} image (${PLATFORM})"
         image="${IMAGE}"
         [[ "${TARGET}" == "dev" ]] && image="${DEV_IMAGE}"
-        [[ -n "${IMAGE_POSTFIX}" ]] && image="${image}${!IMAGE_POSTFIX}"
+        [[ -n "${IMAGE_POSTFIX}" ]] && image="${image}${IMAGE_POSTFIX}"
+        [[ "${ENABLE_MULTIARCH_BUILD}" != "true" ]] && image="${image}-${TARGET}"
         IMAGE="${image}" build_image
         close_log_group
     done
