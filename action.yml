@@ -73,23 +73,18 @@ runs:
         token: ${{ inputs.token }}
         path: ${{ env.DOCKER_DIR }}/docker-ros
 
-    - name: docker build dev
-      uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
+    - name: docker build
+      run: |
+            cd ${ROS_DIR}
+            ${GITHUB_WORKSPACE}/${DOCKER_DIR}/docker-ros/ci.sh
+      shell: bash
       env:
-        PLATFORM: amd64 #,arm64 # TODO: hardcoded (also see ci-amd64 postfix below)
-        TARGET: dev
+        PLATFORM: amd64
+        TARGET: dev,run
         BASE_IMAGE: ${{ inputs.base-image }}
-        IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
         COMMAND: ${{ inputs.command }} # TODO: command not needed for dev image
-
-    - name: docker build run
-      uses: ika-rwth-aachen/docker-ros/.github/actions/docker-build@feature/github-action
-      env:
-        PLATFORM: amd64 #,arm64
-        TARGET: run
-        BASE_IMAGE: ${{ inputs.base-image }}
-        IMAGE: ${{ inputs.run-image }}_${{ steps.slugify-ref-name.outputs.slug }}_ci
-        COMMAND: ${{ inputs.command }}
+        IMAGE: ${{ inputs.run-image }}_${{ steps.slugify-ref-name.outputs.slug }}
+        DEV_IMAGE: ${{ inputs.dev-image }}_${{ steps.slugify-ref-name.outputs.slug }}
 
     - name: industrial ci
       uses: ros-industrial/industrial_ci@master
