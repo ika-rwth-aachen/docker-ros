@@ -47,7 +47,7 @@ unset PLATFORM
 # loop over targets and platforms to build images
 for PLATFORM in "${PLATFORMS[@]}"; do
     for TARGET in "${TARGETS[@]}"; do
-        open_log_group "Build ${TARGET} image (${TARGET})"
+        open_log_group "Build ${TARGET} image (${PLATFORM})"
         image="${IMAGE}"
         [[ "${TARGET}" == "dev" ]] && image="${DEV_IMAGE}"
         ci_image="${image}_${CI_POSTFIX}-${!CI_ARCH_POSTFIX}"
