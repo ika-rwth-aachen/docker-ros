@@ -13,7 +13,7 @@ require_var() {
 }
 
 open_log_group() {
-    echo "::group::${1}"
+    echo "::group::[docker-ros] ${1}"
 }
 
 close_log_group() {
@@ -43,7 +43,7 @@ unset PLATFORM
 # loop over targets and platforms to build images
 for PLATFORM in "${PLATFORMS[@]}"; do
     for TARGET in "${TARGETS[@]}"; do
-        open_log_group "${TARGET}"
+        open_log_group "Build ${TARGET} image (${TARGET})"
         image="${IMAGE}"
         [[ "${TARGET}" == "dev" ]] && image="${DEV_IMAGE}"
         ci_image="${image}_${CI_POSTFIX}-${!CI_ARCH_POSTFIX}"
