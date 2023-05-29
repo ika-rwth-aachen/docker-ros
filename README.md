@@ -13,6 +13,6 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 - [*docker-run*](https://github.com/ika-rwth-aachen/docker-run) is a CLI tool for simplified interaction with Docker images <a href="https://github.com/ika-rwth-aachen/docker-run"><img src="https://img.shields.io/github/stars/ika-rwth-aachen/docker-run?style=social"/></a>
 
 
-> **Info**  
-> *docker-ros* is part of our tooling suite released with our paper [*Enabling the Deployment of Any-Scale Robotic Applications in Microservice-Based Service-Oriented Architectures through Automated Containerization*](github.com/ika-rwth-aachen/dorotos).  
+> **Note**  
+> *docker-ros* is part of our tooling suite released with our paper [*Enabling the Deployment of Any-Scale Robotic Applications in Microservice-Based Service-Oriented Architectures through Automated Containerization*](https://github.com/ika-rwth-aachen/dorotos).  
 > We are currently refining the repository and the README for publication. If you, as a reviewer, would like to already try out *docker-ros*, please do not hesitate to contact us directly to get more detailed instructions. A more detailed README will also go online within the next few days.
