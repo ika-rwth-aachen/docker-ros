@@ -65,7 +65,12 @@ runs:
         ref: feature/github-action # TODO: desired behavior?
         path: ${{ inputs.build-context }}/docker/docker-ros
 
+    - name: test runner arch
+      run: echo "DPKG = $(dpkg --print-architecture) ; runner.arch = ${{ runner.arch }}"
+      shell: bash
+
     - name: Set up QEMU for architecture emulation
+      if: ${{ !contains(inputs.platform, runner.arch) }}
       uses: docker/setup-qemu-action@v2
 
     - name: Set up Docker buildx
