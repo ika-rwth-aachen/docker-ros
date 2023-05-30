@@ -59,14 +59,14 @@ runs:
       uses: actions/checkout@v3
 
     - name: test prints
-      run: echo "GITHUB_WORKSPACE = ${{ github.workspace }} ; " && pwd && ls -al ../../_actions && ls -al ../../_actions/ika-rwth-aachen/docker-ros
+      run: ls -al ../../_actions && ls -al ../../_actions/ika-rwth-aachen/docker-ros && ls -al ../../_actions/ika-rwth-aachen/docker-ros/feature && ls -al ../../_actions/ika-rwth-aachen/docker-ros/feature/github-action
       shell: bash
 
     - name: Copy docker-ros
       working-directory: ${{ inputs.build-context }}
       run: |
             mkdir -p docker/docker-ros
-            cp /home/runner/work/_actions/ika-rwth-aachen/docker-ros docker/docker-ros
+            cp -r /home/runner/work/_actions/ika-rwth-aachen/docker-ros/feature/github-action docker/docker-ros
             ls -al docker/docker-ros
       shell: bash
 
