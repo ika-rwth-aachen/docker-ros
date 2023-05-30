@@ -5,12 +5,21 @@ jobs:
     name: Trigger docker-ros-ci workflow
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger Workflow and Wait
+      - name: Trigger docker-ros-ci strategy
         uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: ika-rwth-aachen
           repo: docker-ros-ci
-          ref: feature/github-workflow
+          ref: feature/github-workflow # TODO: set to main
+          workflow_file_name: strategy.yml
+          github_token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
+          client_payload: '{"docker-ros-git-ref": "${{ github.ref_name }}"}'
+      - name: Trigger docker-ros-ci
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: ika-rwth-aachen
+          repo: docker-ros-ci
+          ref: feature/github-workflow # TODO: set to main
           workflow_file_name: main.yml
           github_token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
           client_payload: '{"docker-ros-git-ref": "${{ github.ref_name }}"}'

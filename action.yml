@@ -71,7 +71,9 @@ runs:
 
     - name: Get runner architecture
       id: get-runner-arch
-      run: echo "RUNNER_ARCH = $(dpkg --print-architecture)" >> $GITHUB_OUTPUT
+      run: |
+            echo "$(dpkg --print-architecture)"
+            echo "RUNNER_ARCH=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Set up QEMU for architecture emulation
