@@ -66,7 +66,11 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: |
             mkdir -p docker/docker-ros
-            cp -r /home/runner/work/_actions/ika-rwth-aachen/docker-ros/feature/github-action docker/docker-ros
+            cp -r /home/runner/work/_actions/ika-rwth-aachen/docker-ros/feature/github-action/* docker/docker-ros
+            cd /home/runner/work/_actions/ika-rwth-aachen/docker-ros
+            git status
+            git rev-parse --abbrev-ref HEAD
+            cd -
             ls -al docker/docker-ros
       shell: bash
 
