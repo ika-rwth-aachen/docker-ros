@@ -57,8 +57,10 @@ runs:
 
     - name: Checkout repository
       uses: actions/checkout@v3
+
     - name: test prints
       run: echo "GITHUB_WORKSPACE = ${{ github.workspace }} ; " && pwd && ls -al ..
+      shell: bash
 
     - name: Checkout docker-ros
       uses: actions/checkout@v3
