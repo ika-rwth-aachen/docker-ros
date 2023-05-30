@@ -3,11 +3,6 @@ description: "docker-ros automatically builds development and deployment Docker 
 
 inputs:
 
-  token: # TODO: remove, once repos are public
-    description: 'access token for cloning docker-ros'
-    required: true
-    default: ''
-
   target:
     description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
     default: "run"
@@ -68,7 +63,6 @@ runs:
       with:
         repository: ika-rwth-aachen/docker-ros
         ref: feature/github-action # TODO: desired behavior?
-        token: ${{ inputs.token }}
         path: ${{ inputs.build-context }}/docker/docker-ros
 
     - name: Set up QEMU for architecture emulation
