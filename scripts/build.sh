@@ -14,7 +14,7 @@ build_image() {
         --target "${TARGET}" \
         --platform "${PLATFORM}" \
         --tag "${IMAGE}" \
-        $(if [[ "${ENABLE_IMAGE_PUSH}" == "true" ]]; then echo "--push"; else echo "--load"; fi) \
+        $(if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then echo "--push"; else echo "--load"; fi) \
         --build-arg BASE_IMAGE="${BASE_IMAGE}" \
         --build-arg COMMAND="${COMMAND}" \
         --build-arg GIT_HTTPS_PASSWORD="${GIT_HTTPS_PASSWORD}" \
@@ -33,6 +33,6 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     require_var "BASE_IMAGE"
     require_var "IMAGE"
     [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
-    ENABLE_IMAGE_PUSH="${ENABLE_IMAGE_PUSH:-false}"
+    _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
     build_image
 fi
