@@ -59,15 +59,23 @@ runs:
       uses: actions/checkout@v3
 
     - name: test prints
-      run: echo "GITHUB_WORKSPACE = ${{ github.workspace }} ; " && pwd && ls -al ../.. && find / -name "docker-ros"
+      run: echo "GITHUB_WORKSPACE = ${{ github.workspace }} ; " && pwd && ls -al ../../_actions && ls -al ../../_actions/ika-rwth-aachen/docker-ros
       shell: bash
 
-    - name: Checkout docker-ros
-      uses: actions/checkout@v3
-      with:
-        repository: ika-rwth-aachen/docker-ros
-        ref: feature/github-action # TODO: desired behavior?
-        path: ${{ inputs.build-context }}/docker/docker-ros
+    - name: Copy docker-ros
+      working-directory: ${{ inputs.build-context }}
+      run: |
+            mkdir -p docker/docker-ros
+            cp /home/runner/work/_actions/ika-rwth-aachen/docker-ros docker/docker-ros
+            ls -al docker/docker-ros
+      shell: bash
+
+    #- name: Checkout docker-ros # TODO: only if not included as submodule
+    #  uses: actions/checkout@v3
+    #  with:
+    #    repository: ika-rwth-aachen/docker-ros
+    #    ref: feature/github-action # TODO: selbe ref wie action.yml; find and cp or clone with ref
+    #    path: ${{ inputs.build-context }}/docker/docker-ros # TODO: reative to github.workspace?
 
     - name: Get runner architecture
       id: get-runner-arch
