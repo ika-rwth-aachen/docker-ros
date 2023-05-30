@@ -3,9 +3,13 @@ description: "docker-ros automatically builds development and deployment Docker 
 
 inputs:
 
+  docker-ros-ref:
+    description: "Ref of docker-ros"
+    default: main
+
   target:
     description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
-    default: "run"
+    default: run
   
   platform:
     description: "Target platform architecture (comma-separated list) [amd64|arm64|...]"
@@ -58,28 +62,12 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: test prints
-      run: ls -al ../../_actions && ls -al ../../_actions/ika-rwth-aachen/docker-ros && ls -al ../../_actions/ika-rwth-aachen/docker-ros/feature && ls -al ../../_actions/ika-rwth-aachen/docker-ros/feature/github-action
-      shell: bash
-
-    - name: Copy docker-ros
-      working-directory: ${{ inputs.build-context }}
-      run: |
-            mkdir -p docker/docker-ros
-            cp -r /home/runner/work/_actions/ika-rwth-aachen/docker-ros/feature/github-action/* docker/docker-ros
-            cd /home/runner/work/_actions/ika-rwth-aachen/docker-ros
-            git status
-            git rev-parse --abbrev-ref HEAD
-            cd -
-            ls -al docker/docker-ros
-      shell: bash
-
-    #- name: Checkout docker-ros # TODO: only if not included as submodule
-    #  uses: actions/checkout@v3
-    #  with:
-    #    repository: ika-rwth-aachen/docker-ros
-    #    ref: feature/github-action # TODO: selbe ref wie action.yml; find and cp or clone with ref
-    #    path: ${{ inputs.build-context }}/docker/docker-ros # TODO: reative to github.workspace?
+    - name: Checkout docker-ros # TODO: only if not included as submodule
+      uses: actions/checkout@v3
+      with:
+        repository: ika-rwth-aachen/docker-ros
+        ref: ${{ inputs.docker-ros-ref }} # TODO: could be identified by the action ref
+        path: ${{ inputs.build-context }}/docker/docker-ros # TODO: reative to github.workspace?
 
     - name: Get runner architecture
       id: get-runner-arch
