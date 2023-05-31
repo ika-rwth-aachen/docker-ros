@@ -23,7 +23,11 @@ _IMAGE_POSTFIX="${_IMAGE_POSTFIX:-""}"
 industrial_ci_image="${IMAGE}"
 [[ "${TARGET}" == *"dev"* ]] && industrial_ci_image="${DEV_IMAGE}"
 [[ -n "${_IMAGE_POSTFIX}" ]] && industrial_ci_image="${industrial_ci_image}${_IMAGE_POSTFIX}"
-[[ "${_ENABLE_MULTIARCH_BUILD}" != "true" ]] && industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
+if [[ "${PLATFORM}" != *","* ]]; then
+    industrial_ci_image="${industrial_ci_image}-${PLATFORM}"
+elif [[ "${_ENABLE_MULTIARCH_BUILD}" != "true" ]]; then
+    industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
+fi
 echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 
 # parse (potentially) comma-separated lists to arrays
