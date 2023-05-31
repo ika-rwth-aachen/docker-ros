@@ -56,7 +56,7 @@ default:
   tags:
     - privileged
     - amd64
-  before_script:
+  before_script: &default_before_script
     - |-
       if [[ ! -d $DOCKER_COMPOSE_DIR/docker-ros ]]; then
         git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
@@ -137,16 +137,20 @@ run-arm64:
 
 .test:
   variables:
-    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
     TARGET_WORKSPACE: $ROS_DIR
     ADDITIONAL_DEBS: git
     AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - apk add --update bash coreutils grep tar
+    - *default_before_script
+    - cd -
+    - apk add --update bash coreutils grep tar python3 py3-pip
+    - pip install vcstool
+    - UPSTREAM_WORKSPACE=$(python3 $DOCKER_COMPOSE_DIR/docker-ros/recursive_vcs_import.py $ROS_DIR | tail -1)
+    - if [ -z "$UPSTREAM_WORKSPACE" ]; then echo "repositories:" > $ROS_DIR/.repos; UPSTREAM_WORKSPACE=$ROS_DIR/.repos; fi
+    - echo $UPSTREAM_WORKSPACE
+    - export UPSTREAM_WORKSPACE
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
-    - test -f $ROS_DIR/.repos || echo "repositories:" > $ROS_DIR/.repos
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:

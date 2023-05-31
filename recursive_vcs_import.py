@@ -3,13 +3,15 @@
 import pathlib
 import subprocess
 import sys
-from typing import List
+from typing import List, Optional
 
 
-def findDotRepos(search_path: str) -> List[pathlib.Path]:
+def findDotRepos(search_path: str, clone_path: Optional[str]=None) -> List[pathlib.Path]:
 
-    return pathlib.Path(search_path).glob("**/*.repos")
-
+    repos = list(pathlib.Path(search_path).glob("**/*.repos"))
+    if clone_path is not None:
+        repos.extend(list(pathlib.Path(clone_path).glob("**/*.repos")))
+    return repos
 
 def main():
 
@@ -19,7 +21,7 @@ def main():
 
     while True:
 
-        found_repos = findDotRepos(search_path)
+        found_repos = findDotRepos(search_path, clone_path)
         remaining_repos = set(found_repos) - set(cloned_repos)
 
         if not remaining_repos:
@@ -32,6 +34,8 @@ def main():
                 raise RuntimeError("vcs import failed")
         
         cloned_repos.append(next_repo)
+        
+    print(" ".join([str(repo) for repo in set(found_repos)]))
 
 
 if __name__ == "__main__":
