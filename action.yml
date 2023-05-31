@@ -62,12 +62,18 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Checkout docker-ros # TODO: only if not included as submodule
-      uses: actions/checkout@v3
-      with:
-        repository: ika-rwth-aachen/docker-ros
-        ref: ${{ inputs.docker-ros-ref }} # TODO: could be identified by the action ref
-        path: ${{ inputs.build-context }}/docker/docker-ros # TODO: reative to github.workspace?
+    #- name: Checkout docker-ros # TODO: only if not included as submodule
+    #  uses: actions/checkout@v3
+    #  with:
+    #    repository: ika-rwth-aachen/docker-ros
+    #    ref: ${{ inputs.docker-ros-ref }} # TODO: could be identified by the action ref
+    #    path: ${{ inputs.build-context }}/docker/docker-ros # TODO: reative to github.workspace?
+
+    - name: copy docker-ros
+      working-directory: ${{ inputs.build-context }}
+      shell: bash
+      run: |
+            [ -d "docker/docker-ros" ] || mkdir docker/docker-ros && cp -r ${GITHUB_ACTION_PATH}/* docker/docker-ros
 
     - name: Get runner architecture
       id: get-runner-arch
@@ -75,7 +81,7 @@ runs:
             echo "$(dpkg --print-architecture)"
             echo "${GITHUB_ACTION}"
             echo "${GITHUB_ACTION_PATH}"
-            echo "${GITHUB_ACTION_REPOSITORY}"
+            ls -al ${GITHUB_ACTION_PATH}
             echo "RUNNER_ARCH=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
       shell: bash
 
