@@ -73,6 +73,9 @@ runs:
       id: get-runner-arch
       run: |
             echo "$(dpkg --print-architecture)"
+            echo "${GITHUB_ACTION}"
+            echo "${GITHUB_ACTION_PATH}"
+            echo "${GITHUB_ACTION_REPOSITORY}"
             echo "RUNNER_ARCH=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
       shell: bash
 
