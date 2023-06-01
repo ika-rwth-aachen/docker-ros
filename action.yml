@@ -70,7 +70,7 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: |
             if ! [[ -d "docker/docker-ros" ]]; then
-              mkdir docker
+              mkdir -p docker
               cp -r ${GITHUB_ACTION_PATH} docker/docker-ros
             fi
 
