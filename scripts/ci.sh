@@ -19,8 +19,10 @@ DEV_TAG="${DEV_TAG:-${TAG}-dev}"
 
 IMAGE="${IMAGE_NAME}:${TAG}"
 DEV_IMAGE="${DEV_IMAGE_NAME}:${DEV_TAG}"
+
+ENABLE_SINGLEARCH_PUSH="${ENABLE_SINGLEARCH_PUSH:-false}"
+
 _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
-_ENABLE_MULTIARCH_BUILD="${_ENABLE_MULTIARCH_BUILD:-false}"
 _IMAGE_POSTFIX="${_IMAGE_POSTFIX:-""}"
 
 # write image name for industrial_ci to output
@@ -30,14 +32,14 @@ industrial_ci_image="${IMAGE}"
 [[ -n "${_IMAGE_POSTFIX}" ]] && industrial_ci_image="${industrial_ci_image}${_IMAGE_POSTFIX}"
 if [[ "${PLATFORM}" != *","* ]]; then
     industrial_ci_image="${industrial_ci_image}-${PLATFORM}"
-elif [[ "${_ENABLE_MULTIARCH_BUILD}" != "true" ]]; then
+else
     industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
 fi
 echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 
 # parse (potentially) comma-separated lists to arrays
 IFS="," read -ra TARGETS <<< "${TARGET}"
-if [[ "${_ENABLE_MULTIARCH_BUILD}" == "true" ]]; then
+if [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]]; then
     IFS="," read -ra PLATFORMS <<< "${PLATFORM}"
 else
     PLATFORMS=( "${PLATFORM}" )
@@ -52,7 +54,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         image="${IMAGE}"
         [[ "${TARGET}" == "dev" ]] && image="${DEV_IMAGE}"
         [[ -n "${_IMAGE_POSTFIX}" ]] && image="${image}${_IMAGE_POSTFIX}"
-        [[ "${_ENABLE_MULTIARCH_BUILD}" != "true" ]] && image="${image}-${PLATFORM}"
+        [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
         IMAGE="${image}" build_image
         close_log_group
     done
