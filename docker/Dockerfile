@@ -53,17 +53,17 @@ ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
 ARG GIT_HTTPS_USER=
 ARG GIT_HTTPS_PASSWORD=
 RUN if [ -n ${GIT_HTTPS_USER} ]; then \
-        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} && \
+        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
     fi
 ARG GIT_SSH_PRIVATE_KEY=
 ARG GIT_SSH_KNOWN_HOST_KEYS=
 RUN if [ -n ${GIT_SSH_PRIVATE_KEY} ]; then \
         echo -e ${GIT_SSH_PRIVATE_KEY} > /tmp/ssh_id && \
         chmod 400 /tmp/ssh_id && \
-        git config --global core.sshCommand "ssh -i /.ssh_key" ; \
+        git config --global core.sshCommand "ssh -i /.ssh_key" && \
         mkdir -p ~/.ssh && \
         touch ~/.ssh/known_hosts && \
-        echo -e ${GIT_SSH_KNOWN_HOST_KEYS} >> ~/.ssh/known_hosts && \
+        echo -e ${GIT_SSH_KNOWN_HOST_KEYS} >> ~/.ssh/known_hosts ; \
     fi
 COPY docker/docker-ros/docker/recursive_vcs_import.py /usr/local/bin
 RUN apt-get update && \
