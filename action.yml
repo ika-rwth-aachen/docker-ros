@@ -59,7 +59,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.build-context }}
       run: |
-            if [[ -d "docker/docker-ros" ]]; then
+            if ! [[ -d "docker/docker-ros" ]]; then
               mkdir docker
               cp -r ${GITHUB_ACTION_PATH} docker/docker-ros
             fi
