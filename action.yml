@@ -3,10 +3,6 @@ description: "docker-ros automatically builds development and deployment Docker 
 
 inputs:
 
-  docker-ros-ref:
-    description: "Ref of docker-ros"
-    default: main
-
   target:
     description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
     default: run
@@ -53,47 +49,29 @@ runs:
   using: "composite"
   steps:
 
-    - name: Slugify ref name
-      id: slugify-ref-name
-      uses: gacts/github-slug@v1
-      with:
-        to-slug: ${{ github.ref_name }}
-
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
         submodules: true
         lfs: true
 
-    #- name: Checkout docker-ros # TODO: only if not included as submodule
-    #  uses: actions/checkout@v3
-    #  with:
-    #    repository: ika-rwth-aachen/docker-ros
-    #    ref: ${{ inputs.docker-ros-ref }} # TODO: could be identified by the action ref
-    #    path: ${{ inputs.build-context }}/docker/docker-ros # TODO: reative to github.workspace?
-
-    - name: copy docker-ros
+    - name: Set up docker-ros
+      shell: bash
       working-directory: ${{ inputs.build-context }}
-      shell: bash
       run: |
-            [ -d "docker/docker-ros" ] || mkdir docker/docker-ros && cp -r ${GITHUB_ACTION_PATH}/* docker/docker-ros
+            if [[ -d "docker/docker-ros" ]]; then
+              mkdir docker
+              cp -r ${GITHUB_ACTION_PATH} docker/docker-ros
+            fi
 
-    - name: Get runner architecture
-      id: get-runner-arch
-      run: |
-            echo "$(dpkg --print-architecture)"
-            echo "${GITHUB_ACTION}"
-            echo "${GITHUB_ACTION_PATH}"
-            ls -al ${GITHUB_ACTION_PATH}
-            echo "RUNNER_ARCH=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
+    - name: Prepare setup of QEMU
+      id: prepare-setup-of-qemu
       shell: bash
+      run: echo "RUNNER_ARCH=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
 
-    - name: Set up QEMU for architecture emulation
-      if: ${{ !contains(inputs.platform, steps.get-runner-arch.outputs.RUNNER_ARCH) }}
+    - name: Set up QEMU
+      if: ${{ steps.prepare-setup-of-qemu.outputs.RUNNER_ARCH != inputs.platform }}
       uses: docker/setup-qemu-action@v2
-
-    - name: Set up Docker buildx
-      uses: docker/setup-buildx-action@v2
 
     - name: Login to Docker registry
       uses: docker/login-action@v2
@@ -101,11 +79,14 @@ runs:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.registry-username }}
         password: ${{ inputs.registry-password }}
+    
+    - name: Set up Docker buildx
+      uses: docker/setup-buildx-action@v2
 
     - name: Build images
       id: build-images
-      working-directory: ${{ inputs.build-context }}
       shell: bash
+      working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
         PLATFORM: ${{ inputs.platform }}
@@ -116,12 +97,13 @@ runs:
         DEV_IMAGE: ${{ inputs.dev-image }}
 
     - name: Set up industrial_ci
+      if: ${{ inputs.enable-industrial-ci == 'true' }}
       shell: bash
       run: test -f ${{ inputs.build-context }}/.repos || echo "repositories:" > ${{ inputs.build-context }}/.repos
 
     - name: Run industrial_ci
-      uses: ros-industrial/industrial_ci@master
       if: ${{ inputs.enable-industrial-ci == 'true' }}
+      uses: ros-industrial/industrial_ci@master
       env:
         UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
         TARGET_WORKSPACE: ${{ inputs.build-context }}
@@ -130,9 +112,15 @@ runs:
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
 
+    - name: Slugify ref name
+      id: slugify-ref-name
+      uses: gacts/github-slug@v1
+      with:
+        to-slug: ${{ github.ref_name }}
+
     - name: Push images
-      working-directory: ${{ inputs.build-context }}
       shell: bash
+      working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
         PLATFORM: ${{ inputs.platform }}
