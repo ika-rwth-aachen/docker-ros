@@ -21,8 +21,8 @@ variables:
   REGISTRY:               ${CI_REGISTRY}          # Docker registry to push images to
   REGISTRY_USERNAME:      ${CI_REGISTRY_USER}     # Docker registry username
   REGISTRY_PASSWORD:      ${CI_REGISTRY_PASSWORD} # Docker registry password
-  ENABLE_INDUSTRIAL_CI:   false                   # Enable industrial_ci
-  ENABLE_SINGLEARCH_PUSH: false                   # Enable push of single arch images with [-amd64|-arm64] postfix
+  ENABLE_INDUSTRIAL_CI:   'false'                 # Enable industrial_ci
+  ENABLE_SINGLEARCH_PUSH: 'false'                 # Enable push of single arch images with [-amd64|-arm64] postfix
 
   RUN_IMAGE:              ${IMAGE_NAME}:${IMAGE_TAG}
   DEV_IMAGE:              ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
@@ -104,7 +104,7 @@ dev-amd64:
     IMAGE: ${IMAGE_DEV_CI_AMD64}
     GIT_HTTPS_USER: ${GIT_HTTPS_USER}
     GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
-    _ENABLE_IMAGE_PUSH: true
+    _ENABLE_IMAGE_PUSH: 'true'
 
 dev-arm64:
   stage: Build dev Images
@@ -119,7 +119,7 @@ dev-arm64:
     IMAGE: ${IMAGE_DEV_CI_ARM64}
     GIT_HTTPS_USER: ${GIT_HTTPS_USER}
     GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
-    _ENABLE_IMAGE_PUSH: true
+    _ENABLE_IMAGE_PUSH: 'true'
 
 run-amd64:
   stage: Build run Images
@@ -135,7 +135,7 @@ run-amd64:
     IMAGE: ${IMAGE_RUN_CI_AMD64}
     GIT_HTTPS_USER: ${GIT_HTTPS_USER}
     GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
-    _ENABLE_IMAGE_PUSH: true
+    _ENABLE_IMAGE_PUSH: 'true'
 
 run-arm64:
   stage: Build run Images
@@ -152,7 +152,7 @@ run-arm64:
     IMAGE: ${IMAGE_RUN_CI_ARM64}
     GIT_HTTPS_USER: ${GIT_HTTPS_USER}
     GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
-    _ENABLE_IMAGE_PUSH: true
+    _ENABLE_IMAGE_PUSH: 'true'
 
 
 .test:
