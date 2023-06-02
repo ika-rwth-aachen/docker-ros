@@ -9,25 +9,39 @@ workflow:
 
 
 variables:
-  IMAGE_DEV_TARGET:     ${CI_REGISTRY_IMAGE}:latest-dev
-  IMAGE_RUN_TARGET:     ${CI_REGISTRY_IMAGE}:latest
-  IMAGE_DEV_CI:         ${IMAGE_DEV_TARGET}_${CI_COMMIT_REF_SLUG}_ci
-  IMAGE_RUN_CI:         ${IMAGE_RUN_TARGET}_${CI_COMMIT_REF_SLUG}_ci
+  TARGET:                 run                     # Target stage of Dockerfile (comma-separated list) [dev|run]
+  PLATFORM:               amd64                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  BASE_IMAGE:             ''                      # Base image name:tag (required)
+  COMMAND:                ''                      # Launch command of run image (required if target=run)
+  IMAGE_NAME:             ${CI_REGISTRY_IMAGE}    # Image name of run image
+  IMAGE_TAG:              latest                  # Image tag of run image
+  DEV_IMAGE_NAME:         ${IMAGE_NAME}           # Image name of dev image
+  DEV_IMAGE_TAG:          ${IMAGE_TAG}-dev        # Image tag of dev image
+  BUILD_CONTEXT:          .                       # Build context of Docker build process
+  REGISTRY:               ${CI_REGISTRY}          # Docker registry to push images to
+  REGISTRY_USERNAME:      ${CI_REGISTRY_USER}     # Docker registry username
+  REGISTRY_PASSWORD:      ${CI_REGISTRY_PASSWORD} # Docker registry password
+  ENABLE_INDUSTRIAL_CI:   false                   # Enable industrial_ci
+  ENABLE_SINGLEARCH_PUSH: false                   # Enable push of single arch images with [-amd64|-arm64] postfix
+
+  RUN_IMAGE:              ${IMAGE_NAME}:${IMAGE_TAG}
+  DEV_IMAGE:              ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
+
+  IMAGE_DEV_CI:         ${DEV_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  IMAGE_RUN_CI:         ${RUN_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
   IMAGE_DEV_CI_AMD64:   ${IMAGE_DEV_CI}-amd64
   IMAGE_DEV_CI_ARM64:   ${IMAGE_DEV_CI}-arm64
   IMAGE_RUN_CI_AMD64:   ${IMAGE_RUN_CI}-amd64
   IMAGE_RUN_CI_ARM64:   ${IMAGE_RUN_CI}-arm64
-  IMAGE_DEV_LATEST:     ${CI_REGISTRY_IMAGE}:latest-dev
-  IMAGE_RUN_LATEST:     ${CI_REGISTRY_IMAGE}:latest
-  IMAGE_DEV_TARGET_TAG: ${IMAGE_DEV_TARGET}-${CI_COMMIT_TAG}-dev
-  IMAGE_RUN_TARGET_TAG: ${IMAGE_RUN_TARGET}-${CI_COMMIT_TAG}
-  IMAGE_DEV_TAG:        ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}-dev
-  IMAGE_RUN_TAG:        ${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}
+  IMAGE_DEV_LATEST:     ${DEV_IMAGE_NAME}:latest-dev
+  IMAGE_RUN_LATEST:     ${IMAGE_NAME}:latest
+  IMAGE_DEV_TARGET_TAG: ${DEV_IMAGE}-${CI_COMMIT_TAG}-dev
+  IMAGE_RUN_TARGET_TAG: ${RUN_IMAGE}-${CI_COMMIT_TAG}
+  IMAGE_DEV_TAG:        ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
+  IMAGE_RUN_TAG:        ${IMAGE_NAME}:${CI_COMMIT_TAG}
   PUSH_AS_LATEST:       'false'
   # -----
   DOCKER_ROS_GIT_REF: main
-  DOCKER_DIR: docker
-  ROS_DIR: .
   DISABLE_ARCH_AMD64: 'false'
   DISABLE_ARCH_ARM64: 'false'
   DISABLE_INDUSTRIAL_CI: 'false'
@@ -57,20 +71,21 @@ default:
     - amd64
   before_script:
     - apk add bash
+    - cd ${BUILD_CONTEXT}
     - |-
-      if [[ ! -d $DOCKER_DIR/docker-ros ]]; then
-        git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
-        git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git $DOCKER_DIR/docker-ros
-        cd $DOCKER_DIR/docker-ros
-        git fetch origin $DOCKER_ROS_GIT_REF
+      if [[ ! -d $docker/docker-ros ]]; then
+        mkdir -p docker
+        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+        git clone --depth=1 https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros.git docker/docker-ros
+        cd docker/docker-ros
+        git fetch origin ${DOCKER_ROS_GIT_REF}
         git checkout FETCH_HEAD
         cd -
       fi
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker context create buildx-context
     - docker buildx create --use buildx-context
-    - cd $DOCKER_DIR
-
+    - cd docker
 
 .build:
   script:
@@ -84,9 +99,12 @@ dev-amd64:
     - if: $DISABLE_ARCH_AMD64 != 'true'
   variables:
     PLATFORM: linux/amd64
+    BASE_IMAGE: ${BASE_IMAGE}
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_AMD64}
-    CACHE_FROM: ${IMAGE_DEV_CI_AMD64}
+    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
+    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
+    _ENABLE_IMAGE_PUSH: true
 
 dev-arm64:
   stage: Build dev Images
@@ -96,9 +114,12 @@ dev-arm64:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   variables:
     PLATFORM: linux/arm64
+    BASE_IMAGE: ${BASE_IMAGE}
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_ARM64}
-    CACHE_FROM: ${IMAGE_DEV_CI_ARM64}
+    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
+    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
+    _ENABLE_IMAGE_PUSH: true
 
 run-amd64:
   stage: Build run Images
@@ -108,9 +129,13 @@ run-amd64:
     - if: $DISABLE_ARCH_AMD64 != 'true'
   variables:
     PLATFORM: linux/amd64
+    BASE_IMAGE: ${BASE_IMAGE}
+    COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_AMD64}
-    CACHE_FROM: ${IMAGE_DEV_CI_AMD64}
+    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
+    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
+    _ENABLE_IMAGE_PUSH: true
 
 run-arm64:
   stage: Build run Images
@@ -121,23 +146,27 @@ run-arm64:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   variables:
     PLATFORM: linux/arm64
+    BASE_IMAGE: ${BASE_IMAGE}
+    COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_ARM64}
-    CACHE_FROM: ${IMAGE_DEV_CI_ARM64}
+    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
+    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
+    _ENABLE_IMAGE_PUSH: true
 
 
 .test:
   variables:
-    UPSTREAM_WORKSPACE: $ROS_DIR/.repos
-    TARGET_WORKSPACE: $ROS_DIR
+    UPSTREAM_WORKSPACE: ${BUILD_CONTEXT}/.repos
+    TARGET_WORKSPACE: ${BUILD_CONTEXT}
     ADDITIONAL_DEBS: git
-    AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+    AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - apk add --update bash coreutils grep tar
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
-    - test -f $ROS_DIR/.repos || echo "repositories:" > $ROS_DIR/.repos
+    - test -f ${BUILD_CONTEXT}/.repos || echo "repositories:" > ${BUILD_CONTEXT}/.repos
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:
