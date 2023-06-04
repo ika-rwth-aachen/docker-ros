@@ -88,7 +88,7 @@ default:
 
 .build:
   script:
-    - ./docker-ros/build.sh
+    - ./docker-ros/scripts/build.sh
     - docker push ${IMAGE}
 
 dev-amd64:
