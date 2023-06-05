@@ -23,6 +23,10 @@ variables:
   REGISTRY_PASSWORD:      ${CI_REGISTRY_PASSWORD} # Docker registry password
   ENABLE_INDUSTRIAL_CI:   'false'                 # Enable industrial_ci
   ENABLE_SINGLEARCH_PUSH: 'false'                 # Enable push of single arch images with [-amd64|-arm64] postfix
+  PUSH_AS_LATEST:         'false'                 # Push image additionally with tag 'latest'
+  GIT_HTTPS_SERVER:       ${CI_SERVER_HOST}:${CI_SERVER_PORT}   # git server address for private repositories without protocol (e.g. github.com)
+  GIT_HTTPS_USER:         gitlab-ci-token                       # git https username for private repository access
+  GIT_HTTPS_PASSWORD:     ${CI_JOB_TOKEN}                       # git https password/token for private repository access
 
   RUN_IMAGE:              ${IMAGE_NAME}:${IMAGE_TAG}
   DEV_IMAGE:              ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
@@ -39,12 +43,9 @@ variables:
   IMAGE_RUN_TARGET_TAG: ${RUN_IMAGE}-${CI_COMMIT_TAG}
   IMAGE_DEV_TAG:        ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
   IMAGE_RUN_TAG:        ${IMAGE_NAME}:${CI_COMMIT_TAG}
-  PUSH_AS_LATEST:       'false'
   # -----
   DOCKER_ROS_GIT_REF: main
   DISABLE_PUSH: 'false'
-  GIT_HTTPS_USER: gitlab-ci-token
-  GIT_HTTPS_PASSWORD: $CI_JOB_TOKEN
   # -----
   GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_DRIVER: overlay2
@@ -147,7 +148,7 @@ run-arm64:
     UPSTREAM_WORKSPACE: ${BUILD_CONTEXT}/.repos
     TARGET_WORKSPACE: ${BUILD_CONTEXT}
     ADDITIONAL_DEBS: git
-    AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+    AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
     - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
