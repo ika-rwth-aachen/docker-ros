@@ -10,7 +10,7 @@ workflow:
 
 variables:
   TARGET:                 run                     # Target stage of Dockerfile (comma-separated list) [dev|run]
-  PLATFORM:               amd64                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  PLATFORM:               ''                      # Target platform architecture (comma-separated list) [amd64|arm64|...]
   BASE_IMAGE:             ''                      # Base image name:tag (required)
   COMMAND:                ''                      # Launch command of run image (required if target=run)
   IMAGE_NAME:             ${CI_REGISTRY_IMAGE}    # Image name of run image
@@ -42,8 +42,6 @@ variables:
   PUSH_AS_LATEST:       'false'
   # -----
   DOCKER_ROS_GIT_REF: main
-  DISABLE_ARCH_AMD64: 'false'
-  DISABLE_ARCH_ARM64: 'false'
   DISABLE_PUSH: 'false'
   GIT_HTTPS_USER: gitlab-ci-token
   GIT_HTTPS_PASSWORD: $CI_JOB_TOKEN
@@ -93,9 +91,9 @@ dev-amd64:
   stage: Build dev Images
   extends: .build
   rules:
-    - if: $DISABLE_ARCH_AMD64 != 'true'
+    - if: ${PLATFORM} =~ 'amd64' && ${TARGET} =~ 'dev'
   variables:
-    PLATFORM: linux/amd64
+    PLATFORM: amd64
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_AMD64}
 
@@ -104,20 +102,22 @@ dev-arm64:
   extends: .build
   tags: [privileged, arm64]
   rules:
-    - if: $DISABLE_ARCH_ARM64 != 'true'
+    - if: ${PLATFORM} =~ 'arm64' && ${TARGET} =~ 'dev'
   variables:
-    PLATFORM: linux/arm64
+    PLATFORM: arm64
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_ARM64}
 
 run-amd64:
   stage: Build run Images
   extends: .build
-  needs: [dev-amd64]
+  needs:
+    - job: dev-amd64
+      optional: true
   rules:
-    - if: $DISABLE_ARCH_AMD64 != 'true'
+    - if: ${PLATFORM} =~ 'amd64' && ${TARGET} =~ 'run'
   variables:
-    PLATFORM: linux/amd64
+    PLATFORM: amd64
     COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_AMD64}
@@ -126,11 +126,13 @@ run-arm64:
   stage: Build run Images
   extends: .build
   tags: [privileged, arm64]
-  needs: [dev-arm64]
+  needs:
+    - job: dev-arm64
+      optional: true
   rules:
-    - if: $DISABLE_ARCH_ARM64 != 'true'
+    - if: ${PLATFORM} =~ 'arm64' && ${TARGET} =~ 'run'
   variables:
-    PLATFORM: linux/arm64
+    PLATFORM: arm64
     COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_ARM64}
@@ -157,7 +159,7 @@ Test dev-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $DISABLE_ARCH_AMD64 != 'true'
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && ${PLATFORM} =~ 'amd64'
   variables:
     DOCKER_IMAGE: ${IMAGE_DEV_CI_AMD64}
 
@@ -169,7 +171,7 @@ Test dev-arm64:
     - job: dev-arm64
       optional: true
   rules:
-      - if: $ENABLE_INDUSTRIAL_CI == 'true' && $DISABLE_ARCH_ARM64 != 'true'
+      - if: $ENABLE_INDUSTRIAL_CI == 'true' && ${PLATFORM} =~ 'arm64'
   variables:
     DOCKER_IMAGE: ${IMAGE_DEV_CI_ARM64}
 
@@ -189,14 +191,23 @@ Test dev-arm64:
     - job: Test dev-arm64
       optional: true
   rules:
-    - if: $DISABLE_PUSH == 'true' || $DISABLE_ARCH_AMD64 == 'true' && $DISABLE_ARCH_ARM64 == 'true'
+    - if: ${PLATFORM} == '' || ${TARGET} == ''
       when: never
   script:
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - if [ $DISABLE_ARCH_AMD64 != "true" ] && [ $DISABLE_ARCH_ARM64 = "true" ]; then docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_AMD64} && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_AMD64}; fi
-    - if [ $DISABLE_ARCH_AMD64 = "true" ] && [ $DISABLE_ARCH_ARM64 != "true" ]; then docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_ARM64} && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_ARM64}; fi
-    - docker manifest push ${IMG_DEV}
-    - docker manifest push ${IMG_RUN}
+    - |-
+      if [[ ${PLATFORM} =~ 'amd64' && ${PLATFORM} =~ 'arm64' ]]; then
+        [[ ${TARGET} =~ 'dev' ]] && docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_AMD64} --amend ${IMAGE_DEV_CI_ARM64}
+        [[ ${TARGET} =~ 'run' ]] && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_AMD64} --amend ${IMAGE_RUN_CI_ARM64}
+      elif [[ ${PLATFORM} == 'amd64' ]]; then
+        [[ ${TARGET} =~ 'dev' ]] && docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_AMD64}
+        [[ ${TARGET} =~ 'run' ]] && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_AMD64}
+      elif [[ ${PLATFORM} == 'amd64' ]]; then
+        [[ ${TARGET} =~ 'dev' ]] && docker manifest create ${IMG_DEV} --amend ${IMAGE_DEV_CI_ARM64}
+        [[ ${TARGET} =~ 'run' ]] && docker manifest create ${IMG_RUN} --amend ${IMAGE_RUN_CI_ARM64}
+      fi
+    - |-
+      [[ ${TARGET} =~ 'dev' ]] && docker manifest push ${IMG_DEV}
+      [[ ${TARGET} =~ 'dev' ]] && docker manifest push ${IMG_RUN}
 
 Push CI:
   stage: Push Multi-Arch Images
