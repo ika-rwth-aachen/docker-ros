@@ -9,7 +9,7 @@ require_var() {
 
 open_log_group() {
     if [[ "${GITLAB_CI}" ]]; then
-        echo "\e[0Ksection_start:`date +%s`:my_first_section\r\e[0K${1}"
+        echo "section_start:build_jobs:$(date +%s)"
     elif [[ "${CI}" ]]; then
         echo "::group::[docker-ros] ${1}"
     fi
@@ -17,7 +17,7 @@ open_log_group() {
 
 close_log_group() {
     if [[ "${GITLAB_CI}" ]]; then
-        echo -e "\e[0Ksection_end:`date +%s`:my_first_section\r\e[0K"
+        echo "section_end:build_jobs:$(date +%s)"
     elif [[ "${CI}" ]]; then
         echo "::endgroup::"
     fi
