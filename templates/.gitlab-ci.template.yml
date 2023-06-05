@@ -88,8 +88,7 @@ default:
 
 .build:
   script:
-    - PLATFORM=${PLATFORM} BASE_IMAGE=${BASE_IMAGE} TARGET=${TARGET} IMAGE=${IMAGE} COMMAND=${COMMAND} GIT_HTTPS_USER=${GIT_HTTPS_USER} GIT_HTTPS_PASSWORD=${GIT_HTTPS_PASSWORD} _ENABLE_IMAGE_PUSH=${_ENABLE_IMAGE_PUSH} ./docker-ros/scripts/build.sh
-    - echo "CMD is ${COMMAND}"
+    - ./docker-ros/scripts/build.sh
     - docker push ${IMAGE}
 
 dev-amd64:
@@ -99,11 +98,8 @@ dev-amd64:
     - if: $DISABLE_ARCH_AMD64 != 'true'
   variables:
     PLATFORM: linux/amd64
-    BASE_IMAGE: ${BASE_IMAGE}
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_AMD64}
-    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
-    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
     _ENABLE_IMAGE_PUSH: 'true'
 
 dev-arm64:
@@ -114,11 +110,8 @@ dev-arm64:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   variables:
     PLATFORM: linux/arm64
-    BASE_IMAGE: ${BASE_IMAGE}
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_ARM64}
-    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
-    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
     _ENABLE_IMAGE_PUSH: 'true'
 
 run-amd64:
@@ -129,12 +122,9 @@ run-amd64:
     - if: $DISABLE_ARCH_AMD64 != 'true'
   variables:
     PLATFORM: linux/amd64
-    BASE_IMAGE: ${BASE_IMAGE}
     COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_AMD64}
-    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
-    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
     _ENABLE_IMAGE_PUSH: 'true'
 
 run-arm64:
@@ -146,12 +136,9 @@ run-arm64:
     - if: $DISABLE_ARCH_ARM64 != 'true'
   variables:
     PLATFORM: linux/arm64
-    BASE_IMAGE: ${BASE_IMAGE}
     COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_ARM64}
-    GIT_HTTPS_USER: ${GIT_HTTPS_USER}
-    GIT_HTTPS_PASSWORD: ${GIT_HTTPS_PASSWORD}
     _ENABLE_IMAGE_PUSH: 'true'
 
 
