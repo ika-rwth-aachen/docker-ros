@@ -78,6 +78,10 @@ default:
         git checkout FETCH_HEAD
         cd -
       fi
+    - |-
+      if [[ $(dpkg --print-architecture) != ${PLATFORM} ]]; then
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      fi
     - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker context create buildx-context
     - docker buildx create --use buildx-context
