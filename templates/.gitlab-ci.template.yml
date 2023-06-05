@@ -95,7 +95,7 @@ dev-amd64:
   stage: Build dev Images
   extends: .build
   rules:
-    - if: ${PLATFORM} =~ 'amd64' && ${TARGET} =~ 'dev'
+    - if: $PLATFORM =~ 'amd64' && $TARGET =~ 'dev'
   variables:
     PLATFORM: amd64
     TARGET: dev
@@ -106,7 +106,7 @@ dev-arm64:
   extends: .build
   tags: [privileged, arm64]
   rules:
-    - if: ${PLATFORM} =~ 'arm64' && ${TARGET} =~ 'dev'
+    - if: $PLATFORM =~ 'arm64' && $TARGET =~ 'dev'
   variables:
     PLATFORM: arm64
     TARGET: dev
@@ -119,7 +119,7 @@ run-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: ${PLATFORM} =~ 'amd64' && ${TARGET} =~ 'run'
+    - if: $PLATFORM =~ 'amd64' && $TARGET =~ 'run'
   variables:
     PLATFORM: amd64
     COMMAND: ${COMMAND}
@@ -134,7 +134,7 @@ run-arm64:
     - job: dev-arm64
       optional: true
   rules:
-    - if: ${PLATFORM} =~ 'arm64' && ${TARGET} =~ 'run'
+    - if: $PLATFORM =~ 'arm64' && $TARGET =~ 'run'
   variables:
     PLATFORM: arm64
     COMMAND: ${COMMAND}
@@ -163,7 +163,7 @@ Test dev-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: ${ENABLE_INDUSTRIAL_CI} == 'true' && ${PLATFORM} =~ 'amd64'
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ 'amd64'
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_AMD64}
 
@@ -175,7 +175,7 @@ Test dev-arm64:
     - job: dev-arm64
       optional: true
   rules:
-      - if: ${ENABLE_INDUSTRIAL_CI} == 'true' && ${PLATFORM} =~ 'arm64'
+      - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ 'arm64'
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_ARM64}
 
@@ -195,7 +195,7 @@ Test dev-arm64:
     - job: Test dev-arm64
       optional: true
   rules:
-    - if: ${PLATFORM} == '' || ${TARGET} == ''
+    - if: $PLATFORM == '' || $TARGET == ''
       when: never
   script:
     - |-
