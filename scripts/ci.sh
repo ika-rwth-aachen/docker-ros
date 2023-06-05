@@ -12,13 +12,13 @@ TARGET="${TARGET:-run}"
 PLATFORM="${PLATFORM:-$(dpkg --print-architecture)}"
 require_var "BASE_IMAGE"
 require_var "IMAGE_NAME"
-TAG="${TAG:-latest}"
+IMAGE_TAG="${IMAGE_TAG:-latest}"
 [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
 DEV_IMAGE_NAME="${DEV_IMAGE_NAME:-${IMAGE_NAME}}"
-DEV_TAG="${DEV_TAG:-${TAG}-dev}"
+DEV_IMAGE_TAG="${DEV_IMAGE_TAG:-${IMAGE_TAG}-dev}"
 
-IMAGE="${IMAGE_NAME}:${TAG}"
-DEV_IMAGE="${DEV_IMAGE_NAME}:${DEV_TAG}"
+IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
+DEV_IMAGE="${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
 
 ENABLE_SINGLEARCH_PUSH="${ENABLE_SINGLEARCH_PUSH:-false}"
 
