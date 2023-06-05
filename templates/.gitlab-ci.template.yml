@@ -83,13 +83,10 @@ default:
     - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker context create buildx-context
     - docker buildx create --use buildx-context
-    - cd docker
-    - ls -al docker-ros/
-    - ls -al docker-ros/docker/
 
 .build:
   script:
-    - ./docker-ros/scripts/build.sh
+    - ./docker/docker-ros/scripts/build.sh
     - docker push ${IMAGE}
 
 dev-amd64:
