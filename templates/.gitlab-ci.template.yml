@@ -67,7 +67,7 @@ default:
     - privileged
     - amd64
   before_script:
-    - apk add bash
+    - apk add bash dpkg
     - cd ${BUILD_CONTEXT}
     - |-
       if [[ ! -d $docker/docker-ros ]]; then
@@ -81,6 +81,8 @@ default:
     - |-
       if [[ $(dpkg --print-architecture) != ${PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        dpkg --print-architecture
+        echo ${CI_RUNNER_EXECUTABLE_ARCH}
       fi
     - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker context create buildx-context
@@ -88,7 +90,7 @@ default:
 
 .build:
   script:
-    - ./docker/docker-ros/scripts/build.sh
+    - PLATFORM=${BUILD_PLATFORM} TARGET=${BUILD_TARGET} ./docker/docker-ros/scripts/build.sh
     - docker push ${IMAGE}
 
 dev-amd64:
@@ -97,8 +99,8 @@ dev-amd64:
   rules:
     - if: $PLATFORM =~ 'amd64' && $TARGET =~ 'dev'
   variables:
-    PLATFORM: amd64
-    TARGET: dev
+    BUILD_PLATFORM: amd64
+    BUILD_TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_AMD64}
 
 dev-arm64:
@@ -108,8 +110,8 @@ dev-arm64:
   rules:
     - if: $PLATFORM =~ 'arm64' && $TARGET =~ 'dev'
   variables:
-    PLATFORM: arm64
-    TARGET: dev
+    BUILD_PLATFORM: arm64
+    BUILD_TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_ARM64}
 
 run-amd64:
@@ -121,9 +123,9 @@ run-amd64:
   rules:
     - if: $PLATFORM =~ 'amd64' && $TARGET =~ 'run'
   variables:
-    PLATFORM: amd64
+    BUILD_PLATFORM: amd64
     COMMAND: ${COMMAND}
-    TARGET: run
+    BUILD_TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_AMD64}
 
 run-arm64:
@@ -136,9 +138,9 @@ run-arm64:
   rules:
     - if: $PLATFORM =~ 'arm64' && $TARGET =~ 'run'
   variables:
-    PLATFORM: arm64
+    BUILD_PLATFORM: arm64
     COMMAND: ${COMMAND}
-    TARGET: run
+    BUILD_TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_ARM64}
 
 
