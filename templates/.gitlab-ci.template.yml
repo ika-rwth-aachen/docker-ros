@@ -88,7 +88,8 @@ default:
 
 .build:
   script:
-    - ./docker-ros/scripts/build.sh
+    - PLATFORM=${PLATFORM} BASE_IMAGE=${BASE_IMAGE} TARGET=${TARGET} IMAGE=${IMAGE} COMMAND=${COMMAND} GIT_HTTPS_USER=${GIT_HTTPS_USER} GIT_HTTPS_PASSWORD=${GIT_HTTPS_PASSWORD} _ENABLE_IMAGE_PUSH=${_ENABLE_IMAGE_PUSH} ./docker-ros/scripts/build.sh
+    - echo "CMD is ${COMMAND}"
     - docker push ${IMAGE}
 
 dev-amd64:
