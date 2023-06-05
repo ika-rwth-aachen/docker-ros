@@ -1,0 +1,84 @@
+on: [push]
+
+jobs:
+  trigger-ros1:
+    name: Trigger ROS1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Create artifacts directory
+        run: mkdir artifacts
+      
+      - name: Trigger pipeline
+        run: |
+          export PIPELINE_ID=$(curl --silent --fail --request POST \
+            --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+            --form ref=main \
+            --form "variables[DOCKER_ROS_GIT_REF]=$(git rev-parse HEAD)" \
+            "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" \
+            | jq -r .id)
+          echo $PIPELINE_ID > artifacts/id
+
+  trigger-ros2:
+    name: Trigger ROS2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Create artifacts directory
+        run: mkdir artifacts
+      
+      - name: Trigger pipeline
+        run: |
+          export PIPELINE_ID=$(curl --silent --fail --request POST \
+            --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+            --form ref=ros2 \
+            --form "variables[DOCKER_ROS_GIT_REF]=$(git rev-parse HEAD)" \
+            "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" \
+            | jq -r .id)
+          echo $PIPELINE_ID > artifacts/id
+
+  watch-ros1:
+    name: Watch ROS1
+    runs-on: ubuntu-latest
+    needs: trigger-ros1
+    steps:
+      - name: Wait for pipeline completion
+        run: |
+          export PIPELINE_ID=$(cat artifacts/id)
+          while true; do
+            sleep 30
+            export PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+              "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" \
+              | jq -r .status)
+            echo "Pipeline status: $PIPELINE_STATUS (https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros-ci/-/pipelines/$PIPELINE_ID)"
+            if [[ $PIPELINE_STATUS == "success" ]]; then
+              break
+            elif [[ $PIPELINE_STATUS == "failed" ]] || [[ $PIPELINE_STATUS == "canceled" ]]; then
+              exit 1
+            fi
+          done
+
+  watch-ros2:
+    name: Watch ROS2
+    runs-on: ubuntu-latest
+    needs: trigger-ros2
+    steps:
+      - name: Wait for pipeline completion
+        run: |
+          export PIPELINE_ID=$(cat artifacts/id)
+          while true; do
+            sleep 30
+            export PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+              "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" \
+              | jq -r .status)
+            echo "Pipeline status: $PIPELINE_STATUS (https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros-ci/-/pipelines/$PIPELINE_ID)"
+            if [[ $PIPELINE_STATUS == "success" ]]; then
+              break
+            elif [[ $PIPELINE_STATUS == "failed" ]] || [[ $PIPELINE_STATUS == "canceled" ]]; then
+              exit 1
+            fi
+          done

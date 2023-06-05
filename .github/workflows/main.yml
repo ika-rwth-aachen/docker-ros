@@ -1,4 +1,4 @@
-on: [pull_request]
+on: [push]
 
 jobs:
   trigger-docker-ros-ci-ros1:
