@@ -39,7 +39,7 @@ inputs:
     description: "Docker registry to push images to"
     default: ghcr.io
 
-  registry-username:
+  registry-username: # TODO: rename to user or rename git-https-username to user
     description: "Docker registry username"
     default: ${{ github.actor }}
 
