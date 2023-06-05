@@ -47,13 +47,11 @@ RUN shopt -s dotglob && \
     rm -r src/repository
 
 # clone .repos upstream dependencies
-# TODO: remove hard-coded git server
-# TODO: pass build-args for git authentication
-ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
+ARG GIT_HTTPS_SERVER=
 ARG GIT_HTTPS_USER=
 ARG GIT_HTTPS_PASSWORD=
-RUN if [ -n ${GIT_HTTPS_USER} ]; then \
-        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
+RUN if [ -n ${GIT_HTTPS_SERVER} ]; then \
+        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER} ; \
     fi
 ARG GIT_SSH_PRIVATE_KEY=
 ARG GIT_SSH_KNOWN_HOST_KEYS=

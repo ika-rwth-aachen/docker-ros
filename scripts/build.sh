@@ -17,11 +17,13 @@ build_image() {
         $(if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then echo "--push"; else echo "--load"; fi) \
         --build-arg BASE_IMAGE="${BASE_IMAGE}" \
         --build-arg COMMAND="${COMMAND}" \
-        --build-arg GIT_HTTPS_PASSWORD="${GIT_HTTPS_PASSWORD}" \
+        --build-arg GIT_HTTPS_SERVER="${GIT_HTTPS_SERVER}" \
         --build-arg GIT_HTTPS_USER="${GIT_HTTPS_USER}" \
+        --build-arg GIT_HTTPS_PASSWORD="${GIT_HTTPS_PASSWORD}" \
+        --build-arg GIT_SSH_PRIVATE_KEY="${GIT_SSH_PRIVATE_KEY}" \
+        --build-arg GIT_SSH_KNOWN_HOST_KEYS="${GIT_SSH_KNOWN_HOST_KEYS}" \
         .
     echo "Successfully built stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}'"
-    # TODO: GIT_HTTPS
 }
 
 
