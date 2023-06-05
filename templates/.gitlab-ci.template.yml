@@ -27,6 +27,8 @@ variables:
   GIT_HTTPS_SERVER:       ${CI_SERVER_HOST}:${CI_SERVER_PORT}   # git server address for private repositories without protocol (e.g. github.com)
   GIT_HTTPS_USER:         gitlab-ci-token                       # git https username for private repository access
   GIT_HTTPS_PASSWORD:     ${CI_JOB_TOKEN}                       # git https password/token for private repository access
+  # -----
+  DOCKER_ROS_GIT_REF: main
 
   _RUN_IMAGE:              ${IMAGE_NAME}:${IMAGE_TAG}
   _DEV_IMAGE:              ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
@@ -43,10 +45,7 @@ variables:
   _IMAGE_RUN_TARGET_TAG:   ${_RUN_IMAGE}-${CI_COMMIT_TAG}
   _IMAGE_DEV_TAG:          ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
   _IMAGE_RUN_TAG:          ${IMAGE_NAME}:${CI_COMMIT_TAG}
-  # -----
-  DOCKER_ROS_GIT_REF: main
-  DISABLE_PUSH: 'false'
-  # -----
+
   GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: /certs
