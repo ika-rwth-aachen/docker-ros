@@ -90,7 +90,7 @@ default:
 
 .build:
   script:
-    - PLATFORM=${BUILD_PLATFORM} TARGET=${BUILD_TARGET} ./docker/docker-ros/scripts/build.sh
+    - PLATFORM=${BUILD_PLATFORM} TARGET=${BUILD_TARGET} ./docker/docker-ros/scripts/ci.sh
     - docker push ${IMAGE}
 
 dev-amd64:
