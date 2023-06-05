@@ -84,6 +84,8 @@ default:
     - docker context create buildx-context
     - docker buildx create --use buildx-context
     - cd docker
+    - ls -al docker-ros/
+    - ls -al docker-ros/docker/
 
 .build:
   script:
