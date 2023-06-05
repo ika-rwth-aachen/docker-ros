@@ -17,8 +17,8 @@ IMAGE_TAG="${IMAGE_TAG:-latest}"
 DEV_IMAGE_NAME="${DEV_IMAGE_NAME:-${IMAGE_NAME}}"
 DEV_IMAGE_TAG="${DEV_IMAGE_TAG:-${IMAGE_TAG}-dev}"
 
-IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
-DEV_IMAGE="${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
+IMAGE="${IMAGE:-${IMAGE_NAME}:${IMAGE_TAG}}"
+DEV_IMAGE="${DEV_IMAGE:-${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}}"
 
 ENABLE_SINGLEARCH_PUSH="${ENABLE_SINGLEARCH_PUSH:-false}"
 
@@ -35,7 +35,7 @@ if [[ "${PLATFORM}" != *","* ]]; then
 else
     industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
 fi
-echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
+[[ ! "${GITLAB_CI}" ]] && echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 
 # parse (potentially) comma-separated lists to arrays
 IFS="," read -ra TARGETS <<< "${TARGET}"
