@@ -142,7 +142,10 @@ runs:
       env:
         UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
         TARGET_WORKSPACE: ${{ inputs.build-context }}
-        ADDITIONAL_DEBS: git # TODO AFTER_INIT_EMBED: git config --global url.${CI_SERVER_PROTOCOL}://gitlab-ci-token:${CI_JOB_TOKEN}@${CI_SERVER_HOST}:${CI_SERVER_PORT}.insteadOf ${CI_SERVER_URL}
+        ADDITIONAL_DEBS: git
+        AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
+        SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
         DOCKER_RUN_OPTS: -u root:root
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
