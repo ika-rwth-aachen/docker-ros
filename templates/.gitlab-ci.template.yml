@@ -98,7 +98,6 @@ dev-amd64:
     PLATFORM: linux/amd64
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_AMD64}
-    _ENABLE_IMAGE_PUSH: 'true'
 
 dev-arm64:
   stage: Build dev Images
@@ -110,7 +109,6 @@ dev-arm64:
     PLATFORM: linux/arm64
     TARGET: dev
     IMAGE: ${IMAGE_DEV_CI_ARM64}
-    _ENABLE_IMAGE_PUSH: 'true'
 
 run-amd64:
   stage: Build run Images
@@ -123,7 +121,6 @@ run-amd64:
     COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_AMD64}
-    _ENABLE_IMAGE_PUSH: 'true'
 
 run-arm64:
   stage: Build run Images
@@ -137,7 +134,6 @@ run-arm64:
     COMMAND: ${COMMAND}
     TARGET: run
     IMAGE: ${IMAGE_RUN_CI_ARM64}
-    _ENABLE_IMAGE_PUSH: 'true'
 
 
 .test:
