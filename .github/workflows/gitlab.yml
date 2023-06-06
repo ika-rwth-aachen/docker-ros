@@ -4,8 +4,7 @@ on: [push]
 
 jobs:
 
-  trigger:
-    name: trigger
+  trigger-ros:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger pipeline
@@ -17,10 +16,45 @@ jobs:
           name: id
           path: id
 
-  watch:
-    name: watch
+  watch-ros:
     runs-on: ubuntu-latest
-    needs: trigger
+    needs: trigger-ros
+    steps:
+      - name: Get pipeline ID
+        uses: actions/download-artifact@v3
+        with:
+          name: id
+      - name: Wait for pipeline completion
+        run: |
+          PIPELINE_ID=$(cat id)
+          while true; do
+            sleep 30
+            PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_READ_PIPELINE_GITLAB_TOKEN }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" | jq -r .status)
+            echo "Pipeline status: $PIPELINE_STATUS (https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros-ci/-/pipelines/$PIPELINE_ID)"
+            if [[ $PIPELINE_STATUS == "success" ]]; then
+              break
+            elif [[ $PIPELINE_STATUS == "failed" ]]; then
+              exit 1
+            elif [[ $PIPELINE_STATUS == "canceled" ]]; then
+              exit 1
+            fi
+          done
+
+  trigger-ros2:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger pipeline
+        run: |
+          curl --silent --fail --request POST --form "token=${{ secrets.DOCKER_ROS_CI_TRIGGER_GITLAB_TOKEN }}" --form "ref=ros2" --form "variables[DOCKER_ROS_GIT_REF]=${{ github.sha }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" | jq -r .id > id
+      - name: Upload pipeline ID
+        uses: actions/upload-artifact@v3
+        with:
+          name: id
+          path: id
+
+  watch-ros2:
+    runs-on: ubuntu-latest
+    needs: trigger-ros2
     steps:
       - name: Get pipeline ID
         uses: actions/download-artifact@v3
