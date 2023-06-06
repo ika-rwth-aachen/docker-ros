@@ -191,25 +191,66 @@ jobs:
 
 ## Configuration Variables
 
-| GitHub Input | GitLab Env Var | Required | Description | Default GitHub | Default GitLab | Allow. Values |
-| --- | --- | :---: | --- | :---: | :---: | :---: |
-| `base_image` | `BASE_IMAGE` | x | Base image `name:tag` | - | - | - |
-| `build-context` | `BUILD_CONTEXT` | - | Build context of Docker build process | `${{ github.workspace }}` | `.` | - |
-| `command` | `COMMAND` | - | Launch command of run image (required if `target=run`) | - | - | - |
-| `dev-image-name` | `DEV_IMAGE_NAME` | - | Image name of dev image |  |  | - |
-| `dev-image-tag` | `DEV_IMAGE_TAG` | - | Image tag of dev image | `<IMAGE_NAME>` | `"<IMAGE_TAG>-dev` | - |
-| - | `DOCKER_ROS_GIT_REF` | - | Git reference of *docker-ros* to run in CI | - | `main` | - |
-| `enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI` | - | Enable industrial_ci | `false` | `false` | `true`, `false` |
-| `enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH` | - | Enable push of single arch images with `-amd64`/`-arm64` postfix | `false` | `false` | `true`, `false` |
-| `git-https-password` | `GIT_HTTPS_PASSWORD` | - | Password for cloning private Git repositories via HTTPS | `${{ github.token }}` | `$CI_JOB_TOKEN` | - |
-| `git-https-server` | `GIT_HTTPS_SERVER` | - | Server URL (without protocol) for cloning private Git repositories via HTTPS | `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` | - |
-| `git-https-user` | `GIT_HTTPS_USER` | - | Username for cloning private Git repositories via HTTPS | `${{ github.actor }}` | `gitlab-ci-token` |  |
-| `git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS` | - | Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`) | - | - | - |
-| `git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY` | - | SSH private key for cloning private Git repositories via SSH | - | - | - |
-| `image-name` | `IMAGE_NAME` | - | Image name of run image | `ghcr.io/${{ github.repository }}` | `$CI_REGISTRY_IMAGE` | - |
-| `image-tag` | `IMAGE_TAG` | - | Image tag of run image | `latest` | `latest` | - |
-| `platform` | `PLATFORM` | - | Target platform architecture (comma-separated list) | runner architecture | runner architecture | `amd64`, `arm64` |
-| `registry-password` | `REGISTRY_PASSWORD` | - | Docker registry password | `${{ github.token }}` | `$CI_REGISTRY_PASSWORD` | - |
-| `registry-username` | `REGISTRY_USERNAME` | - | Docker registry username | `${{ github.actor }}` | `$CI_REGISTRY_USER` | - |
-| `registry` | `REGISTRY` | - | Docker registry to push images to | `ghcr.io` | `$CI_REGISTRY` | - |
-| `target` | `TARGET` | - | Target stage of Dockerfile (comma-separated list) | `run` | `run` | `dev`, `run`, `dev,run` |
+> **Note**  
+> *GitHub Action input* | *GitLab CI environment variable*
+
+- **`base-image` | `BASE_IMAGE`**  
+  Base image `name:tag`  
+  *required*  
+- **`build-context` | `BUILD_CONTEXT`**  
+  Build context of Docker build process  
+  *default:* `${{ github.workspace }}` | `.`  
+- **`command` | `COMMAND`**  
+  Launch command of run image  
+  *required if `target=run`*  
+- **`dev-image-name` | `DEV_IMAGE_NAME`**  
+  Image name of dev image  
+  *default:* `<IMAGE_NAME>`  
+- **`dev-image-tag` | `DEV_IMAGE_TAG`**  
+  Image tag of dev image  
+  *default:* `<IMAGE_TAG>-dev`  
+- **`-` | `DOCKER_ROS_GIT_REF`**  
+  Git reference of *docker-ros* to run in CI  
+  *default:* `main` 
+- **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
+  Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
+  *default:* `false` 
+- **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
+  Enable push of single arch images with `-amd64`/`-arm64` postfix  
+  *default:* `false` 
+- **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
+  Password for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
+- **`git-https-server` | `GIT_HTTPS_SERVER`**  
+  Server URL (without protocol) for cloning private Git repositories via HTTPS  
+  *default:* `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` 
+- **`git-https-user` | `GIT_HTTPS_USER`**  
+  Username for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.actor }}` | `gitlab-ci-token`  
+- **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
+  Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
+- **`git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY`**  
+  SSH private key for cloning private Git repositories via SSH  
+- **`image-name` | `IMAGE_NAME`**  
+  Image name of run image  
+  *default:* `ghcr.io/${{ github.repository }}` | `$CI_REGISTRY_IMAGE`  
+- **`image-tag` | `IMAGE_TAG`**  
+  Image tag of run image
+  *default:* `latest`  
+- **`platform` | `PLATFORM`**  
+  Target platform architecture (comma-separated list)  
+  *default:* runner architecture
+  *supported values:* `amd64`, `arm64`
+- **`registry-password` | `REGISTRY_PASSWORD`**  
+  Docker registry password  
+  *default:* `${{ github.token }}` | `$CI_REGISTRY_PASSWORD`  
+- **`registry-username` | `REGISTRY_USERNAME`**  
+  Docker registry username  
+  *default:* `${{ github.actor }}` | `$CI_REGISTRY_USER`  
+- **`registry` | `REGISTRY`**  
+  Docker registry to push images to  
+  *default:* `ghcr.io` | `$CI_REGISTRY`  
+- **`target` | `TARGET`**  
+  Target stage of Dockerfile (comma-separated list)  
+  *default:* `run`
+  *supported values:* `dev`, `run`
