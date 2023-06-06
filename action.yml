@@ -74,7 +74,7 @@ inputs:
     default: false
   
   push-as-latest:
-    description: "Push image additionaly with "latest" tag"
+    description: "Push image additionaly with 'latest' tag"
     default: false
 
 runs:
