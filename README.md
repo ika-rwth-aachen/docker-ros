@@ -3,6 +3,7 @@
 <p align="center">
   <img src="https://img.shields.io/github/v/release/ika-rwth-aachen/docker-ros"/></a>
   <img src="https://img.shields.io/github/license/ika-rwth-aachen/docker-ros"/>
+  <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml/badge.svg"/></a>
   <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml/badge.svg"/></a>
 </p>
 
