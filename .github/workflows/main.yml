@@ -10,9 +10,8 @@ jobs:
         with:
           owner: ika-rwth-aachen
           repo: docker-ros-ci
-          ref: feature/github-workflow # TODO: set to main
+          ref: main
           workflow_file_name: main-ros1.yml
-          github_token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
           client_payload: '{"docker-ros-git-ref": "${{ github.ref_name }}"}'
   trigger-docker-ros-ci-ros2:
     name: Trigger docker-ros-ci ros2 workflow
@@ -23,7 +22,6 @@ jobs:
         with:
           owner: ika-rwth-aachen
           repo: docker-ros-ci
-          ref: feature/github-workflow # TODO: set to main
+          ref: main
           workflow_file_name: main-ros2.yml
-          github_token: ${{ secrets.PAT }}  # Personal Access Token with appropriate permissions
           client_payload: '{"docker-ros-git-ref": "${{ github.ref_name }}"}'
