@@ -241,6 +241,9 @@ jobs:
   Target platform architecture (comma-separated list)  
   *default:* runner architecture
   *supported values:* `amd64`, `arm64`
+- **`push-as-latest` | `PUSH_AS_LATEST`**  
+  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
+  *default:* `false`  
 - **`registry-password` | `REGISTRY_PASSWORD`**  
   Docker registry password  
   *default:* `${{ github.token }}` | `$CI_REGISTRY_PASSWORD`  

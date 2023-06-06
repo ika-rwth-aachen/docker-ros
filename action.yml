@@ -74,8 +74,9 @@ inputs:
     default: false
   
   push-as-latest:
-    description: "Push image additionaly with 'latest' tag"
+    description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
     default: false
+
 
 runs:
   using: "composite"

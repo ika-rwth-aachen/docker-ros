@@ -23,7 +23,7 @@ variables:
   REGISTRY_PASSWORD:      ${CI_REGISTRY_PASSWORD}               # Docker registry password
   ENABLE_INDUSTRIAL_CI:   'false'                               # Enable industrial_ci
   ENABLE_SINGLEARCH_PUSH: 'false'                               # Enable push of single arch images with [-amd64|-arm64] postfix
-  PUSH_AS_LATEST:         'false'                               # Push image additionally with tag 'latest'
+  PUSH_AS_LATEST:         'false'                               # Push images with tag `latest`/`latest-dev` in addition to the configured image names
   GIT_HTTPS_SERVER:       ${CI_SERVER_HOST}                     # git server address for private repositories without protocol (e.g. github.com)
   GIT_HTTPS_USER:         gitlab-ci-token                       # git https username for private repository access
   GIT_HTTPS_PASSWORD:     ${CI_JOB_TOKEN}                       # git https password/token for private repository access
