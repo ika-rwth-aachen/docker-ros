@@ -14,6 +14,7 @@ jobs:
           ref: main
           workflow_file_name: ros.yml
           client_payload: '{"docker-ros-git-ref": "${{ github.sha }}"}'
+          github_token: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITHUB_TOKEN }}
 
   trigger-ros2:
     runs-on: ubuntu-latest
@@ -25,3 +26,4 @@ jobs:
           ref: main
           workflow_file_name: ros2.yml
           client_payload: '{"docker-ros-git-ref": "${{ github.sha }}"}'
+          github_token: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITHUB_TOKEN }}
