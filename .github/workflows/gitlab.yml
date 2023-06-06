@@ -14,7 +14,7 @@ jobs:
       - name: Trigger pipeline
         run: |
           export PIPELINE_ID=$(curl --silent --fail --request POST \
-            --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+            --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITLAB_TOKEN }}" \
             --form ref=main \
             --form "variables[DOCKER_ROS_GIT_REF]=$(git rev-parse HEAD)" \
             "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" \
@@ -34,7 +34,7 @@ jobs:
       - name: Trigger pipeline
         run: |
           export PIPELINE_ID=$(curl --silent --fail --request POST \
-            --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+            --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITLAB_TOKEN }}" \
             --form ref=ros2 \
             --form "variables[DOCKER_ROS_GIT_REF]=$(git rev-parse HEAD)" \
             "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" \
@@ -51,7 +51,7 @@ jobs:
           export PIPELINE_ID=$(cat artifacts/id)
           while true; do
             sleep 30
-            export PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+            export PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_READ_PIPELINE_GITLAB_TOKEN }}" \
               "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" \
               | jq -r .status)
             echo "Pipeline status: $PIPELINE_STATUS (https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros-ci/-/pipelines/$PIPELINE_ID)"
@@ -72,7 +72,7 @@ jobs:
           export PIPELINE_ID=$(cat artifacts/id)
           while true; do
             sleep 30
-            export PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_GITLAB_PAT }}" \
+            export PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_READ_PIPELINE_GITLAB_TOKEN }}" \
               "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" \
               | jq -r .status)
             echo "Pipeline status: $PIPELINE_STATUS (https://gitlab.ika.rwth-aachen.de/fb-fi/ops/docker-ros-ci/-/pipelines/$PIPELINE_ID)"
