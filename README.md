@@ -219,20 +219,25 @@ jobs:
 
 ## Advanced Dependencies
 
-... TODO ...
+For a better overview we recommend to place all *docker-ros* related files in a `docker` folder on top repository level.
 
 ### Extra System Dependencies (apt)
 
-... TODO ...
+If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional.apt-dependencies` file.
+
+Create a file `additional.apt-dependencies` in your `docker` folder and list any other dependencies that need to be installed via apt.
 
 ### Custom Installation Script
 
-... TODO ...
+If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use the special `custom.sh` script.
+
+Create a script `custom.sh` in your `docker` folder that executes arbitrary commands as part of the image building process.
 
 ### Extra Image Files
 
-... TODO ...
+If you need to have additional files present in the deployment image, you can use the special `files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
 
+Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/docker-ros/files` in the image.
 
 ## Configuration Variables
 
