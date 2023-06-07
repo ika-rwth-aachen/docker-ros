@@ -87,10 +87,10 @@ default:
 .build:
   script:
     - |-
-      if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${BUILD_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${BUILD_PLATFORM} ]]; then
+      if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       fi
-    - TARGET=${BUILD_TARGET} PLATFORM=${BUILD_PLATFORM} ./docker/docker-ros/scripts/ci.sh
+    - TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
     - docker push ${IMAGE}
 
 dev-amd64:
@@ -99,8 +99,8 @@ dev-amd64:
   rules:
     - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
   variables:
-    BUILD_PLATFORM: amd64
-    BUILD_TARGET: dev
+    _PLATFORM: amd64
+    _TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -112,8 +112,8 @@ dev-arm64:
   rules:
     - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
   variables:
-    BUILD_PLATFORM: arm64
-    BUILD_TARGET: dev
+    _PLATFORM: arm64
+    _TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -127,9 +127,9 @@ run-amd64:
   rules:
     - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
   variables:
-    BUILD_PLATFORM: amd64
+    _PLATFORM: amd64
+    _TARGET: run
     COMMAND: ${COMMAND}
-    BUILD_TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -144,9 +144,9 @@ run-arm64:
   rules:
     - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
   variables:
-    BUILD_PLATFORM: arm64
+    _PLATFORM: arm64
+    _TARGET: run
     COMMAND: ${COMMAND}
-    BUILD_TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -162,6 +162,10 @@ run-arm64:
   before_script:
     - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - apk add --update bash coreutils grep tar
+    - |-
+      if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      fi
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
     - test -f ${BUILD_CONTEXT}/.repos || echo "repositories:" > ${BUILD_CONTEXT}/.repos
   script: .industrial_ci/gitlab.sh
@@ -176,6 +180,7 @@ Test dev-amd64:
     - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_AMD64}
+    _PLATFORM: amd64
 
 Test dev-arm64:
   stage: Test ROS Industrial CI
@@ -188,6 +193,7 @@ Test dev-arm64:
       - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_ARM64}
+    _PLATFORM: arm64
 
 
 .push:
