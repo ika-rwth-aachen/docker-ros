@@ -31,7 +31,16 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 
 ## About
 
-... TODO ...
+*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. It also provides CI configurations for GitHub and GitLab ([GitHub action](action.yml) / [GitLab CI template](templates/.gitlab-ci.template.yml)), which automatically builds these Docker images. The development image contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository.
+
+The Dockerfile performs the following steps to automatically build these images:
+1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool).
+1. The ROS dependencies listed in each package's `package.xml` are installed by [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/).
+1. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed (see [advanced dependencies](#extra-system-dependencies-apt)).
+1. *(optional)* A special folder `files/` is copied into the images, if needed (see [advanced dependencies](#extra-image-files)).
+1. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [advanced dependencies](#custom-installation-script)).
+1. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
+1. *(deployment)* A custom launch command is configured to run on container start.
 
 ### Prerequisites
 
