@@ -214,9 +214,26 @@ jobs:
 
 ### Build images locally
 
-... TODO ...
+To build docker images locally using *docker-ros*, you have to follow these instructions:
 
-
+1. For a better overview we recommend to place all docker-ros related files in a docker folder on top repository level. So first, if not done yet, add a `docker` folder to your repository.
+    ```bash
+    # ros-repository/
+    mkdir docker
+    ```
+2. Clone *docker-ros* as submodule to `docker/docker-ros`.
+    ```bash
+    # ros-repository/
+    git submodule add git@github.com:ika-rwth-aachen/docker-ros.git docker/docker-ros
+    ```
+3. Run `build.sh` with desired configuration. The build can be configured by the same [environment variables](#configuration-variables) as the GitLab CI. Minimal example:
+    ```bash
+    # ros-repository/
+    cd docker
+    BASE_IMAGE=rwthika/ros2:humble IMAGE=my_minimal_image:latest ./docker-ros/scripts/build.sh
+    ```
+> **Note:**
+> You can save you desired environment variables in an `.env` file and soure it before running the build script. In this case the variables do not have to be written into the cli.
 ## Advanced Dependencies
 
 For a better overview we recommend to place all *docker-ros* related files in a `docker` folder on top repository level.
