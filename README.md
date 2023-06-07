@@ -31,25 +31,58 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 
 ## About
 
-*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. It also provides CI configurations for GitHub and GitLab ([GitHub action](action.yml) / [GitLab CI template](templates/.gitlab-ci.template.yml)), which automatically builds these Docker images. The development image contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository.
+*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. Building such images can easily be automated by integrating *docker-ros* into CI through the provided [GitHub action](action.yml) or [GitLab CI template](templates/.gitlab-ci.template.yml). The development image built by *docker-ros* contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository. *docker-ros* is also able to build multi-arch Docker images for *amd64* and *arm64* architectures.
 
-The Dockerfile performs the following steps to automatically build these images:
-1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [vcstool](https://github.com/dirk-thomas/vcstool).
-1. The ROS dependencies listed in each package's `package.xml` are installed by [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/).
-1. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed (see [advanced dependencies](#extra-system-dependencies-apt)).
-1. *(optional)* A special folder `files/` is copied into the images, if needed (see [advanced dependencies](#extra-image-files)).
-1. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [advanced dependencies](#custom-installation-script)).
-1. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
-1. *(deployment)* A custom launch command is configured to run on container start.
+The Dockerfile performs the following steps to build these images:
+1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
+2. The ROS dependencies listed in each package's `package.xml` are installed by [*rosdep*](https://docs.ros.org/en/independent/api/rosdep/html/).
+3. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
+4. *(optional)* A special folder `files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
+5. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
+6. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
+7. *(deployment)* A custom launch command is configured to run on container start.
 
 ### Prerequisites
 
-... TODO ...
+*docker-ros* is made for automated execution in GitHub or GitLab CI pipelines. For local execution, see [*Build images locally*](#build-images-locally).
+
+<details><summary>GitHub</summary>
+
+GitHub offers free minutes on GitHub-hosted runners executing GitHub Actions, [see here](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions). No further setup is required other than integrating *docker-ros* into your repository, see [*Usage*](#usage).
+
+Note that GitHub is currently only offering Linux runners based on the *amd64* architecture. *docker-ros* can also build multi-arch Docker images solely on the *amd64* platform through emulation, but performance can be improved greatly by deploying [self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners) for the *arm64* platform.
+
+</details>
+
+<details><summary>GitLab</summary>
+
+> **Note**  
+> - GitLab runners must be based on the Docker executor, [see here](https://docs.gitlab.com/runner/executors/docker.html)
+> - GitLab runners must run in privileged mode for Docker-in-Docker, [see here](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode)
+> - GitLab runners must be tagged with tags `privileged` and either `amd64` or `arm64` depending on their architecture
+
+GitLab offers free minutes on GitLab-hosted runners executing GitLab CI pipelines on [gitlab.com](https://gitlab.com), [see here](https://docs.gitlab.com/runner/#use-gitlabcom-saas-runners). On self-hosted GitLab instances, you can set up self-hosted runners, [see here](https://docs.gitlab.com/runner/#use-self-managed-runners).
+
+Note that GitLab is currently only offering Linux runners based on the *amd64* architecture. *docker-ros* can also build multi-arch Docker images solely on the *amd64* platform through emulation, but performance can be improved greatly by deploying [self-hosted runners](https://docs.gitlab.com/runner/#use-self-managed-runners) for the *arm64* platform.
+
+</details>
 
 
 ## Usage
 
-... TODO ...
+*docker-ros* can easily be integrated into any GitHub or GitLab repository containing ROS packages. For local execution, see [*Build images locally*](#build-images-locally).
+
+<details open><summary>GitHub</summary>
+
+*docker-ros* provides a [GitHub action](action.yml) that can simply be added to a job via the [`jobs.<job_id>.steps[*].uses` keyword](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsuses). A quick start for GitHub Actions is found [here](https://docs.github.com/en/actions/quickstart).
+
+</details>
+
+<details open><summary>GitLab</summary>
+
+*docker-ros* provides a [GitLab CI template](templates/.gitlab-ci.template.yml) that can simply be included in a [`.gitlab-ci.yml`](https://docs.gitlab.com/ee/ci/yaml/gitlab_ci_yaml.html) file. A quick start for GitLab CI is found [here](https://docs.gitlab.com/ee/ci/quick_start/).
+
+</details>
 
 ### Build a minimal image for deployment
 
@@ -214,29 +247,30 @@ jobs:
 
 ### Build images locally
 
-To build docker images locally using *docker-ros*, you have to follow these instructions:
+*docker-ros* can build Docker images locally by executing the [`build.sh`](scripts/build.sh) script.
 
-1. For a better overview we recommend to place all docker-ros related files in a docker folder on top repository level. So first, if not done yet, add a `docker` folder to your repository.
+1. Clone *docker-ros* as a Git submodule to `docker/docker-ros` in your repository.
     ```bash
     # ros-repository/
-    mkdir docker
+    mkdir -p docker
+    git submodule add https://github.com/ika-rwth-aachen/docker-ros.git docker/docker-ros
     ```
-2. Clone *docker-ros* as submodule to `docker/docker-ros`.
-    ```bash
-    # ros-repository/
-    git submodule add git@github.com:ika-rwth-aachen/docker-ros.git docker/docker-ros
-    ```
-3. Run `build.sh` with desired configuration. The build can be configured by the same [environment variables](#configuration-variables) as the GitLab CI. Minimal example:
+2. Configure the build using the same [environment variables](#configuration-variables) as used for GitLab CI and run [`build.sh`](scripts/build.sh), e.g.:
     ```bash
     # ros-repository/
     cd docker
-    BASE_IMAGE=rwthika/ros2:humble IMAGE=my_minimal_image:latest ./docker-ros/scripts/build.sh
+      BASE_IMAGE="rwthika/ros2:humble" \
+      COMMAND="ros2 run my_pkg my_node" \
+      IMAGE="my-image:latest" \
+    ./docker-ros/scripts/build.sh
     ```
-> **Note:**
-> You can save you desired environment variables in an `.env` file and soure it before running the build script. In this case the variables do not have to be written into the cli.
+    > **Note**  
+    > You can save your environment variable configuration in a `.env` file and source it before running the build script.
+
+
 ## Advanced Dependencies
 
-For a better overview we recommend to place all *docker-ros* related files in a `docker` folder on top repository level.
+In order to keep things organized, we recommend to place all *docker-ros* related files in a `docker` folder on top repository level.
 
 ### Extra System Dependencies (apt)
 
@@ -255,6 +289,7 @@ Create a script `custom.sh` in your `docker` folder that executes arbitrary comm
 If you need to have additional files present in the deployment image, you can use the special `files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
 
 Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/docker-ros/files` in the image.
+
 
 ## Configuration Variables
 
