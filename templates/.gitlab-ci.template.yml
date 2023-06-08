@@ -158,20 +158,23 @@ run-arm64:
 
 .test:
   variables:
-    UPSTREAM_WORKSPACE: ${BUILD_CONTEXT}/.repos
     TARGET_WORKSPACE: ${BUILD_CONTEXT}
     ADDITIONAL_DEBS: git
     AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
-    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
-    - apk add --update bash coreutils grep tar
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       fi
+    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - apk add --update bash coreutils grep tar python3 py3-pip
+    - pip install vcstool
+    - UPSTREAM_WORKSPACE=$(python3 ${BUILD_CONTEXT}/docker/docker-ros/recursive_vcs_import.py ${BUILD_CONTEXT} | tail -1)
+    - if [ -z "${UPSTREAM_WORKSPACE}" ]; then echo "repositories:" > ${BUILD_CONTEXT}/.repos; UPSTREAM_WORKSPACE=${BUILD_CONTEXT}/.repos; fi
+    - echo ${UPSTREAM_WORKSPACE}
+    - export UPSTREAM_WORKSPACE
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
-    - test -f ${BUILD_CONTEXT}/.repos || echo "repositories:" > ${BUILD_CONTEXT}/.repos
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:

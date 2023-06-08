@@ -9,20 +9,21 @@
 
 *docker-ros* automatically builds minimal container images of ROS applications.
 
-- [About](#about)
-  - [Prerequisites](#prerequisites)
-- [Usage](#usage)
-  - [Build a minimal image for deployment](#build-a-minimal-image-for-deployment)
-  - [Build development and deployment images](#build-development-and-deployment-images)
-  - [Build multi-arch images](#build-multi-arch-images)
-  - [Build deployment image with additional industrial\_ci check](#build-deployment-image-with-additional-industrial_ci-check)
-  - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
-  - [Build images locally](#build-images-locally)
-- [Advanced Dependencies](#advanced-dependencies)
-  - [Extra System Dependencies (apt)](#extra-system-dependencies-apt)
-  - [Custom Installation Script](#custom-installation-script)
-  - [Extra Image Files](#extra-image-files)
-- [Configuration Variables](#configuration-variables)
+- [*docker-ros* – Automated Containerization of ROS Applications](#docker-ros--automated-containerization-of-ros-applications)
+  - [About](#about)
+    - [Prerequisites](#prerequisites)
+  - [Usage](#usage)
+    - [Build a minimal image for deployment](#build-a-minimal-image-for-deployment)
+    - [Build development and deployment images](#build-development-and-deployment-images)
+    - [Build multi-arch images](#build-multi-arch-images)
+    - [Build deployment image with additional industrial\_ci check](#build-deployment-image-with-additional-industrial_ci-check)
+    - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
+    - [Build images locally](#build-images-locally)
+  - [Advanced Dependencies](#advanced-dependencies)
+    - [Extra System Dependencies (apt)](#extra-system-dependencies-apt)
+    - [Custom Installation Script](#custom-installation-script)
+    - [Extra Image Files](#extra-image-files)
+  - [Configuration Variables](#configuration-variables)
 
 We recommend to use *docker-ros* in combination with our other tools for Docker and ROS.
 - [*docker-ros-ml-images*](https://github.com/ika-rwth-aachen/docker-ros-ml-images) provides machine learning-enabled ROS Docker images <a href="https://github.com/ika-rwth-aachen/docker-ros-ml-images"><img src="https://img.shields.io/github/stars/ika-rwth-aachen/docker-ros-ml-images?style=social"/></a>
@@ -70,7 +71,7 @@ Note that GitLab is currently only offering Linux runners based on the *amd64* a
 
 ## Usage
 
-*docker-ros* can easily be integrated into any GitHub or GitLab repository containing ROS packages. For local execution, see [*Build images locally*](#build-images-locally).
+*docker-ros* can easily be integrated into any GitHub or GitLab repository containing ROS packages. Example integrations can be found in the following sections. Configuration options can be found [here](#configuration-variables). For local execution, see [*Build images locally*](#build-images-locally).
 
 <details open><summary>GitHub</summary>
 
