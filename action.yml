@@ -1,0 +1,207 @@
+name: "docker-ros"
+description: "docker-ros automatically builds development and deployment Docker images for your ROS-based repositories."
+
+inputs:
+
+  target:
+    description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
+    default: run
+  
+  platform:
+    description: "Target platform architecture (comma-separated list) [amd64|arm64|...]"
+  
+  base-image:
+    description: "Base image name:tag"
+    required: true
+  
+  command:
+    description: "Launch command of run image (required if target=run)"
+  
+  image-name:
+    description: "Image name of run image"
+    default: ghcr.io/${{ github.repository }}
+
+  image-tag:
+    description: "Image tag of run image"
+    default: latest
+
+  dev-image-name:
+    description: "Image name of dev image"
+
+  dev-image-tag:
+    description: "Image tag of dev image"
+
+  build-context:
+    description: "Build context of Docker build process"
+    default: ${{ github.workspace }}
+
+  registry: # TODO: infer from image name
+    description: "Docker registry to push images to"
+    default: ghcr.io
+
+  registry-username: # TODO: rename to user or rename git-https-username to user
+    description: "Docker registry username"
+    default: ${{ github.actor }}
+
+  registry-password:
+    description: "Docker registry password"
+    default: ${{ github.token }}
+  
+  git-https-server:
+    description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
+    default: "github.com"
+  
+  git-https-user:
+    description: "Username for cloning private Git repositories via HTTPS"
+    default: ${{ github.actor }}
+  
+  git-https-password:
+    description: "Password for cloning private Git repositories via HTTPS"
+    default: ${{ github.token }}
+
+  git-ssh-private-key:
+    description: "SSH private key for cloning private Git repositories via SSH"
+
+  git-ssh-known-host-keys:
+    description: "Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)"
+
+  enable-industrial-ci:
+    description: "Enable industrial_ci"
+    default: false
+  
+  enable-singlearch-push:
+    description: "Enable push of single arch images with [-amd64|-arm64] postfix"
+    default: false
+  
+  enable-push-as-latest:
+    description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
+    default: false
+
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+        lfs: true
+
+    - name: Set up docker-ros
+      shell: bash
+      working-directory: ${{ inputs.build-context }}
+      run: |
+            if ! [[ -d "docker/docker-ros" ]]; then
+              mkdir -p docker
+              cp -r ${GITHUB_ACTION_PATH} docker/docker-ros
+            fi
+
+    - name: Prepare setup of QEMU
+      id: prepare-setup-of-qemu
+      shell: bash
+      run: echo "RUNNER_ARCH=$(dpkg --print-architecture)" >> $GITHUB_OUTPUT
+
+    - name: Set up QEMU
+      if: ${{ steps.prepare-setup-of-qemu.outputs.RUNNER_ARCH != inputs.platform }}
+      uses: docker/setup-qemu-action@v2
+
+    - name: Login to Docker registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.registry-username }}
+        password: ${{ inputs.registry-password }}
+    
+    - name: Set up Docker buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build images
+      id: build-images
+      shell: bash
+      working-directory: ${{ inputs.build-context }}
+      run: docker/docker-ros/scripts/ci.sh
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        TARGET: ${{ inputs.target }}
+        BASE_IMAGE: ${{ inputs.base-image }}
+        COMMAND: ${{ inputs.command }}
+        IMAGE_NAME: ${{ inputs.image-name }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+
+    - name: Set up industrial_ci
+      if: ${{ inputs.enable-industrial-ci == 'true' }}
+      shell: bash
+      run: test -f ${{ inputs.build-context }}/.repos || echo "repositories:" > ${{ inputs.build-context }}/.repos
+
+    - name: Run industrial_ci
+      if: ${{ inputs.enable-industrial-ci == 'true' }}
+      uses: ros-industrial/industrial_ci@master
+      env:
+        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
+        TARGET_WORKSPACE: ${{ inputs.build-context }}
+        ADDITIONAL_DEBS: git
+        AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
+        SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
+        DOCKER_RUN_OPTS: -u root:root
+        DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
+        DOCKER_PULL: false
+
+    - name: Slugify ref name
+      id: slugify-ref-name
+      uses: gacts/github-slug@v1
+      with:
+        to-slug: ${{ github.ref_name }}
+
+    - name: Push images
+      shell: bash
+      working-directory: ${{ inputs.build-context }}
+      run: docker/docker-ros/scripts/ci.sh
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        TARGET: ${{ inputs.target }}
+        BASE_IMAGE: ${{ inputs.base-image }}
+        COMMAND: ${{ inputs.command }}
+        IMAGE_NAME: ${{ inputs.image-name }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        _ENABLE_IMAGE_PUSH: true
+        _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
+
+    - name: Push images (as latest)
+      if: ${{ inputs.enable-push-as-latest == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.build-context }}
+      run: docker/docker-ros/scripts/ci.sh
+      env:
+        PLATFORM: ${{ inputs.platform }}
+        TARGET: ${{ inputs.target }}
+        BASE_IMAGE: ${{ inputs.base-image }}
+        COMMAND: ${{ inputs.command }}
+        IMAGE_NAME: ${{ inputs.image-name }}
+        IMAGE_TAG: latest
+        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_TAG: latest-dev
+        ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        _ENABLE_IMAGE_PUSH: true
+        _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}

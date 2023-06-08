@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "We hope that our tools can help your research. If this is the case, please cite it using the following metadata."
+
+title: dorotos
+type: software
+repository-code: "https://github.com/ika-rwth-aachen/docker-ros"
+date-released: 2023-05-28
+authors:
+  - given-names: Jean-Pierre
+    family-names: Busch
+  - given-names: Lennart
+    family-names: Reiher
+
+preferred-citation:
+  title: "Enabling the Deployment of Any-Scale Robotic Applications in Microservice-Based Service-Oriented Architectures through Automated Containerization"
+  type: misc
+  # conference:
+  #   name:
+  # month:
+  year: 2023
+  # doi: ""
+  authors:
+    - given-names: Jean-Pierre
+      family-names: Busch
+      orcid: "https://orcid.org/0009-0000-1417-0463"
+    - given-names: Lennart
+      family-names: Reiher
+      orcid: "https://orcid.org/0000-0002-7309-164X"
+    - given-names: Lutz
+      family-names: Eckstein

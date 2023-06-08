@@ -1,18 +1,21 @@
-x-base-image: &base-image BASE_IMAGE  # e.g. gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/docker-base/ros2:latest
-x-dev-image:  &dev-image  DEV_IMAGE   # e.g. gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/hello_world:latest-dev
-x-run-image:  &run-image  RUN_IMAGE   # e.g. gitlab.ika.rwth-aachen.de:5050/fb-fi/ops/hello_world:latest
-x-command:    &command    COMMAND     # e.g. ros2 topic pub "/ping" "std_msgs/msg/String" "{data: Hello World}"
+x-base-image: &base-image BASE_IMAGE  # e.g. rwthika/ros2:humble
+x-dev-image:  &dev-image  DEV_IMAGE   # e.g. my-image:latest-dev
+x-run-image:  &run-image  RUN_IMAGE   # e.g. my-image:latest
+x-command:    &command    COMMAND     # e.g. ros2 run my_pkg my_node
 
 # ==============================================================================
 
 x-build: &build
-  dockerfile: ./docker/docker-ros/Dockerfile
+  dockerfile: ./docker/docker-ros/docker/Dockerfile
   context: ../
   args:
     BASE_IMAGE: *base-image
     COMMAND: *command
+    GIT_HTTPS_SERVER: $GIT_HTTPS_SERVER
     GIT_HTTPS_USER: $GIT_HTTPS_USER
     GIT_HTTPS_PASSWORD: $GIT_HTTPS_PASSWORD
+    GIT_SSH_PRIVATE_KEY: $GIT_SSH_PRIVATE_KEY
+    GIT_SSH_KNOWN_HOST_KEYS: $GIT_SSH_KNOWN_HOST_KEYS
 
 services:
   dev:

@@ -47,13 +47,23 @@ RUN shopt -s dotglob && \
     rm -r src/repository
 
 # clone .repos upstream dependencies
-ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
+ARG GIT_HTTPS_SERVER=
 ARG GIT_HTTPS_USER=
 ARG GIT_HTTPS_PASSWORD=
-RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
-        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
+RUN if [ -n ${GIT_HTTPS_SERVER} ]; then \
+        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER} ; \
     fi
-COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
+ARG GIT_SSH_PRIVATE_KEY=
+ARG GIT_SSH_KNOWN_HOST_KEYS=
+RUN if [ -n ${GIT_SSH_PRIVATE_KEY} ]; then \
+        echo -e ${GIT_SSH_PRIVATE_KEY} > /tmp/ssh_id && \
+        chmod 400 /tmp/ssh_id && \
+        git config --global core.sshCommand "ssh -i /.ssh_key" && \
+        mkdir -p ~/.ssh && \
+        touch ~/.ssh/known_hosts && \
+        echo -e ${GIT_SSH_KNOWN_HOST_KEYS} >> ~/.ssh/known_hosts ; \
+    fi
+COPY docker/docker-ros/docker/recursive_vcs_import.py /usr/local/bin
 RUN apt-get update && \
     apt-get install -y python-is-python3 && \
     rm -rf /var/lib/apt/lists/*
@@ -149,7 +159,7 @@ RUN apt-get update && \
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # set entrypoint
-COPY docker/docker-ros/entrypoint.sh /
+COPY docker/docker-ros/docker/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 
 ############ dev ###############################################################
