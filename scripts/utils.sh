@@ -8,17 +8,17 @@ require_var() {
 }
 
 open_log_group() {
-    if [[ "${GITLAB_CI}" ]]; then
-        echo -e "section_start:`date +%s`:my_first_section[collapsed=true]\r\e[0K${1}"
-    elif [[ "${CI}" ]]; then
+    if [[ -n "${GITLAB_CI}" ]]; then
+        echo -e "section_start:`date +%s`:section[collapsed=true]\r\e[0K[docker-ros] ${1}"
+    elif [[ -n "${GITHUB_ACTIONS}" ]]; then
         echo "::group::[docker-ros] ${1}"
     fi
 }
 
 close_log_group() {
-    if [[ "${GITLAB_CI}" ]]; then
-        echo -e "section_end:`date +%s`:my_first_section\r\e[0K"
-    elif [[ "${CI}" ]]; then
+    if [[ -n "${GITLAB_CI}" ]]; then
+        echo -e "section_end:`date +%s`:section\r\e[0K"
+    elif [[ -n "${GITHUB_ACTIONS}" ]]; then
         echo "::endgroup::"
     fi
 }
