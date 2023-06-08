@@ -1,4 +1,4 @@
-# *docker-ros* – Automated Containerization of ROS Applications
+# *docker-ros* – Automated Containerization of ROS Apps
 
 <p align="center">
   <img src="https://img.shields.io/github/v/release/ika-rwth-aachen/docker-ros"/></a>
@@ -8,6 +8,8 @@
 </p>
 
 *docker-ros* automatically builds minimal container images of ROS applications.
+
+<img src="assets/logo.png" height=130 align="right">
 
 - [About](#about)
   - [Prerequisites](#prerequisites)
