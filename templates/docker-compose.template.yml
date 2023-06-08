@@ -1,0 +1,30 @@
+x-base-image: &base-image BASE_IMAGE  # e.g. rwthika/ros2:humble
+x-dev-image:  &dev-image  DEV_IMAGE   # e.g. my-image:latest-dev
+x-run-image:  &run-image  RUN_IMAGE   # e.g. my-image:latest
+x-command:    &command    COMMAND     # e.g. ros2 run my_pkg my_node
+
+# ==============================================================================
+
+x-build: &build
+  dockerfile: ./docker/docker-ros/docker/Dockerfile
+  context: ../
+  args:
+    BASE_IMAGE: *base-image
+    COMMAND: *command
+    GIT_HTTPS_SERVER: $GIT_HTTPS_SERVER
+    GIT_HTTPS_USER: $GIT_HTTPS_USER
+    GIT_HTTPS_PASSWORD: $GIT_HTTPS_PASSWORD
+    GIT_SSH_PRIVATE_KEY: $GIT_SSH_PRIVATE_KEY
+    GIT_SSH_KNOWN_HOST_KEYS: $GIT_SSH_KNOWN_HOST_KEYS
+
+services:
+  dev:
+    image: *dev-image
+    build:
+      target: dev
+      <<: *build
+  run:
+    image: *run-image
+    build:
+      target: run
+      <<: *build
