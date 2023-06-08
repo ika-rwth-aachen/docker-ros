@@ -9,21 +9,20 @@
 
 *docker-ros* automatically builds minimal container images of ROS applications.
 
-- [*docker-ros* – Automated Containerization of ROS Applications](#docker-ros--automated-containerization-of-ros-applications)
-  - [About](#about)
-    - [Prerequisites](#prerequisites)
-  - [Usage](#usage)
-    - [Build a minimal image for deployment](#build-a-minimal-image-for-deployment)
-    - [Build development and deployment images](#build-development-and-deployment-images)
-    - [Build multi-arch images](#build-multi-arch-images)
-    - [Build deployment image with additional industrial\_ci check](#build-deployment-image-with-additional-industrial_ci-check)
-    - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
-    - [Build images locally](#build-images-locally)
-  - [Advanced Dependencies](#advanced-dependencies)
-    - [Extra System Dependencies (apt)](#extra-system-dependencies-apt)
-    - [Custom Installation Script](#custom-installation-script)
-    - [Extra Image Files](#extra-image-files)
-  - [Configuration Variables](#configuration-variables)
+- [About](#about)
+  - [Prerequisites](#prerequisites)
+- [Usage](#usage)
+  - [Build a minimal image for deployment](#build-a-minimal-image-for-deployment)
+  - [Build development and deployment images](#build-development-and-deployment-images)
+  - [Build multi-arch images](#build-multi-arch-images)
+  - [Build deployment image with additional industrial\_ci check](#build-deployment-image-with-additional-industrial_ci-check)
+  - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
+  - [Build images locally](#build-images-locally)
+- [Advanced Dependencies](#advanced-dependencies)
+  - [Extra System Dependencies (apt)](#extra-system-dependencies-apt)
+  - [Custom Installation Script](#custom-installation-script)
+  - [Extra Image Files](#extra-image-files)
+- [Configuration Variables](#configuration-variables)
 
 We recommend to use *docker-ros* in combination with our other tools for Docker and ROS.
 - [*docker-ros-ml-images*](https://github.com/ika-rwth-aachen/docker-ros-ml-images) provides machine learning-enabled ROS Docker images <a href="https://github.com/ika-rwth-aachen/docker-ros-ml-images"><img src="https://img.shields.io/github/stars/ika-rwth-aachen/docker-ros-ml-images?style=social"/></a>
@@ -318,6 +317,9 @@ Create a folder `files` in your `docker` folder and place any files or directori
 - **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
   Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
   *default:* `false` 
+- **`enable-push-as-latest` | `ENABLE_PUSH_AS_LATEST`**  
+  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
+  *default:* `false`  
 - **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
   Enable push of single arch images with `-amd64`/`-arm64` postfix  
   *default:* `false` 
@@ -344,9 +346,6 @@ Create a folder `files` in your `docker` folder and place any files or directori
   Target platform architecture (comma-separated list)  
   *default:* runner architecture
   *supported values:* `amd64`, `arm64`
-- **`push-as-latest` | `PUSH_AS_LATEST`**  
-  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
-  *default:* `false`  
 - **`registry-password` | `REGISTRY_PASSWORD`**  
   Docker registry password  
   *default:* `${{ github.token }}` | `$CI_REGISTRY_PASSWORD`  
