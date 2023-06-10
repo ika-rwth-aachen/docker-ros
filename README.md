@@ -91,11 +91,12 @@ Note that GitLab is currently only offering Linux runners based on the *amd64* a
 <details open><summary>GitHub</summary>
 
 ```yml
+on: push
 jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@main
+      - uses: ika-rwth-aachen/docker-ros@v1.0.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -107,7 +108,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/main/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -121,11 +122,12 @@ variables:
 <details><summary>GitHub</summary>
 
 ```yml
+on: push
 jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@main
+      - uses: ika-rwth-aachen/docker-ros@v1.0.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -138,7 +140,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/main/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -153,11 +155,12 @@ variables:
 <details><summary>GitHub</summary>
 
 ```yml
+on: push
 jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@main
+      - uses: ika-rwth-aachen/docker-ros@v1.0.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -171,7 +174,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/main/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -187,11 +190,12 @@ variables:
 <details><summary>GitHub</summary>
 
 ```yml
+on: push
 jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@main
+      - uses: ika-rwth-aachen/docker-ros@v1.0.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -204,7 +208,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/main/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -219,6 +223,7 @@ variables:
 <details><summary>GitHub</summary>
 
 ```yml
+on: push
 jobs:
   docker-ros:
     strategy:
@@ -227,7 +232,7 @@ jobs:
         platform: [amd64, arm64]  
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
-      - uses: ika-rwth-aachen/docker-ros@main
+      - uses: ika-rwth-aachen/docker-ros@v1.0.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
