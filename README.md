@@ -261,14 +261,16 @@ jobs:
 2. Configure the build using the same [environment variables](#configuration-variables) as used for GitLab CI and run [`build.sh`](scripts/build.sh), e.g.:
     ```bash
     # ros-repository/
-    cd docker
       BASE_IMAGE="rwthika/ros2:humble" \
       COMMAND="ros2 run my_pkg my_node" \
       IMAGE="my-image:latest" \
-    ./docker-ros/scripts/build.sh
+    ./docker/docker-ros/scripts/build.sh
     ```
     > **Note**  
-    > You can save your environment variable configuration in a `.env` file and source it before running the build script.
+    > You can store your environment variable configuration in a `.env` file and instead run:
+    > ```bash
+    > env $(cat .env) ./docker/docker-ros/scripts/build.sh
+    > ```
 
 
 ## Advanced Dependencies
