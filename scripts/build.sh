@@ -18,11 +18,11 @@ build_image() {
         --build-arg BASE_IMAGE="${BASE_IMAGE}" \
         --build-arg COMMAND="${COMMAND}" \
         $(if [[ -n "${ROS_DISTRO}" ]]; then echo "--build-arg ROS_DISTRO=${ROS_DISTRO}"; fi) \
-        --build-arg GIT_HTTPS_SERVER="${GIT_HTTPS_SERVER}" \
-        --build-arg GIT_HTTPS_USER="${GIT_HTTPS_USER}" \
-        --build-arg GIT_HTTPS_PASSWORD="${GIT_HTTPS_PASSWORD}" \
-        --build-arg GIT_SSH_PRIVATE_KEY="${GIT_SSH_PRIVATE_KEY}" \
-        --build-arg GIT_SSH_KNOWN_HOST_KEYS="${GIT_SSH_KNOWN_HOST_KEYS}" \
+        $(if [[ -n "${GIT_HTTPS_SERVER}" ]]; then echo "--build-arg GIT_HTTPS_SERVER=${GIT_HTTPS_SERVER}"; fi) \
+        $(if [[ -n "${GIT_HTTPS_USER}" ]]; then echo "--build-arg GIT_HTTPS_USER=${GIT_HTTPS_USER}"; fi) \
+        $(if [[ -n "${GIT_HTTPS_PASSWORD}" ]]; then echo "--build-arg GIT_HTTPS_PASSWORD=${GIT_HTTPS_PASSWORD}"; fi) \
+        $(if [[ -n "${GIT_SSH_PRIVATE_KEY}" ]]; then echo "--build-arg GIT_SSH_PRIVATE_KEY=${GIT_SSH_PRIVATE_KEY}"; fi) \
+        $(if [[ -n "${GIT_SSH_KNOWN_HOST_KEYS}" ]]; then echo "--build-arg GIT_SSH_KNOWN_HOST_KEYS=${GIT_SSH_KNOWN_HOST_KEYS}"; fi) \
         $(if [[ -n "${ADDITIONAL_DEBS_FILE}" ]]; then echo "--build-arg ADDITIONAL_DEBS_FILE=${ADDITIONAL_DEBS_FILE}"; fi) \
         $(if [[ -n "${ADDITIONAL_DEBS_RECURSIVE}" ]]; then echo "--build-arg ADDITIONAL_DEBS_RECURSIVE=${ADDITIONAL_DEBS_RECURSIVE}"; fi) \
         $(if [[ -n "${ADDITIONAL_FILES_DIR}" ]]; then echo "--build-arg ADDITIONAL_FILES_DIR=${ADDITIONAL_FILES_DIR}"; fi) \
