@@ -50,12 +50,12 @@ RUN shopt -s dotglob && \
 ARG GIT_HTTPS_SERVER=
 ARG GIT_HTTPS_USER=
 ARG GIT_HTTPS_PASSWORD=
-RUN if [ -n ${GIT_HTTPS_SERVER} ]; then \
+RUN if [[ -n ${GIT_HTTPS_SERVER} ]]; then \
         git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER} ; \
     fi
 ARG GIT_SSH_PRIVATE_KEY=
 ARG GIT_SSH_KNOWN_HOST_KEYS=
-RUN if [ -n ${GIT_SSH_PRIVATE_KEY} ]; then \
+RUN if [[ -n ${GIT_SSH_PRIVATE_KEY} ]]; then \
         echo -e ${GIT_SSH_PRIVATE_KEY} > /tmp/ssh_id && \
         chmod 400 /tmp/ssh_id && \
         git config --global core.sshCommand "ssh -i /.ssh_key" && \
@@ -164,10 +164,10 @@ RUN apt-get update && \
         gosu \
         python3-pip \
     && source /opt/ros/$ROS_DISTRO/setup.bash && \
-    if [ "$ROS_VERSION" == "1" ]; then \
+    if [[ "$ROS_VERSION" == "1" ]]; then \
         apt-get install -y \
             python3-catkin-tools ; \
-    elif [ "$ROS_VERSION" == "2" ]; then \
+    elif [[ "$ROS_VERSION" == "2" ]]; then \
         apt-get install -y \
             python3-colcon-common-extensions ; \
     fi \
@@ -200,10 +200,10 @@ CMD ["bash"]
 FROM dev as build
 
 # build ROS workspace
-RUN if [ -x "$(command -v colcon)" ]; then \
+RUN if [[ -x "$(command -v colcon)" ]]; then \
         source /opt/ros/${ROS_DISTRO}/setup.bash && \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
-    elif [ -x "$(command -v catkin)" ]; then \
+    elif [[ -x "$(command -v catkin)" ]]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
     fi
