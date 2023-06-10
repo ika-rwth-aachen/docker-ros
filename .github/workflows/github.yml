@@ -1,0 +1,29 @@
+name: GitHub
+
+on: [push]
+
+jobs:
+
+  trigger-ros:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: ika-rwth-aachen
+          repo: docker-ros-ci
+          ref: main
+          workflow_file_name: ros.yml
+          client_payload: '{"docker-ros-git-ref": "${{ github.sha }}"}'
+          github_token: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITHUB_TOKEN }}
+
+  trigger-ros2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: ika-rwth-aachen
+          repo: docker-ros-ci
+          ref: main
+          workflow_file_name: ros2.yml
+          client_payload: '{"docker-ros-git-ref": "${{ github.sha }}"}'
+          github_token: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITHUB_TOKEN }}

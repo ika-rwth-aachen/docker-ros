@@ -47,13 +47,23 @@ RUN shopt -s dotglob && \
     rm -r src/repository
 
 # clone .repos upstream dependencies
-ARG GIT_HTTPS_URL=https://gitlab.ika.rwth-aachen.de
+ARG GIT_HTTPS_SERVER=
 ARG GIT_HTTPS_USER=
 ARG GIT_HTTPS_PASSWORD=
-RUN if [ ! -z ${GIT_HTTPS_USER} ]; then \
-        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@gitlab.ika.rwth-aachen.de.insteadOf ${GIT_HTTPS_URL} ; \
+RUN if [ -n ${GIT_HTTPS_SERVER} ]; then \
+        git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER} ; \
     fi
-COPY docker/docker-ros/recursive_vcs_import.py /usr/local/bin
+ARG GIT_SSH_PRIVATE_KEY=
+ARG GIT_SSH_KNOWN_HOST_KEYS=
+RUN if [ -n ${GIT_SSH_PRIVATE_KEY} ]; then \
+        echo -e ${GIT_SSH_PRIVATE_KEY} > /tmp/ssh_id && \
+        chmod 400 /tmp/ssh_id && \
+        git config --global core.sshCommand "ssh -i /.ssh_key" && \
+        mkdir -p ~/.ssh && \
+        touch ~/.ssh/known_hosts && \
+        echo -e ${GIT_SSH_KNOWN_HOST_KEYS} >> ~/.ssh/known_hosts ; \
+    fi
+COPY docker/docker-ros/docker/recursive_vcs_import.py /usr/local/bin
 RUN apt-get update && \
     apt-get install -y python-is-python3 && \
     rm -rf /var/lib/apt/lists/*
@@ -77,7 +87,7 @@ ARG ADDITIONAL_DEBS_RECURSIVE="false"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_DEBS_RECURSIVE == 'true' ]]; then \
-        find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+        find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
     else \
         test -f ${ADDITIONAL_DEBS_FILE} && cat ${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
     fi && \
@@ -89,7 +99,7 @@ ARG ADDITIONAL_PIP_RECURSIVE="false"
 RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_PIP_RECURSIVE == 'true' ]]; then \
-        find . -type f -name $(basename {ADDITIONAL_PIP_FILE}) -exec cat {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+        find . -type f -name $(basename {ADDITIONAL_PIP_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
     else \
         test -f ${ADDITIONAL_PIP_FILE} && cat ${ADDITIONAL_PIP_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
     fi && \
@@ -99,7 +109,7 @@ RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
 ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
 ARG CUSTOM_SCRIPT_RECURSIVE="false"
 RUN if [[ $CUSTOM_SCRIPT_RECURSIVE == 'true' ]]; then \
-        find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec cat {} >> $WORKSPACE/.install-dependencies.sh \; \
+        find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; \
     else \
         test -f ${CUSTOM_SCRIPT_FILE} && cat ${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh \
     fi
@@ -175,7 +185,7 @@ RUN apt-get update && \
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # set entrypoint
-COPY docker/docker-ros/entrypoint.sh /
+COPY docker/docker-ros/docker/entrypoint.sh /
 ENTRYPOINT ["/entrypoint.sh"]
 
 ############ dev ###############################################################
@@ -203,10 +213,11 @@ FROM dependencies-install as run
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
+RUN ldconfig
 RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
     echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # setup command
 ARG COMMAND
 ENV DEFAULT_CMD=${COMMAND}
-CMD ${DEFAULT_CMD}
+CMD bash -c "${DEFAULT_CMD}"

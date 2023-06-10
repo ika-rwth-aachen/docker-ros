@@ -1,0 +1,286 @@
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "parent_pipeline"      # run child pipeline if triggered by parent pipeline
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"  # run merge request pipeline if triggered by merge request
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS  # don't run branch pipeline if open merge request exists
+      when: never
+    - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit
+    - if: $CI_COMMIT_TAG                                # run tag pipeline with specific image tags if triggered by tag
+
+
+variables:
+  TARGET:                   run                                   # Target stage of Dockerfile (comma-separated list) [dev|run]
+  PLATFORM:                 ''                                    # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  BASE_IMAGE:               ''                                    # Base image name:tag (required)
+  COMMAND:                  ''                                    # Launch command of run image (required if target=run)
+  IMAGE_NAME:               ${CI_REGISTRY_IMAGE}                  # Image name of run image
+  IMAGE_TAG:                latest                                # Image tag of run image
+  DEV_IMAGE_NAME:           ${IMAGE_NAME}                         # Image name of dev image
+  DEV_IMAGE_TAG:            ${IMAGE_TAG}-dev                      # Image tag of dev image
+  BUILD_CONTEXT:            .                                     # Build context of Docker build process
+  REGISTRY:                 ${CI_REGISTRY}                        # Docker registry to push images to
+  REGISTRY_USERNAME:        ${CI_REGISTRY_USER}                   # Docker registry username
+  REGISTRY_PASSWORD:        ${CI_REGISTRY_PASSWORD}               # Docker registry password
+  ENABLE_INDUSTRIAL_CI:     'false'                               # Enable industrial_ci
+  ENABLE_SINGLEARCH_PUSH:   'false'                               # Enable push of single arch images with [-amd64|-arm64] postfix
+  ENABLE_PUSH_AS_LATEST:    'false'                               # Push images with tag `latest`/`latest-dev` in addition to the configured image names
+  GIT_HTTPS_SERVER:         ${CI_SERVER_HOST}                     # Server URL (without protocol) for cloning private Git repositories via HTTPS
+  GIT_HTTPS_USER:           gitlab-ci-token                       # Username for cloning private Git repositories via HTTPS
+  GIT_HTTPS_PASSWORD:       ${CI_JOB_TOKEN}                       # Password for cloning private Git repositories via HTTPS
+  GIT_SSH_PRIVATE_KEY:      ''                                    # SSH private key for cloning private Git repositories via SSH
+  GIT_SSH_KNOWN_HOST_KEYS:  ''                                    # Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)
+  # -----
+  DOCKER_ROS_GIT_REF:     main
+
+  _RUN_IMAGE:             ${IMAGE_NAME}:${IMAGE_TAG}
+  _DEV_IMAGE:             ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
+
+  _IMAGE_DEV_CI:          ${_DEV_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_RUN_CI:          ${_RUN_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_DEV_CI_AMD64:    ${_IMAGE_DEV_CI}-amd64
+  _IMAGE_DEV_CI_ARM64:    ${_IMAGE_DEV_CI}-arm64
+  _IMAGE_RUN_CI_AMD64:    ${_IMAGE_RUN_CI}-amd64
+  _IMAGE_RUN_CI_ARM64:    ${_IMAGE_RUN_CI}-arm64
+  _IMAGE_DEV_LATEST:      ${DEV_IMAGE_NAME}:latest-dev
+  _IMAGE_RUN_LATEST:      ${IMAGE_NAME}:latest
+  _IMAGE_DEV_TARGET_TAG:  ${_DEV_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_RUN_TARGET_TAG:  ${_RUN_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_DEV_TAG:         ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
+  _IMAGE_RUN_TAG:         ${IMAGE_NAME}:${CI_COMMIT_TAG}
+
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: /certs
+  DOCKER_BUILDKIT: 1
+
+
+stages:
+  - Build dev Images
+  - Build run Images
+  - Test ROS Industrial CI
+  - Push Multi-Arch Images
+
+
+default:
+  image: docker:20.10.22-git
+  services:
+    - docker:20.10.22-dind
+  tags:
+    - privileged
+    - amd64
+  before_script:
+    - echo -e "section_start:`date +%s`:section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
+    - apk add bash
+    - cd ${BUILD_CONTEXT}
+    - |-
+      if [[ ! -d $docker/docker-ros ]]; then
+        mkdir -p docker
+        git clone --depth=1  https://github.com/ika-rwth-aachen/docker-ros.git docker/docker-ros
+        cd docker/docker-ros
+        git fetch origin ${DOCKER_ROS_GIT_REF}
+        git checkout FETCH_HEAD
+        cd -
+      fi
+    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - docker context create buildx-context
+    - docker buildx create --use buildx-context
+    - echo -e "section_end:`date +%s`:section\r\e[0K"
+
+.build:
+  script:
+    - |-
+      if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      fi
+    - TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
+    - echo -e "section_start:`date +%s`:section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
+    - docker push ${IMAGE}
+    - echo -e "section_end:`date +%s`:section\r\e[0K"
+
+dev-amd64:
+  stage: Build dev Images
+  extends: .build
+  rules:
+    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
+  variables:
+    _PLATFORM: amd64
+    _TARGET: dev
+    IMAGE: ${_IMAGE_DEV_CI_AMD64}
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
+
+dev-arm64:
+  stage: Build dev Images
+  extends: .build
+  tags: [privileged, arm64]
+  rules:
+    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
+  variables:
+    _PLATFORM: arm64
+    _TARGET: dev
+    IMAGE: ${_IMAGE_DEV_CI_ARM64}
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
+
+run-amd64:
+  stage: Build run Images
+  extends: .build
+  needs:
+    - job: dev-amd64
+      optional: true
+  rules:
+    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
+  variables:
+    _PLATFORM: amd64
+    _TARGET: run
+    COMMAND: ${COMMAND}
+    IMAGE: ${_IMAGE_RUN_CI_AMD64}
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
+
+run-arm64:
+  stage: Build run Images
+  extends: .build
+  tags: [privileged, arm64]
+  needs:
+    - job: dev-arm64
+      optional: true
+  rules:
+    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
+  variables:
+    _PLATFORM: arm64
+    _TARGET: run
+    COMMAND: ${COMMAND}
+    IMAGE: ${_IMAGE_RUN_CI_ARM64}
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
+
+
+.test:
+  variables:
+    UPSTREAM_WORKSPACE: ${BUILD_CONTEXT}/.repos
+    TARGET_WORKSPACE: ${BUILD_CONTEXT}
+    ADDITIONAL_DEBS: git
+    AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
+    DOCKER_RUN_OPTS: -u root:root
+  before_script:
+    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - apk add --update bash coreutils grep tar
+    - |-
+      if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
+        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      fi
+    - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
+    - test -f ${BUILD_CONTEXT}/.repos || echo "repositories:" > ${BUILD_CONTEXT}/.repos
+  script: .industrial_ci/gitlab.sh
+
+Test dev-amd64:
+  stage: Test ROS Industrial CI
+  extends: .test
+  needs:
+    - job: dev-amd64
+      optional: true
+  rules:
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/
+  variables:
+    DOCKER_IMAGE: ${_IMAGE_DEV_CI_AMD64}
+    _PLATFORM: amd64
+
+Test dev-arm64:
+  stage: Test ROS Industrial CI
+  extends: .test
+  tags: [privileged, arm64]
+  needs:
+    - job: dev-arm64
+      optional: true
+  rules:
+      - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/
+  variables:
+    DOCKER_IMAGE: ${_IMAGE_DEV_CI_ARM64}
+    _PLATFORM: arm64
+
+
+.push:
+  needs:
+    - job: dev-amd64
+      optional: true
+    - job: dev-arm64
+      optional: true
+    - job: run-amd64
+      optional: true
+    - job: run-arm64
+      optional: true
+    - job: Test dev-amd64
+      optional: true
+    - job: Test dev-arm64
+      optional: true
+  rules:
+    - if: $PLATFORM == '' || $TARGET == ''
+      when: never
+  script:
+    - |-
+      if [[ ${PLATFORM} =~ amd64 && ${PLATFORM} =~ arm64 ]]; then
+        [[ ${TARGET} =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
+        [[ ${TARGET} =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
+      elif [[ ${PLATFORM} == amd64 ]]; then
+        [[ ${TARGET} =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64}
+        [[ ${TARGET} =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64}
+      elif [[ ${PLATFORM} == arm64 ]]; then
+        [[ ${TARGET} =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_ARM64}
+        [[ ${TARGET} =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_ARM64}
+      fi
+    - |-
+      [[ ${TARGET} =~ dev ]] && docker manifest push ${IMG_DEV}
+      [[ ${TARGET} =~ run ]] && docker manifest push ${IMG_RUN}
+
+Push CI:
+  stage: Push Multi-Arch Images
+  extends: .push
+  rules:
+    - !reference [.push, rules]
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+  variables:
+    IMG_DEV: ${_IMAGE_DEV_CI}
+    IMG_RUN: ${_IMAGE_RUN_CI}
+
+Push:
+  stage: Push Multi-Arch Images
+  extends: .push
+  rules:
+    - !reference [.push, rules]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  variables:
+    IMG_DEV: ${_DEV_IMAGE}
+    IMG_RUN: ${_RUN_IMAGE}
+
+Push latest:
+  stage: Push Multi-Arch Images
+  extends: .push
+  rules:
+    - !reference [.push, rules]
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $ENABLE_PUSH_AS_LATEST == 'true'
+  variables:
+    IMG_DEV: ${_IMAGE_DEV_LATEST}
+    IMG_RUN: ${_IMAGE_RUN_LATEST}
+
+Push target tag:
+  stage: Push Multi-Arch Images
+  extends: .push
+  rules:
+    - !reference [.push, rules]
+    - if: $CI_COMMIT_TAG
+  variables:
+    IMG_DEV: ${_IMAGE_DEV_TARGET_TAG}
+    IMG_RUN: ${_IMAGE_RUN_TARGET_TAG}
+
+Push tag:
+  stage: Push Multi-Arch Images
+  extends: .push
+  rules:
+    - !reference [.push, rules]
+    - if: $CI_COMMIT_TAG && $ENABLE_PUSH_AS_LATEST == 'true'
+  variables:
+    IMG_DEV: ${_IMAGE_DEV_TAG}
+    IMG_RUN: ${_IMAGE_RUN_TAG}
