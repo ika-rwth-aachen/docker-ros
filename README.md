@@ -21,7 +21,8 @@
   - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
   - [Build images locally](#build-images-locally)
 - [Advanced Dependencies](#advanced-dependencies)
-  - [Extra System Dependencies (apt)](#extra-system-dependencies-apt)
+  - [Extra System Dependencies (*apt*)](#extra-system-dependencies-apt)
+  - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
   - [Custom Installation Script](#custom-installation-script)
   - [Extra Image Files](#extra-image-files)
 - [Configuration Variables](#configuration-variables)
@@ -274,23 +275,29 @@ jobs:
 
 In order to keep things organized, we recommend to place all *docker-ros* related files in a `docker` folder on top repository level.
 
-### Extra System Dependencies (apt)
+### Extra System Dependencies (*apt*)
 
-If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional.apt-dependencies` file.
+If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-debs.txt` file.
 
-Create a file `additional.apt-dependencies` in your `docker` folder and list any other dependencies that need to be installed via apt.
+Create a file `additional-debs.txt` in your `docker` folder (or configure a different `ADDITIONAL_DEBS_FILE`) and list any other dependencies that need to be installed via *apt*.
+
+### Extra System Dependencies (*pip*)
+
+If your ROS-based repository requires Python dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-pip-requirements.txt` file.
+
+Create a file `additional-pip-requirements.txt` in your `docker` folder (or configure a different `ADDITIONAL_PIP_FILE`) and list any other Python dependencies that need to be installed via *pip*.
 
 ### Custom Installation Script
 
-If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use the special `custom.sh` script.
+If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use a special `custom.sh` script.
 
-Create a script `custom.sh` in your `docker` folder that executes arbitrary commands as part of the image building process.
+Create a script `custom.sh` in your `docker` folder (or configure a different `CUSTOM_SCRIPT_FILE`) that executes arbitrary commands as part of the image building process.
 
 ### Extra Image Files
 
-If you need to have additional files present in the deployment image, you can use the special `files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
+If you need to have additional files present in the deployment image, you can use a special `additional-files` folder. The folder contents will be copied into the container before the custom installation script `custom.sh` is executed.
 
-Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/docker-ros/files` in the image.
+Create a folder `additional-files` in your `docker` folder (or configure a different `ADDITIONAL_FILES_DIR`) and place any files or directories in it. The contents will be copied to `/docker-ros` in the image.
 
 
 ## Configuration Variables
@@ -298,6 +305,21 @@ Create a folder `files` in your `docker` folder and place any files or directori
 > **Note**  
 > *GitHub Action input* | *GitLab CI environment variable*
 
+- **`additional-debs-file` | `ADDITIONAL_DEBS_FILE`**  
+  Relative filepath to file containing additional apt deb packages to install  
+  *default:* `docker/additional-debs.txt`  
+- **`additional-debs-recursive` | `ADDITIONAL_DEBS_RECURSIVE`**  
+  Enable recursive discovery of files named `additional-debs-file`  
+  *default:* `false`  
+- **`additional-files-dir` | `ADDITIONAL_FILES_DIR`**  
+  Relative path to directory containing additional files to copy into image  
+  *default:* `docker/additional-files`  
+- **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
+  Relative filepath to file containing additional pip packages to install  
+  *default:* `docker/additional-pip-requirements.txt`  
+- **`additional-pip-recursive` | `ADDITIONAL_PIP_RECURSIVE`**  
+  Enable recursive discovery of files named `additional-pip-file`  
+  *default:* `false`  
 - **`base-image` | `BASE_IMAGE`**  
   Base image `name:tag`  
   *required*  
@@ -307,6 +329,12 @@ Create a folder `files` in your `docker` folder and place any files or directori
 - **`command` | `COMMAND`**  
   Launch command of run image  
   *required if `target=run`*  
+- **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
+  Relative filepath to script containing custom installation commands  
+  *default:* `docker/custom.sh`  
+- **`custom-script-recursive` | `CUSTOM_SCRIPT_RECURSIVE`**  
+  Enable recursive discovery of files named `custom-script-file`  
+  *default:* `false`  
 - **`dev-image-name` | `DEV_IMAGE_NAME`**  
   Image name of dev image  
   *default:* `<IMAGE_NAME>`  
