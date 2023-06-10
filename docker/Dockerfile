@@ -165,21 +165,11 @@ RUN apt-get update && \
 ARG ADDITIONAL_FILES_DIR="docker/additional-files"
 ADD ${ADDITIONAL_FILES_DIR}* /docker-ros/additional-files/
 
-# install essential ROS CLI tools
+# install dependencies for install script
 RUN apt-get update && \
     apt-get install -y \
-        build-essential \
-        gosu \
         python-is-python3 \
         python3-pip \
-    && source /opt/ros/$ROS_DISTRO/setup.bash && \
-    if [[ "$ROS_VERSION" == "1" ]]; then \
-        apt-get install -y \
-            python3-catkin-tools ; \
-    elif [[ "$ROS_VERSION" == "2" ]]; then \
-        apt-get install -y \
-            python3-colcon-common-extensions ; \
-    fi \
     && rm -rf /var/lib/apt/lists/*
 
 # copy install script from dependencies stage
@@ -189,6 +179,21 @@ COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install
 RUN apt-get update && \
     $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
+
+# install essential build and ROS CLI tools
+RUN apt-get update && \
+    apt-get install -y \
+        build-essential \
+        gosu \
+    && source /opt/ros/$ROS_DISTRO/setup.bash && \
+    if [[ "$ROS_VERSION" == "1" ]]; then \
+        apt-get install -y \
+            python3-catkin-tools ; \
+    elif [[ "$ROS_VERSION" == "2" ]]; then \
+        apt-get install -y \
+            python3-colcon-common-extensions ; \
+    fi \
+    && rm -rf /var/lib/apt/lists/*
 
 # source ROS
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
