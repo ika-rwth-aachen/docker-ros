@@ -82,39 +82,47 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # add additionally specified apt dependencies to install script
+# TODO: if repository is top-level package, WORKDIR would need to be $WORKSPACE/src/target/<PACKAGE>
+WORKDIR $WORKSPACE/src/target
 ARG ADDITIONAL_DEBS_FILE="docker/additional-debs.txt"
 ARG ADDITIONAL_DEBS_RECURSIVE="false"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_DEBS_RECURSIVE == 'true' ]]; then \
-        find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
-    else \
-        test -f ${ADDITIONAL_DEBS_FILE} && cat ${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+        find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+    elif [[ -f ${ADDITIONAL_DEBS_FILE} ]]; then \
+        cat ${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add additionally specified pip dependencies to install script
+# TODO: if repository is top-level package, WORKDIR would need to be $WORKSPACE/src/target/<PACKAGE>
+WORKDIR $WORKSPACE/src/target
 ARG ADDITIONAL_PIP_FILE="docker/additional-pip-requirements.txt"
 ARG ADDITIONAL_PIP_RECURSIVE="false"
-RUN echo "pip install \\" >> $WORKSPACE/.install-dependencies.sh && \
+RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_PIP_RECURSIVE == 'true' ]]; then \
-        find . -type f -name $(basename {ADDITIONAL_PIP_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
-    else \
-        test -f ${ADDITIONAL_PIP_FILE} && cat ${ADDITIONAL_PIP_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh \
+        find . -type f -name $(basename ${ADDITIONAL_PIP_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+    elif [[ -f ${ADDITIONAL_PIP_FILE} ]]; then \
+        cat ${ADDITIONAL_PIP_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
+# TODO: if repository is top-level package, WORKDIR would need to be $WORKSPACE/src/target/<PACKAGE>
+WORKDIR $WORKSPACE/src/target
 ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
 ARG CUSTOM_SCRIPT_RECURSIVE="false"
 RUN if [[ $CUSTOM_SCRIPT_RECURSIVE == 'true' ]]; then \
-        find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; \
-    else \
-        test -f ${CUSTOM_SCRIPT_FILE} && cat ${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh \
+        find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
+    elif [[ -f ${CUSTOM_SCRIPT_FILE} ]]; then \
+        cat ${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh ; \
     fi
 
 # remove now obsolete docker folder from copied repository content to avoid redundancies
+# TODO: there is no need for a docker folder, all could be stored elsewhere
+WORKDIR $WORKSPACE
 RUN rm -rf src/target/docker
 
 ############ dependencies-install ##############################################
@@ -162,6 +170,7 @@ RUN apt-get update && \
     apt-get install -y \
         build-essential \
         gosu \
+        python-is-python3 \
         python3-pip \
     && source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$ROS_VERSION" == "1" ]]; then \
