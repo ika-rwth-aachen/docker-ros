@@ -35,11 +35,11 @@ inputs:
     description: "Build context of Docker build process"
     default: ${{ github.workspace }}
 
-  registry: # TODO: infer from image name
+  registry:
     description: "Docker registry to push images to"
     default: ghcr.io
 
-  registry-username: # TODO: rename to user or rename git-https-username to user
+  registry-username:
     description: "Docker registry username"
     default: ${{ github.actor }}
 

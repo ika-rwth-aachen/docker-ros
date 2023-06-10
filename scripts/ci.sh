@@ -28,17 +28,18 @@ GIT_SSH_KNOWN_HOST_KEYS="${GIT_SSH_KNOWN_HOST_KEYS:-''}"
 _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
 _IMAGE_POSTFIX="${_IMAGE_POSTFIX:-""}"
 
-# write image name for industrial_ci to output
-# TODO: GitHub-only
-industrial_ci_image="${IMAGE}"
-[[ "${TARGET}" == *"dev"* ]] && industrial_ci_image="${DEV_IMAGE}"
-[[ -n "${_IMAGE_POSTFIX}" ]] && industrial_ci_image="${industrial_ci_image}${_IMAGE_POSTFIX}"
-if [[ "${PLATFORM}" != *","* ]]; then
-    industrial_ci_image="${industrial_ci_image}-${PLATFORM}"
-else
-    industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
+# write image name for industrial_ci to output (GitHub-only)
+if [[ -n "${GITHUB_ACTIONS}" ]]; then
+    industrial_ci_image="${IMAGE}"
+    [[ "${TARGET}" == *"dev"* ]] && industrial_ci_image="${DEV_IMAGE}"
+    [[ -n "${_IMAGE_POSTFIX}" ]] && industrial_ci_image="${industrial_ci_image}${_IMAGE_POSTFIX}"
+    if [[ "${PLATFORM}" != *","* ]]; then
+        industrial_ci_image="${industrial_ci_image}-${PLATFORM}"
+    else
+        industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
+    fi
+    echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 fi
-[[ ! "${GITLAB_CI}" ]] && echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 
 # parse (potentially) comma-separated lists to arrays
 IFS="," read -ra TARGETS <<< "${TARGET}"
