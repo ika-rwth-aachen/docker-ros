@@ -297,7 +297,7 @@ Create a script `custom.sh` in your `docker` folder (or configure a different `C
 
 If you need to have additional files present in the deployment image, you can use a special `additional-files` folder. The folder contents will be copied into the container before the custom installation script `custom.sh` is executed.
 
-Create a folder `additional-files` in your `docker` folder (or configure a different `ADDITIONAL_FILES_DIR`) and place any files or directories in it. The contents will be copied to `/docker-ros` in the image.
+Create a folder `additional-files` in your `docker` folder (or configure a different `ADDITIONAL_FILES_DIR`) and place any files or directories in it. The contents will be copied to `/docker-ros/additional-files` in the image.
 
 
 ## Configuration Variables
