@@ -376,15 +376,19 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
   Target platform architecture (comma-separated list)  
   *default:* runner architecture
   *supported values:* `amd64`, `arm64`
+- **`registry` | `REGISTRY`**  
+  Docker registry to push images to  
+  *default:* `ghcr.io` | `$CI_REGISTRY`  
 - **`registry-password` | `REGISTRY_PASSWORD`**  
   Docker registry password  
   *default:* `${{ github.token }}` | `$CI_REGISTRY_PASSWORD`  
 - **`registry-username` | `REGISTRY_USERNAME`**  
   Docker registry username  
   *default:* `${{ github.actor }}` | `$CI_REGISTRY_USER`  
-- **`registry` | `REGISTRY`**  
-  Docker registry to push images to  
-  *default:* `ghcr.io` | `$CI_REGISTRY`  
+- **`ros-distro` | `ROS_DISTRO`**  
+  ROS Distro  
+  *required if ROS is not installed in `base-image`*  
+  *supported values:* `rolling`, ..., `noetic`, ...
 - **`target` | `TARGET`**  
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`

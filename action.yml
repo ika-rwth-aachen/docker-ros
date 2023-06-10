@@ -46,6 +46,9 @@ inputs:
   registry-password:
     description: "Docker registry password"
     default: ${{ github.token }}
+
+  ros-distro:
+    description: "ROS Distro (required if ROS is not installed in `base-image`)"
   
   git-https-server:
     description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
@@ -165,6 +168,7 @@ runs:
         IMAGE_TAG: ${{ inputs.image-tag }}
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
@@ -217,6 +221,7 @@ runs:
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
@@ -247,6 +252,7 @@ runs:
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: latest-dev
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
