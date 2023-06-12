@@ -77,7 +77,7 @@ default:
     - privileged
     - amd64
   before_script:
-    - echo -e "section_start:`date +%s`:section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
+    - echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
     - apk add bash
     - cd ${BUILD_CONTEXT}
     - |-
@@ -92,7 +92,7 @@ default:
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker context create buildx-context
     - docker buildx create --use buildx-context
-    - echo -e "section_end:`date +%s`:section\r\e[0K"
+    - echo -e "section_end:`date +%s`:setup_section\r\e[0K"
 
 .build:
   script:
@@ -101,9 +101,9 @@ default:
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       fi
     - TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
-    - echo -e "section_start:`date +%s`:section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
+    - echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
     - docker push ${IMAGE}
-    - echo -e "section_end:`date +%s`:section\r\e[0K"
+    - echo -e "section_end:`date +%s`:push_section\r\e[0K"
 
 dev-amd64:
   stage: Build dev Images
