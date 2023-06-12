@@ -19,7 +19,7 @@ variables:
   DEV_IMAGE_TAG:              ${IMAGE_TAG}-dev                        # Image tag of dev image
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
-  REGISTRY_USERNAME:          ${CI_REGISTRY_USER}                     # Docker registry username
+  REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
   REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
   ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
@@ -89,7 +89,7 @@ default:
         git checkout FETCH_HEAD
         cd -
       fi
-    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker context create buildx-context
     - docker buildx create --use buildx-context
     - echo -e "section_end:`date +%s`:section\r\e[0K"
@@ -172,7 +172,7 @@ run-arm64:
     AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
-    - docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - apk add --update bash coreutils grep tar
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then

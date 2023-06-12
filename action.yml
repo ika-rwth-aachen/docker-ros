@@ -39,7 +39,7 @@ inputs:
     description: "Docker registry to push images to"
     default: ghcr.io
 
-  registry-username: # TODO: rename to user or rename git-https-username to user
+  registry-user:
     description: "Docker registry username"
     default: ${{ github.actor }}
 
@@ -149,7 +149,7 @@ runs:
       uses: docker/login-action@v2
       with:
         registry: ${{ inputs.registry }}
-        username: ${{ inputs.registry-username }}
+        username: ${{ inputs.registry-user }}
         password: ${{ inputs.registry-password }}
     
     - name: Set up Docker buildx

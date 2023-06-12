@@ -384,7 +384,7 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`registry-password` | `REGISTRY_PASSWORD`**  
   Docker registry password  
   *default:* `${{ github.token }}` | `$CI_REGISTRY_PASSWORD`  
-- **`registry-username` | `REGISTRY_USERNAME`**  
+- **`registry-user` | `REGISTRY_USER`**  
   Docker registry username  
   *default:* `${{ github.actor }}` | `$CI_REGISTRY_USER`  
 - **`ros-distro` | `ROS_DISTRO`**  
