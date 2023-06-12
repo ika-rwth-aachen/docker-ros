@@ -24,12 +24,12 @@ build_image() {
         $(if [[ -n "${GIT_SSH_PRIVATE_KEY}" ]]; then echo "--build-arg GIT_SSH_PRIVATE_KEY=${GIT_SSH_PRIVATE_KEY}"; fi) \
         $(if [[ -n "${GIT_SSH_KNOWN_HOST_KEYS}" ]]; then echo "--build-arg GIT_SSH_KNOWN_HOST_KEYS=${GIT_SSH_KNOWN_HOST_KEYS}"; fi) \
         $(if [[ -n "${ADDITIONAL_DEBS_FILE}" ]]; then echo "--build-arg ADDITIONAL_DEBS_FILE=${ADDITIONAL_DEBS_FILE}"; fi) \
-        $(if [[ -n "${ADDITIONAL_DEBS_RECURSIVE}" ]]; then echo "--build-arg ADDITIONAL_DEBS_RECURSIVE=${ADDITIONAL_DEBS_RECURSIVE}"; fi) \
+        $(if [[ -n "${ENABLE_RECURSIVE_ADDITIONAL_DEBS}" ]]; then echo "--build-arg ENABLE_RECURSIVE_ADDITIONAL_DEBS=${ENABLE_RECURSIVE_ADDITIONAL_DEBS}"; fi) \
         $(if [[ -n "${ADDITIONAL_FILES_DIR}" ]]; then echo "--build-arg ADDITIONAL_FILES_DIR=${ADDITIONAL_FILES_DIR}"; fi) \
         $(if [[ -n "${ADDITIONAL_PIP_FILE}" ]]; then echo "--build-arg ADDITIONAL_PIP_FILE=${ADDITIONAL_PIP_FILE}"; fi) \
-        $(if [[ -n "${ADDITIONAL_PIP_RECURSIVE}" ]]; then echo "--build-arg ADDITIONAL_PIP_RECURSIVE=${ADDITIONAL_PIP_RECURSIVE}"; fi) \
+        $(if [[ -n "${ENABLE_RECURSIVE_ADDITIONAL_PIP}" ]]; then echo "--build-arg ENABLE_RECURSIVE_ADDITIONAL_PIP=${ENABLE_RECURSIVE_ADDITIONAL_PIP}"; fi) \
         $(if [[ -n "${CUSTOM_SCRIPT_FILE}" ]]; then echo "--build-arg CUSTOM_SCRIPT_FILE=${CUSTOM_SCRIPT_FILE}"; fi) \
-        $(if [[ -n "${CUSTOM_SCRIPT_RECURSIVE}" ]]; then echo "--build-arg CUSTOM_SCRIPT_RECURSIVE=${CUSTOM_SCRIPT_RECURSIVE}"; fi) \
+        $(if [[ -n "${ENABLE_RECURSIVE_CUSTOM_SCRIPT}" ]]; then echo "--build-arg ENABLE_RECURSIVE_CUSTOM_SCRIPT=${ENABLE_RECURSIVE_CUSTOM_SCRIPT}"; fi) \
         .
     echo "Successfully built stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}'"
 }

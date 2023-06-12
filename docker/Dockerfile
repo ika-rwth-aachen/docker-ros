@@ -72,10 +72,10 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
 
 # add additionally specified apt dependencies to install script
 ARG ADDITIONAL_DEBS_FILE="docker/additional-debs.txt"
-ARG ADDITIONAL_DEBS_RECURSIVE="false"
+ARG ENABLE_RECURSIVE_ADDITIONAL_DEBS="false"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
-    if [[ $ADDITIONAL_DEBS_RECURSIVE == 'true' ]]; then \
+    if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
         find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     elif [[ -f src/target/${ADDITIONAL_DEBS_FILE} ]]; then \
         cat src/target/${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
@@ -84,10 +84,10 @@ RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
 
 # add additionally specified pip dependencies to install script
 ARG ADDITIONAL_PIP_FILE="docker/additional-pip-requirements.txt"
-ARG ADDITIONAL_PIP_RECURSIVE="false"
+ARG ENABLE_RECURSIVE_ADDITIONAL_PIP="false"
 RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
-    if [[ $ADDITIONAL_PIP_RECURSIVE == 'true' ]]; then \
+    if [[ $ENABLE_RECURSIVE_ADDITIONAL_PIP == 'true' ]]; then \
         find . -type f -name $(basename ${ADDITIONAL_PIP_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     elif [[ -f src/target/${ADDITIONAL_PIP_FILE} ]]; then \
         cat src/target/${ADDITIONAL_PIP_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
@@ -96,8 +96,8 @@ RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
 
 # add custom installation commands to install script
 ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
-ARG CUSTOM_SCRIPT_RECURSIVE="false"
-RUN if [[ $CUSTOM_SCRIPT_RECURSIVE == 'true' ]]; then \
+ARG ENABLE_RECURSIVE_CUSTOM_SCRIPT="false"
+RUN if [[ $ENABLE_RECURSIVE_CUSTOM_SCRIPT == 'true' ]]; then \
         find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
     elif [[ -f src/target/${CUSTOM_SCRIPT_FILE} ]]; then \
         cat src/target/${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh ; \

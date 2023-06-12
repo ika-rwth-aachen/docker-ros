@@ -74,8 +74,7 @@ inputs:
     description: "Relative filepath to file containing additional apt deb packages to install"
     default: docker/additional-debs.txt
   
-  # TODO: rename to enable_*?
-  additional-debs-recursive:
+  enable-recursive-additional-debs:
     description: "Enable recursive discovery of files named `additional-debs-file`"
     default: false
 
@@ -89,8 +88,7 @@ inputs:
     description: "Relative filepath to file containing additional pip packages to install"
     default: docker/additional-pip-requirements.txt
   
-  # TODO: rename to enable_*?
-  additional-pip-recursive:
+  enable-recursive-additional-pip:
     description: "Enable recursive discovery of files named `additional-pip-file`"
     default: false
 
@@ -99,8 +97,7 @@ inputs:
     description: "Relative filepath to script containing custom installation commands"
     default: docker/custom.sh
   
-  # TODO: rename to enable_*?
-  custom-script-recursive:
+  enable-recursive-custom-script:
     description: "Enable recursive discovery of files named `custom-script-file`"
     default: false
 
@@ -176,12 +173,12 @@ runs:
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ADDITIONAL_DEBS_RECURSIVE: ${{ inputs.additional-debs-recursive }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ADDITIONAL_PIP_RECURSIVE: ${{ inputs.additional-pip-recursive }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        CUSTOM_SCRIPT_RECURSIVE: ${{ inputs.custom-script-recursive }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
 
     - name: Set up industrial_ci
       if: ${{ inputs.enable-industrial-ci == 'true' }}
@@ -229,12 +226,12 @@ runs:
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ADDITIONAL_DEBS_RECURSIVE: ${{ inputs.additional-debs-recursive }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ADDITIONAL_PIP_RECURSIVE: ${{ inputs.additional-pip-recursive }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        CUSTOM_SCRIPT_RECURSIVE: ${{ inputs.custom-script-recursive }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
 
@@ -260,11 +257,11 @@ runs:
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ADDITIONAL_DEBS_RECURSIVE: ${{ inputs.additional-debs-recursive }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ADDITIONAL_PIP_RECURSIVE: ${{ inputs.additional-pip-recursive }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        CUSTOM_SCRIPT_RECURSIVE: ${{ inputs.custom-script-recursive }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}

@@ -310,18 +310,12 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`additional-debs-file` | `ADDITIONAL_DEBS_FILE`**  
   Relative filepath to file containing additional apt deb packages to install  
   *default:* `docker/additional-debs.txt`  
-- **`additional-debs-recursive` | `ADDITIONAL_DEBS_RECURSIVE`**  
-  Enable recursive discovery of files named `additional-debs-file`  
-  *default:* `false`  
 - **`additional-files-dir` | `ADDITIONAL_FILES_DIR`**  
   Relative path to directory containing additional files to copy into image  
   *default:* `docker/additional-files`  
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`  
-- **`additional-pip-recursive` | `ADDITIONAL_PIP_RECURSIVE`**  
-  Enable recursive discovery of files named `additional-pip-file`  
-  *default:* `false`  
 - **`base-image` | `BASE_IMAGE`**  
   Base image `name:tag`  
   *required*  
@@ -334,9 +328,6 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
   Relative filepath to script containing custom installation commands  
   *default:* `docker/custom.sh`  
-- **`custom-script-recursive` | `CUSTOM_SCRIPT_RECURSIVE`**  
-  Enable recursive discovery of files named `custom-script-file`  
-  *default:* `false`  
 - **`dev-image-name` | `DEV_IMAGE_NAME`**  
   Image name of dev image  
   *default:* `<IMAGE_NAME>`  
@@ -364,6 +355,15 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`git-https-user` | `GIT_HTTPS_USER`**  
   Username for cloning private Git repositories via HTTPS  
   *default:* `${{ github.actor }}` | `gitlab-ci-token`  
+- **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
+  Enable recursive discovery of files named `additional-debs-file`  
+  *default:* `false`
+- **`enable-recursive-additional-pip` | `ENABLE_RECURSIVE_ADDITIONAL_PIP`**  
+  Enable recursive discovery of files named `additional-pip-file`  
+  *default:* `false`
+- **`enable-recursive-custom-script` | `ENABLE_RECURSIVE_CUSTOM_SCRIPT`**  
+  Enable recursive discovery of files named `custom-script-file`  
+  *default:* `false`
 - **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
   Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
 - **`git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY`**  
