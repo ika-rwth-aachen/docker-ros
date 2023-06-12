@@ -227,19 +227,19 @@ Test dev-arm64:
       when: never
   script:
     - |-
-      if [[ ${PLATFORM} =~ amd64 && ${PLATFORM} =~ arm64 ]]; then
-        [[ ${TARGET} =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
-        [[ ${TARGET} =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
-      elif [[ ${PLATFORM} == amd64 ]]; then
-        [[ ${TARGET} =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64}
-        [[ ${TARGET} =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64}
-      elif [[ ${PLATFORM} == arm64 ]]; then
-        [[ ${TARGET} =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_ARM64}
-        [[ ${TARGET} =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_ARM64}
+      if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
+        [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
+        [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
+      elif [[ "${PLATFORM}" == amd64 ]]; then
+        [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64}
+        [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64}
+      elif [[ "${PLATFORM}" == arm64 ]]; then
+        [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_ARM64}
+        [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_ARM64}
       fi
     - |-
-      [[ ${TARGET} =~ dev ]] && docker manifest push ${IMG_DEV}
-      [[ ${TARGET} =~ run ]] && docker manifest push ${IMG_RUN}
+      [[ "${TARGET}" =~ dev ]] && docker manifest push ${IMG_DEV}
+      [[ "${TARGET}" =~ run ]] && docker manifest push ${IMG_RUN}
 
 Push CI:
   stage: Push Multi-Arch Images
