@@ -11,8 +11,7 @@ jobs:
         with:
           owner: ika-rwth-aachen
           repo: docker-ros-ci
-          ref: improvement/naming-of-special-files
-          # TODO: restore ref=main
+          ref: main
           workflow_file_name: ros.yml
           client_payload: '{"docker-ros-git-ref": "${{ github.sha }}"}'
           github_token: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITHUB_TOKEN }}
@@ -24,8 +23,7 @@ jobs:
         with:
           owner: ika-rwth-aachen
           repo: docker-ros-ci
-          ref: improvement/naming-of-special-files
-          # TODO: restore ref=main
+          ref: main
           workflow_file_name: ros2.yml
           client_payload: '{"docker-ros-git-ref": "${{ github.sha }}"}'
           github_token: ${{ secrets.DOCKER_ROS_CI_TRIGGER_GITHUB_TOKEN }}

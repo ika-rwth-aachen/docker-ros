@@ -9,8 +9,7 @@ jobs:
     steps:
       - name: Trigger pipeline
         run: |
-          curl --silent --fail --request POST --form "token=${{ secrets.DOCKER_ROS_CI_TRIGGER_GITLAB_TOKEN }}" --form "ref=improvement/naming-of-special-files" --form "variables[DOCKER_ROS_GIT_REF]=${{ github.sha }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" | jq -r .id > id
-      # TODO: restore ref=main
+          curl --silent --fail --request POST --form "token=${{ secrets.DOCKER_ROS_CI_TRIGGER_GITLAB_TOKEN }}" --form "ref=main" --form "variables[DOCKER_ROS_GIT_REF]=${{ github.sha }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/trigger/pipeline" | jq -r .id > id
       - name: Upload pipeline ID
         uses: actions/upload-artifact@v3
         with:
