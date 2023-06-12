@@ -33,18 +33,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # copy contents of repository
-COPY . src/repository
-
-# if repository is a top-level package, move contents to <PACKAGE_NAME> folder
-RUN shopt -s dotglob && \
-    if [[ -f "src/repository/package.xml" ]]; then \
-        PACKAGE_NAME=$(sed -n 's/.*<name>\(.*\)<\/name>.*/\1/p' src/repository/package.xml) && \
-        mkdir -p src/target/${PACKAGE_NAME} && \
-        mv src/repository/* src/target/${PACKAGE_NAME} ; \
-    else \
-        mv src/repository/* src/target ; \
-    fi && \
-    rm -r src/repository
+COPY . src/target
 
 # clone .repos upstream dependencies
 ARG GIT_HTTPS_SERVER=
@@ -82,48 +71,41 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # add additionally specified apt dependencies to install script
-# TODO: if repository is top-level package, WORKDIR would need to be $WORKSPACE/src/target/<PACKAGE>
-WORKDIR $WORKSPACE/src/target
 ARG ADDITIONAL_DEBS_FILE="docker/additional-debs.txt"
 ARG ADDITIONAL_DEBS_RECURSIVE="false"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_DEBS_RECURSIVE == 'true' ]]; then \
         find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
-    elif [[ -f ${ADDITIONAL_DEBS_FILE} ]]; then \
-        cat ${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+    elif [[ -f src/target/${ADDITIONAL_DEBS_FILE} ]]; then \
+        cat src/target/${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add additionally specified pip dependencies to install script
-# TODO: if repository is top-level package, WORKDIR would need to be $WORKSPACE/src/target/<PACKAGE>
-WORKDIR $WORKSPACE/src/target
 ARG ADDITIONAL_PIP_FILE="docker/additional-pip-requirements.txt"
 ARG ADDITIONAL_PIP_RECURSIVE="false"
 RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ADDITIONAL_PIP_RECURSIVE == 'true' ]]; then \
         find . -type f -name $(basename ${ADDITIONAL_PIP_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
-    elif [[ -f ${ADDITIONAL_PIP_FILE} ]]; then \
-        cat ${ADDITIONAL_PIP_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+    elif [[ -f src/target/${ADDITIONAL_PIP_FILE} ]]; then \
+        cat src/target/${ADDITIONAL_PIP_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
-# TODO: if repository is top-level package, WORKDIR would need to be $WORKSPACE/src/target/<PACKAGE>
-WORKDIR $WORKSPACE/src/target
 ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
 ARG CUSTOM_SCRIPT_RECURSIVE="false"
 RUN if [[ $CUSTOM_SCRIPT_RECURSIVE == 'true' ]]; then \
         find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
-    elif [[ -f ${CUSTOM_SCRIPT_FILE} ]]; then \
-        cat ${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh ; \
+    elif [[ -f src/target/${CUSTOM_SCRIPT_FILE} ]]; then \
+        cat src/target/${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh ; \
     fi
 
-# remove now obsolete docker folder from copied repository content to avoid redundancies
-# TODO: there is no need for a docker folder, all could be stored elsewhere
-WORKDIR $WORKSPACE
-RUN rm -rf src/target/docker
+# remove additional-files folder from copied repository content to avoid redundancies
+ARG ADDITIONAL_FILES_DIR="docker/additional-files"
+RUN rm -rf src/target/${ADDITIONAL_FILES_DIR}
 
 ############ dependencies-install ##############################################
 FROM ${BASE_IMAGE} AS dependencies-install
@@ -162,7 +144,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # copy contents of files-folder into image
-ARG ADDITIONAL_FILES_DIR="docker/additional-files"
+ARG ADDITIONAL_FILES_DIR
 ADD ${ADDITIONAL_FILES_DIR}* /docker-ros/additional-files/
 
 # install dependencies for install script
