@@ -10,7 +10,7 @@ workflow:
 
 variables:
   TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
-  PLATFORM:                   ''                                      # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  PLATFORM:                   ${CI_RUNNER_EXECUTABLE_ARCH}            # Target platform architecture (comma-separated list) [amd64|arm64|...]
   BASE_IMAGE:                 ''                                      # Base image name:tag (required)
   COMMAND:                    ''                                      # Launch command of run image (required if target=run)
   IMAGE_NAME:                 ${CI_REGISTRY_IMAGE}                    # Image name of run image
