@@ -39,13 +39,16 @@ inputs:
     description: "Docker registry to push images to"
     default: ghcr.io
 
-  registry-username:
+  registry-user:
     description: "Docker registry username"
     default: ${{ github.actor }}
 
   registry-password:
     description: "Docker registry password"
     default: ${{ github.token }}
+
+  ros-distro:
+    description: "ROS Distro (required if ROS is not installed in `base-image`)"
   
   git-https-server:
     description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
@@ -64,6 +67,34 @@ inputs:
 
   git-ssh-known-host-keys:
     description: "Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)"
+
+  additional-debs-file:
+    description: "Relative filepath to file containing additional apt deb packages to install"
+    default: docker/additional-debs.txt
+  
+  enable-recursive-additional-debs:
+    description: "Enable recursive discovery of files named `additional-debs-file`"
+    default: false
+
+  additional-files-dir:
+    description: "Relative path to directory containing additional files to copy into image"
+    default: docker/additional-files
+
+  additional-pip-file:
+    description: "Relative filepath to file containing additional pip packages to install"
+    default: docker/additional-pip-requirements.txt
+  
+  enable-recursive-additional-pip:
+    description: "Enable recursive discovery of files named `additional-pip-file`"
+    default: false
+
+  custom-script-file:
+    description: "Relative filepath to script containing custom installation commands"
+    default: docker/custom.sh
+  
+  enable-recursive-custom-script:
+    description: "Enable recursive discovery of files named `custom-script-file`"
+    default: false
 
   enable-industrial-ci:
     description: "Enable industrial_ci"
@@ -110,7 +141,7 @@ runs:
       uses: docker/login-action@v2
       with:
         registry: ${{ inputs.registry }}
-        username: ${{ inputs.registry-username }}
+        username: ${{ inputs.registry-user }}
         password: ${{ inputs.registry-password }}
     
     - name: Set up Docker buildx
@@ -130,11 +161,19 @@ runs:
         IMAGE_TAG: ${{ inputs.image-tag }}
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
+        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
 
     - name: Set up industrial_ci
       if: ${{ inputs.enable-industrial-ci == 'true' }}
@@ -175,11 +214,19 @@ runs:
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
+        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
 
@@ -198,10 +245,18 @@ runs:
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: latest-dev
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
+        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}

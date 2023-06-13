@@ -21,7 +21,8 @@
   - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
   - [Build images locally](#build-images-locally)
 - [Advanced Dependencies](#advanced-dependencies)
-  - [Extra System Dependencies (apt)](#extra-system-dependencies-apt)
+  - [Extra System Dependencies (*apt*)](#extra-system-dependencies-apt)
+  - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
   - [Custom Installation Script](#custom-installation-script)
   - [Extra Image Files](#extra-image-files)
 - [Configuration Variables](#configuration-variables)
@@ -38,11 +39,12 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 The Dockerfile performs the following steps to build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
 2. The ROS dependencies listed in each package's `package.xml` are installed by [*rosdep*](https://docs.ros.org/en/independent/api/rosdep/html/).
-3. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
-4. *(optional)* A special folder `files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
-5. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
-6. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
-7. *(deployment)* A custom launch command is configured to run on container start.
+3. *(optional)* Additional apt dependencies from a special file `additional-debs.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
+4. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
+5. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
+6. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
+7. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
+8. *(deployment)* A custom launch command is configured to run on container start.
 
 ### Prerequisites
 
@@ -96,7 +98,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.0.0
+      - uses: ika-rwth-aachen/docker-ros@v1.1.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -108,7 +110,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.1.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -127,7 +129,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.0.0
+      - uses: ika-rwth-aachen/docker-ros@v1.1.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -140,7 +142,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.1.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -160,7 +162,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.0.0
+      - uses: ika-rwth-aachen/docker-ros@v1.1.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -174,7 +176,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.1.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -195,7 +197,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.0.0
+      - uses: ika-rwth-aachen/docker-ros@v1.1.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -208,7 +210,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.0.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.1.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -232,7 +234,7 @@ jobs:
         platform: [amd64, arm64]  
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.0.0
+      - uses: ika-rwth-aachen/docker-ros@v1.1.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -265,37 +267,45 @@ jobs:
 2. Configure the build using the same [environment variables](#configuration-variables) as used for GitLab CI and run [`build.sh`](scripts/build.sh), e.g.:
     ```bash
     # ros-repository/
-    cd docker
       BASE_IMAGE="rwthika/ros2:humble" \
       COMMAND="ros2 run my_pkg my_node" \
       IMAGE="my-image:latest" \
-    ./docker-ros/scripts/build.sh
+    ./docker/docker-ros/scripts/build.sh
     ```
     > **Note**  
-    > You can save your environment variable configuration in a `.env` file and source it before running the build script.
+    > You can store your environment variable configuration in a `.env` file and instead run:
+    > ```bash
+    > env $(cat .env) ./docker/docker-ros/scripts/build.sh
+    > ```
 
 
 ## Advanced Dependencies
 
 In order to keep things organized, we recommend to place all *docker-ros* related files in a `docker` folder on top repository level.
 
-### Extra System Dependencies (apt)
+### Extra System Dependencies (*apt*)
 
-If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use the special `additional.apt-dependencies` file.
+If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-debs.txt` file.
 
-Create a file `additional.apt-dependencies` in your `docker` folder and list any other dependencies that need to be installed via apt.
+Create a file `additional-debs.txt` in your `docker` folder (or configure a different `ADDITIONAL_DEBS_FILE`) and list any other dependencies that need to be installed via *apt*.
+
+### Extra System Dependencies (*pip*)
+
+If your ROS-based repository requires Python dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-pip-requirements.txt` file.
+
+Create a file `additional-pip-requirements.txt` in your `docker` folder (or configure a different `ADDITIONAL_PIP_FILE`) and list any other Python dependencies that need to be installed via *pip*.
 
 ### Custom Installation Script
 
-If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use the special `custom.sh` script.
+If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use a special `custom.sh` script.
 
-Create a script `custom.sh` in your `docker` folder that executes arbitrary commands as part of the image building process.
+Create a script `custom.sh` in your `docker` folder (or configure a different `CUSTOM_SCRIPT_FILE`) that executes arbitrary commands as part of the image building process.
 
 ### Extra Image Files
 
-If you need to have additional files present in the deployment image, you can use the special `files` folder. These will be copied into the container before the custom installation script `custom.sh` is executed.
+If you need to have additional files present in the deployment image, you can use a special `additional-files` folder. The folder contents will be copied into the container before the custom installation script `custom.sh` is executed.
 
-Create a folder `files` in your `docker` folder and place any files or directories in it. The contents will be copied to `/docker-ros/files` in the image.
+Create a folder `additional-files` in your `docker` folder (or configure a different `ADDITIONAL_FILES_DIR`) and place any files or directories in it. The contents will be copied to `/docker-ros/additional-files` in the image.
 
 
 ## Configuration Variables
@@ -303,6 +313,15 @@ Create a folder `files` in your `docker` folder and place any files or directori
 > **Note**  
 > *GitHub Action input* | *GitLab CI environment variable*
 
+- **`additional-debs-file` | `ADDITIONAL_DEBS_FILE`**  
+  Relative filepath to file containing additional apt deb packages to install  
+  *default:* `docker/additional-debs.txt`  
+- **`additional-files-dir` | `ADDITIONAL_FILES_DIR`**  
+  Relative path to directory containing additional files to copy into image  
+  *default:* `docker/additional-files`  
+- **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
+  Relative filepath to file containing additional pip packages to install  
+  *default:* `docker/additional-pip-requirements.txt`  
 - **`base-image` | `BASE_IMAGE`**  
   Base image `name:tag`  
   *required*  
@@ -312,6 +331,9 @@ Create a folder `files` in your `docker` folder and place any files or directori
 - **`command` | `COMMAND`**  
   Launch command of run image  
   *required if `target=run`*  
+- **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
+  Relative filepath to script containing custom installation commands  
+  *default:* `docker/custom.sh`  
 - **`dev-image-name` | `DEV_IMAGE_NAME`**  
   Image name of dev image  
   *default:* `<IMAGE_NAME>`  
@@ -339,6 +361,15 @@ Create a folder `files` in your `docker` folder and place any files or directori
 - **`git-https-user` | `GIT_HTTPS_USER`**  
   Username for cloning private Git repositories via HTTPS  
   *default:* `${{ github.actor }}` | `gitlab-ci-token`  
+- **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
+  Enable recursive discovery of files named `additional-debs-file`  
+  *default:* `false`
+- **`enable-recursive-additional-pip` | `ENABLE_RECURSIVE_ADDITIONAL_PIP`**  
+  Enable recursive discovery of files named `additional-pip-file`  
+  *default:* `false`
+- **`enable-recursive-custom-script` | `ENABLE_RECURSIVE_CUSTOM_SCRIPT`**  
+  Enable recursive discovery of files named `custom-script-file`  
+  *default:* `false`
 - **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
   Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
 - **`git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY`**  
@@ -353,15 +384,19 @@ Create a folder `files` in your `docker` folder and place any files or directori
   Target platform architecture (comma-separated list)  
   *default:* runner architecture
   *supported values:* `amd64`, `arm64`
-- **`registry-password` | `REGISTRY_PASSWORD`**  
-  Docker registry password  
-  *default:* `${{ github.token }}` | `$CI_REGISTRY_PASSWORD`  
-- **`registry-username` | `REGISTRY_USERNAME`**  
-  Docker registry username  
-  *default:* `${{ github.actor }}` | `$CI_REGISTRY_USER`  
 - **`registry` | `REGISTRY`**  
   Docker registry to push images to  
   *default:* `ghcr.io` | `$CI_REGISTRY`  
+- **`registry-password` | `REGISTRY_PASSWORD`**  
+  Docker registry password  
+  *default:* `${{ github.token }}` | `$CI_REGISTRY_PASSWORD`  
+- **`registry-user` | `REGISTRY_USER`**  
+  Docker registry username  
+  *default:* `${{ github.actor }}` | `$CI_REGISTRY_USER`  
+- **`ros-distro` | `ROS_DISTRO`**  
+  ROS Distro  
+  *required if ROS is not installed in `base-image`*  
+  *supported values:* `rolling`, ..., `noetic`, ...
 - **`target` | `TARGET`**  
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`
