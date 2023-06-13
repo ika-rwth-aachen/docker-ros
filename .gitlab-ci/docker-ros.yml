@@ -141,7 +141,6 @@ run-amd64:
   variables:
     _PLATFORM: amd64
     _TARGET: run
-    COMMAND: ${COMMAND}
     IMAGE: ${_IMAGE_RUN_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -158,7 +157,6 @@ run-arm64:
   variables:
     _PLATFORM: arm64
     _TARGET: run
-    COMMAND: ${COMMAND}
     IMAGE: ${_IMAGE_RUN_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
