@@ -39,11 +39,12 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 The Dockerfile performs the following steps to build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
 2. The ROS dependencies listed in each package's `package.xml` are installed by [*rosdep*](https://docs.ros.org/en/independent/api/rosdep/html/).
-3. *(optional)* Additional dependencies from a special file `additional.apt-dependencies` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
-4. *(optional)* A special folder `files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
-5. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
-6. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
-7. *(deployment)* A custom launch command is configured to run on container start.
+3. *(optional)* Additional apt dependencies from a special file `additional-debs.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
+4. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
+5. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
+6. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
+7. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
+8. *(deployment)* A custom launch command is configured to run on container start.
 
 ### Prerequisites
 
