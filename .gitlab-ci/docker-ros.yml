@@ -21,7 +21,7 @@ variables:
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
   REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
   REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
-  ENABLE_INDUSTRIAL_CI:       'true'                                 # Enable industrial_ci
+  ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
   ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
