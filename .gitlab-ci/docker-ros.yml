@@ -21,7 +21,7 @@ variables:
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
   REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
   REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
-  ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
+  ENABLE_INDUSTRIAL_CI:       'true'                                 # Enable industrial_ci
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
   ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
@@ -228,10 +228,10 @@ Test dev-arm64:
       if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
         [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
-      elif [[ "${PLATFORM}" == amd64 ]]; then
+      elif [[ "${PLATFORM}" =~ amd64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64}
         [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64}
-      elif [[ "${PLATFORM}" == arm64 ]]; then
+      elif [[ "${PLATFORM}" =~ arm64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_ARM64}
         [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_ARM64}
       fi
