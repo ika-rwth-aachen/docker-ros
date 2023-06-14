@@ -77,6 +77,7 @@ default:
     - privileged
     - amd64
   before_script:
+    - if [[ -n ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "Platform '${_PLATFORM}' is skipped; can be enabled by adding '${_PLATFORM}' to the 'PLATFORM' variable" && exit 0; fi
     - echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
     - apk add bash
     - cd ${BUILD_CONTEXT}
@@ -100,16 +101,16 @@ default:
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       fi
-    - TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
-    - echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
-    - docker push ${IMAGE}
-    - echo -e "section_end:`date +%s`:push_section\r\e[0K"
+      TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
+      echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
+      docker push ${IMAGE}
+      echo -e "section_end:`date +%s`:push_section\r\e[0K"
 
 dev-amd64:
   stage: Build dev Images
   extends: .build
   rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
+    - if: $TARGET =~ /.*dev.*/
   variables:
     _PLATFORM: amd64
     _TARGET: dev
@@ -122,7 +123,7 @@ dev-arm64:
   extends: .build
   tags: [privileged, arm64]
   rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
+    - if: $TARGET =~ /.*dev.*/
   variables:
     _PLATFORM: arm64
     _TARGET: dev
@@ -137,11 +138,10 @@ run-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
+    - if: $TARGET =~ /.*run.*/
   variables:
     _PLATFORM: amd64
     _TARGET: run
-    COMMAND: ${COMMAND}
     IMAGE: ${_IMAGE_RUN_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -154,11 +154,10 @@ run-arm64:
     - job: dev-arm64
       optional: true
   rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
+    - if: $TARGET =~ /.*run.*/
   variables:
     _PLATFORM: arm64
     _TARGET: run
-    COMMAND: ${COMMAND}
     IMAGE: ${_IMAGE_RUN_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -172,6 +171,7 @@ run-arm64:
     AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
+    - if [[ -n ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "Platform '${_PLATFORM}' is skipped; can be enabled by adding '${_PLATFORM}' to the 'PLATFORM' variable" && exit 0; fi
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - apk add --update bash coreutils grep tar
     - |-
@@ -189,7 +189,7 @@ Test dev-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/
+    - if: $ENABLE_INDUSTRIAL_CI == 'true'
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_AMD64}
     _PLATFORM: amd64
@@ -202,7 +202,7 @@ Test dev-arm64:
     - job: dev-arm64
       optional: true
   rules:
-      - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/
+      - if: $ENABLE_INDUSTRIAL_CI == 'true'
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_ARM64}
     _PLATFORM: arm64
@@ -230,10 +230,10 @@ Test dev-arm64:
       if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
         [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
-      elif [[ "${PLATFORM}" == amd64 ]]; then
+      elif [[ "${PLATFORM}" =~ amd64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64}
         [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64}
-      elif [[ "${PLATFORM}" == arm64 ]]; then
+      elif [[ "${PLATFORM}" =~ arm64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_ARM64}
         [[ "${TARGET}" =~ run ]] && docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_ARM64}
       fi
