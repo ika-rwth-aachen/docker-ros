@@ -97,19 +97,23 @@ default:
 .build:
   script:
     - |-
-      if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
-        docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+      if [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then
+        if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        fi
+        TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
+        echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
+        docker push ${IMAGE}
+        echo -e "section_end:`date +%s`:push_section\r\e[0K"
+      else
+        echo "Do not build image for ${_PLATFORM}!"
       fi
-    - TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
-    - echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
-    - docker push ${IMAGE}
-    - echo -e "section_end:`date +%s`:push_section\r\e[0K"
 
 dev-amd64:
   stage: Build dev Images
   extends: .build
   rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
+    - if: $TARGET =~ /.*dev.*/
   variables:
     _PLATFORM: amd64
     _TARGET: dev
@@ -122,7 +126,7 @@ dev-arm64:
   extends: .build
   tags: [privileged, arm64]
   rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
+    - if: $TARGET =~ /.*dev.*/
   variables:
     _PLATFORM: arm64
     _TARGET: dev
@@ -137,7 +141,7 @@ run-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
+    - if: $TARGET =~ /.*run.*/
   variables:
     _PLATFORM: amd64
     _TARGET: run
@@ -153,7 +157,7 @@ run-arm64:
     - job: dev-arm64
       optional: true
   rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
+    - if: $TARGET =~ /.*run.*/
   variables:
     _PLATFORM: arm64
     _TARGET: run
@@ -224,6 +228,8 @@ Test dev-arm64:
     - if: $PLATFORM == '' || $TARGET == ''
       when: never
   script:
+    - echo $PLATFORM
+    - echo $CI_RUNNER_EXECUTABLE_ARCH
     - |-
       if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
