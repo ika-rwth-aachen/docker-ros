@@ -226,8 +226,6 @@ Test dev-arm64:
     - if: $PLATFORM == '' || $TARGET == ''
       when: never
   script:
-    - echo $PLATFORM
-    - echo $CI_RUNNER_EXECUTABLE_ARCH
     - |-
       if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
         [[ "${TARGET}" =~ dev ]] && docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
