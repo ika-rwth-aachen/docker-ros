@@ -77,7 +77,7 @@ default:
     - privileged
     - amd64
   before_script:
-    - if [[ ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "job will not run for this architecture (${_PLATFORM})" && exit 0; fi
+    - if [[ -n ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "Platform '${_PLATFORM}' is skipped; can be enabled by adding '${_PLATFORM}' to the 'PLATFORM' variable" && exit 0; fi
     - echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
     - apk add bash
     - cd ${BUILD_CONTEXT}
@@ -171,7 +171,7 @@ run-arm64:
     AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
-    - if [[ ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "job will not run for this architecture (${_PLATFORM})" && exit 0; fi
+    - if [[ -n ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "Platform '${_PLATFORM}' is skipped; can be enabled by adding '${_PLATFORM}' to the 'PLATFORM' variable" && exit 0; fi
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - apk add --update bash coreutils grep tar
     - |-
