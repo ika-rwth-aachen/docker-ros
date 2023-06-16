@@ -144,7 +144,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # copy contents of files-folder into image
-ARG ADDITIONAL_FILES_DIR
+ARG ADDITIONAL_FILES_DIR="docker/additional-files"
 ADD ${ADDITIONAL_FILES_DIR}* /docker-ros/additional-files/
 
 # install essential build tools and dependencies for install script
