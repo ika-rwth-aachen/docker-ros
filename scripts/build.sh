@@ -37,6 +37,8 @@ build_image() {
 
 # check if script is executed
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    # load variables from .env
+    [[ -f "$(pwd)/.env" ]] && source "$(pwd)/.env"
     # check for required variables and set defaults for optional variables
     TARGET="${TARGET:-run}"
     PLATFORM="${PLATFORM:-$(dpkg --print-architecture)}"

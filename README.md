@@ -273,9 +273,12 @@ jobs:
     ./docker/docker-ros/scripts/build.sh
     ```
     > **Note**  
-    > You can store your environment variable configuration in a `.env` file and instead run:
+    > You can alternatively store your environment variable configuration in a `.env` file:
     > ```bash
-    > env $(cat .env) ./docker/docker-ros/scripts/build.sh
+    > # .env
+    > BASE_IMAGE="rwthika/ros2:humble"
+    > COMMAND="ros2 run my_pkg my_node"
+    > IMAGE="my-image:latest"
     > ```
 
 
