@@ -13,8 +13,8 @@ jobs:
       - name: Upload pipeline ID
         uses: actions/upload-artifact@v3
         with:
-          name: id
-          path: id
+          name: id_ros
+          path: id_ros
 
   watch-ros:
     runs-on: ubuntu-latest
@@ -23,10 +23,10 @@ jobs:
       - name: Get pipeline ID
         uses: actions/download-artifact@v3
         with:
-          name: id
+          name: id_ros
       - name: Wait for pipeline completion
         run: |
-          PIPELINE_ID=$(cat id)
+          PIPELINE_ID=$(cat id_ros)
           while true; do
             sleep 30
             PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_READ_PIPELINE_GITLAB_TOKEN }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" | jq -r .status)
@@ -49,8 +49,8 @@ jobs:
       - name: Upload pipeline ID
         uses: actions/upload-artifact@v3
         with:
-          name: id
-          path: id
+          name: id_ros2
+          path: id_ros2
 
   watch-ros2:
     runs-on: ubuntu-latest
@@ -59,10 +59,10 @@ jobs:
       - name: Get pipeline ID
         uses: actions/download-artifact@v3
         with:
-          name: id
+          name: id_ros2
       - name: Wait for pipeline completion
         run: |
-          PIPELINE_ID=$(cat id)
+          PIPELINE_ID=$(cat id_ros2)
           while true; do
             sleep 30
             PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_READ_PIPELINE_GITLAB_TOKEN }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" | jq -r .status)
