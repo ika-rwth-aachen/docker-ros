@@ -26,7 +26,7 @@ jobs:
           name: id_ros
       - name: Wait for pipeline completion
         run: |
-          PIPELINE_ID=$(cat id_ros)
+          PIPELINE_ID=$(cat id)
           while true; do
             sleep 30
             PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_READ_PIPELINE_GITLAB_TOKEN }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" | jq -r .status)
@@ -62,7 +62,7 @@ jobs:
           name: id_ros2
       - name: Wait for pipeline completion
         run: |
-          PIPELINE_ID=$(cat id_ros2)
+          PIPELINE_ID=$(cat id)
           while true; do
             sleep 30
             PIPELINE_STATUS=$(curl --silent --header "PRIVATE-TOKEN: ${{ secrets.DOCKER_ROS_CI_READ_PIPELINE_GITLAB_TOKEN }}" "https://gitlab.ika.rwth-aachen.de/api/v4/projects/1886/pipelines/$PIPELINE_ID" | jq -r .status)
