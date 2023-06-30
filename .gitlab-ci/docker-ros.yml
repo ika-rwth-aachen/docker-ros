@@ -209,7 +209,7 @@ Test run-amd64:
   needs:
     - job: run-amd64
   rules:
-    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && ! $TARGET =~ /.*dev.*/
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET !~ /.*dev.*/
   variables:
     DOCKER_IMAGE: ${_IMAGE_RUN_CI_AMD64}
     _PLATFORM: amd64
@@ -220,7 +220,7 @@ Test run-arm64:
   needs:
     - job: run-arm64
   rules:
-    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && ! $TARGET =~ /.*dev.*/
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET !~ /.*dev.*/
   variables:
     DOCKER_IMAGE: ${_IMAGE_RUN_CI_ARM64}
     _PLATFORM: arm64
