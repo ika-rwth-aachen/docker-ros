@@ -10,7 +10,7 @@ workflow:
 
 variables:
   TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
-  PLATFORM:                   ${CI_RUNNER_EXECUTABLE_ARCH}            # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  PLATFORM:                   amd64                                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
   BASE_IMAGE:                 ''                                      # Base image name:tag (required)
   COMMAND:                    ''                                      # Launch command of run image (required if target=run)
   IMAGE_NAME:                 ${CI_REGISTRY_IMAGE}                    # Image name of run image
@@ -77,7 +77,6 @@ default:
     - privileged
     - amd64
   before_script:
-    - if [[ ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "Platform '${_PLATFORM}' is skipped; can be enabled by adding '${_PLATFORM}' to the 'PLATFORM' variable" && exit 0; fi
     - echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
     - apk add bash
     - cd ${BUILD_CONTEXT}
@@ -110,7 +109,7 @@ dev-amd64:
   stage: Build dev Images
   extends: .build
   rules:
-    - if: $TARGET =~ /.*dev.*/
+    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
   variables:
     _PLATFORM: amd64
     _TARGET: dev
@@ -123,7 +122,7 @@ dev-arm64:
   extends: .build
   tags: [privileged, arm64]
   rules:
-    - if: $TARGET =~ /.*dev.*/
+    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
   variables:
     _PLATFORM: arm64
     _TARGET: dev
@@ -138,7 +137,7 @@ run-amd64:
     - job: dev-amd64
       optional: true
   rules:
-    - if: $TARGET =~ /.*run.*/
+    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
   variables:
     _PLATFORM: amd64
     _TARGET: run
@@ -154,7 +153,7 @@ run-arm64:
     - job: dev-arm64
       optional: true
   rules:
-    - if: $TARGET =~ /.*run.*/
+    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
   variables:
     _PLATFORM: arm64
     _TARGET: run
@@ -171,7 +170,6 @@ run-arm64:
     AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
-    - if [[ ${_PLATFORM} ]]  && ! [[ "${PLATFORM}" =~ ${_PLATFORM} ]]; then echo "Platform '${_PLATFORM}' is skipped; can be enabled by adding '${_PLATFORM}' to the 'PLATFORM' variable" && exit 0; fi
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - apk add --update bash coreutils grep tar
     - |-
@@ -187,9 +185,8 @@ Test dev-amd64:
   extends: .test
   needs:
     - job: dev-amd64
-      optional: true
   rules:
-    - if: $ENABLE_INDUSTRIAL_CI == 'true'
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_AMD64}
     _PLATFORM: amd64
@@ -200,11 +197,32 @@ Test dev-arm64:
   tags: [privileged, arm64]
   needs:
     - job: dev-arm64
-      optional: true
   rules:
-      - if: $ENABLE_INDUSTRIAL_CI == 'true'
+      - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
   variables:
     DOCKER_IMAGE: ${_IMAGE_DEV_CI_ARM64}
+    _PLATFORM: arm64
+
+Test run-amd64:
+  stage: Test ROS Industrial CI
+  extends: .test
+  needs:
+    - job: run-amd64
+  rules:
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET !~ /.*dev.*/
+  variables:
+    DOCKER_IMAGE: ${_IMAGE_RUN_CI_AMD64}
+    _PLATFORM: amd64
+
+Test run-arm64:
+  stage: Test ROS Industrial CI
+  extends: .test
+  needs:
+    - job: run-arm64
+  rules:
+    - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET !~ /.*dev.*/
+  variables:
+    DOCKER_IMAGE: ${_IMAGE_RUN_CI_ARM64}
     _PLATFORM: arm64
 
 
@@ -221,6 +239,10 @@ Test dev-arm64:
     - job: Test dev-amd64
       optional: true
     - job: Test dev-arm64
+      optional: true
+    - job: Test run-amd64
+      optional: true
+    - job: Test run-arm64
       optional: true
   rules:
     - if: $PLATFORM == '' || $TARGET == ''
