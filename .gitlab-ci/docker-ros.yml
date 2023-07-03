@@ -81,7 +81,7 @@ default:
     - apk add bash
     - cd ${BUILD_CONTEXT}
     - |-
-      if [[ ! -d $docker/docker-ros ]]; then
+      if [[ ! -d docker/docker-ros ]]; then
         mkdir -p docker
         git clone --depth=1  https://github.com/ika-rwth-aachen/docker-ros.git docker/docker-ros
         cd docker/docker-ros
