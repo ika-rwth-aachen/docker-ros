@@ -250,18 +250,37 @@ Test run-arm64:
   script:
     - |-
       if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
-        if [[ "${TARGET}" =~ dev ]]; then docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}; fi
-        if [[ "${TARGET}" =~ run ]]; then docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}; fi
+        if [[ "${TARGET}" =~ dev ]]; then
+          docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
+          docker manifest push ${IMG_DEV}
+        fi
+        if [[ "${TARGET}" =~ run ]]; then
+          docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
+          docker manifest push ${IMG_RUN}
+        fi
       elif [[ "${PLATFORM}" =~ amd64 ]]; then
-        if [[ "${TARGET}" =~ dev ]]; then docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64}; fi
-        if [[ "${TARGET}" =~ run ]]; then docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64}; fi
+        if [[ "${TARGET}" =~ dev ]]; then
+          docker pull ${_IMAGE_DEV_CI_AMD64}
+          docker tag ${_IMAGE_DEV_CI_AMD64} ${IMG_DEV}
+          docker push ${IMG_DEV}
+        fi
+        if [[ "${TARGET}" =~ run ]]; then
+          docker pull ${_IMAGE_RUN_CI_AMD64}
+          docker tag ${_IMAGE_RUN_CI_AMD64} ${IMG_RUN}
+          docker push ${IMG_RUN}
+        fi
       elif [[ "${PLATFORM}" =~ arm64 ]]; then
-        if [[ "${TARGET}" =~ dev ]]; then docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_ARM64}; fi
-        if [[ "${TARGET}" =~ run ]]; then docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_ARM64}; fi
+        if [[ "${TARGET}" =~ dev ]]; then
+          docker pull ${_IMAGE_DEV_CI_ARM64}
+          docker tag ${_IMAGE_DEV_CI_ARM64} ${IMG_DEV}
+          docker push ${IMG_DEV}
+        fi
+        if [[ "${TARGET}" =~ run ]]; then
+          docker pull ${_IMAGE_RUN_CI_ARM64}
+          docker tag ${_IMAGE_RUN_CI_ARM64} ${IMG_RUN}
+          docker push ${IMG_RUN}
+        fi
       fi
-    - |-
-      if [[ "${TARGET}" =~ dev ]]; then docker manifest push ${IMG_DEV}; fi
-      if [[ "${TARGET}" =~ run ]]; then docker manifest push ${IMG_RUN}; fi
 
 Push CI:
   stage: Push Multi-Arch Images
