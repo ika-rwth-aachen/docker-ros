@@ -30,7 +30,9 @@ RUN apt-get update && \
         git \
         python3-rosdep \
         python3-vcstool \
-    && rm -rf /var/lib/apt/lists/*
+        ros-${ROS_DISTRO}-ros-environment \
+    && rm -rf /var/lib/apt/lists/* && \
+    source /opt/ros/${ROS_DISTRO}/setup.bash
 
 # copy contents of repository
 COPY . src/target
@@ -154,6 +156,7 @@ RUN apt-get update && \
         gosu \
         python-is-python3 \
         python3-pip \
+        ros-${ROS_DISTRO}-ros-environment \
     && rm -rf /var/lib/apt/lists/*
 
 # copy install script from dependencies stage
@@ -165,7 +168,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # install ROS CLI tools
-RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
     apt-get update && \
     if [[ "$ROS_VERSION" == "1" ]]; then \
         apt-get install -y \
