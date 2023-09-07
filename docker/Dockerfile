@@ -62,6 +62,7 @@ RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
+    source /opt/ros/${ROS_DISTRO}/setup.bash && \
     apt-get update && \
     rosdep init || true && \
     rosdep update --rosdistro ${ROS_DISTRO} && \
