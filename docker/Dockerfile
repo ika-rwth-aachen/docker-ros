@@ -31,8 +31,7 @@ RUN apt-get update && \
         python3-rosdep \
         python3-vcstool \
         ros-${ROS_DISTRO}-ros-environment \
-    && rm -rf /var/lib/apt/lists/* && \
-    source /opt/ros/${ROS_DISTRO}/setup.bash
+    && rm -rf /var/lib/apt/lists/*
 
 # copy contents of repository
 COPY . src/target
