@@ -6,7 +6,7 @@ import sys
 from typing import List, Optional
 
 
-def findDotRepos(search_path: str, clone_path: Optional[str]=None) -> List[pathlib.Path]:
+def findDotRepos(search_path: str, clone_path: Optional[str] = None) -> List[pathlib.Path]:
 
     repos = list(pathlib.Path(search_path).glob("**/*.repos"))
     if clone_path is not None:
@@ -32,9 +32,9 @@ def main():
             proc = subprocess.run(["vcs", "import", clone_path, "--recursive"], stdin=f)
             if proc.returncode != 0:
                 raise RuntimeError("vcs import failed")
-        
+
         cloned_repos.append(next_repo)
-        
+
     print(" ".join([str(repo) for repo in set(found_repos)]))
 
 
