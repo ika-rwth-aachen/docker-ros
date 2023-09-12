@@ -61,7 +61,7 @@ RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
-    source /opt/ros/${ROS_DISTRO}/setup.bash && \
+    source $(find /opt/ros/$ROS_DISTRO/share/ros_environment -name "1.ros_version.sh") && \
     apt-get update && \
     rosdep init || true && \
     rosdep update --rosdistro ${ROS_DISTRO} && \
@@ -168,7 +168,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # install ROS CLI tools
-RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
+RUN source $(find /opt/ros/$ROS_DISTRO/share/ros_environment -name "1.ros_version.sh") && \
     apt-get update && \
     if [[ "$ROS_VERSION" == "1" ]]; then \
         apt-get install -y \
