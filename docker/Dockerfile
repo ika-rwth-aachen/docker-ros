@@ -30,7 +30,7 @@ RUN apt-get update && \
         git \
         python3-rosdep \
         python3-vcstool \
-        ros-${ROS_DISTRO}-ros-environment \
+        ros-${ROS_DISTRO}-ros-core \
     && rm -rf /var/lib/apt/lists/*
 
 # copy contents of repository
@@ -61,7 +61,7 @@ RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
-    source $(find /opt/ros/$ROS_DISTRO/share/ros_environment -name "1.ros_version.sh") && \
+    source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
     rosdep init || true && \
     rosdep update --rosdistro ${ROS_DISTRO} && \
@@ -156,7 +156,7 @@ RUN apt-get update && \
         gosu \
         python-is-python3 \
         python3-pip \
-        ros-${ROS_DISTRO}-ros-environment \
+        ros-${ROS_DISTRO}-ros-core \
     && rm -rf /var/lib/apt/lists/*
 
 # copy install script from dependencies stage
@@ -168,7 +168,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # install ROS CLI tools
-RUN source $(find /opt/ros/$ROS_DISTRO/share/ros_environment -name "1.ros_version.sh") && \
+RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
     if [[ "$ROS_VERSION" == "1" ]]; then \
         apt-get install -y \
