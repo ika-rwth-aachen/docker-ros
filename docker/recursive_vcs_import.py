@@ -6,7 +6,7 @@ import sys
 from typing import List, Optional
 
 
-def findDotRepos(search_path: str, clone_path: Optional[str]=None) -> List[pathlib.Path]:
+def findDotRepos(search_path: str, clone_path: Optional[str] = None) -> List[pathlib.Path]:
 
     repos = list(pathlib.Path(search_path).glob("**/*.repos"))
     if clone_path is not None:
@@ -17,11 +17,14 @@ def main():
 
     search_path = sys.argv[1] if len(sys.argv) > 1 else "."
     clone_path = sys.argv[2] if len(sys.argv) > 2 else "."
+    recursive_cloned = sys.argv[3].lower() == "true" if len(sys.argv) > 3 else True
     cloned_repos = []
+    found_repos = []
 
     while True:
 
-        found_repos = findDotRepos(search_path, clone_path)
+        if recursive_cloned or not found_repos:
+            found_repos = findDotRepos(search_path, clone_path)
         remaining_repos = set(found_repos) - set(cloned_repos)
 
         if not remaining_repos:

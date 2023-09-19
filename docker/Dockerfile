@@ -56,7 +56,8 @@ COPY docker/docker-ros/docker/recursive_vcs_import.py /usr/local/bin
 RUN apt-get update && \
     apt-get install -y python-is-python3 && \
     rm -rf /var/lib/apt/lists/*
-RUN /usr/local/bin/recursive_vcs_import.py src src/upstream
+ARG ENABLE_RECURSIVE_CLONED="True"
+RUN /usr/local/bin/recursive_vcs_import.py src src/upstream ${ENABLE_RECURSIVE_CLONED}
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
