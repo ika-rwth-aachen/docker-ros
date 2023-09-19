@@ -69,6 +69,19 @@ RUN if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
         vcs import src/upstream < src/target/${VCS_IMPORT_FILE} ; \
     fi
 
+# remove blacklisted packages from workspace
+ARG BLACKLISTED_PACKAGES_FILE="docker/blacklisted-packages.txt"
+ARG ENABLE_RECURSIVE_BLACKLISTED_PACKAGES="false"
+RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.remove-packages.sh && \
+    if [[ $ENABLE_RECURSIVE_BLACKLISTED_PACKAGES == 'true' ]]; then \
+        find . -type f -name $(basename ${BLACKLISTED_PACKAGES_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
+    elif [[ -f src/target/${BLACKLISTED_PACKAGES_FILE} ]]; then \
+        cat src/target/${BLACKLISTED_PACKAGES_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
+    fi && \
+    echo ";" >> $WORKSPACE/.remove-packages.sh && \
+    chmod +x $WORKSPACE/.remove-packages.sh && \
+    $WORKSPACE/.remove-packages.sh | xargs rm -rf
+
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     source /opt/ros/$ROS_DISTRO/setup.bash && \

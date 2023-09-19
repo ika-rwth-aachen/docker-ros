@@ -35,6 +35,8 @@ variables:
   ADDITIONAL_FILES_DIR:       docker/additional-files                 # Relative path to directory containing additional files to copy into image"
   ADDITIONAL_PIP_FILE:        docker/additional-pip-requirements.txt  # Relative filepath to file containing additional pip packages to install
   ENABLE_RECURSIVE_ADDITIONAL_PIP:   'false'                          # Enable recursive discovery of files named `additional-pip-file`
+  BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
+  ENABLE_RECURSIVE_BLACKLISTED_PACKAGES:  'false'                     # Enable recursive discovery of files named `blacklisted-packages-file`
   CUSTOM_SCRIPT_FILE:         docker/custom.sh                        # Relative filepath to script containing custom installation commands
   ENABLE_RECURSIVE_CUSTOM_SCRIPT:    'false'                          # Enable recursive discovery of files named `custom-script-file`
   VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)

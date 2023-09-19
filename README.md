@@ -298,6 +298,8 @@ If your ROS-based repository requires Python dependencies that cannot be install
 
 Create a file `additional-pip-requirements.txt` in your `docker` folder (or configure a different `ADDITIONAL_PIP_FILE`) and list any other Python dependencies that need to be installed via *pip*.
 
+### TODO: Blacklist/Whitelist packages
+
 ### Custom Installation Script
 
 If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use a special `custom.sh` script.
@@ -325,6 +327,9 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
+- **`blacklisted-packages-file` | `BLACKLISTED_PACKAGES_FILE`**  
+  Relative filepath to file containing blacklisted packages  
+  *default:* `docker/blacklisted-packages.txt`
 - **`vcs-import-file` | `VCS_IMPORT_FILE`**  
   Relative filepath to file containing additional repos to install via vcstools (only relevant if `enable-recursive-vcs-import=false`)
   *default:* `.repos`
@@ -372,6 +377,9 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
   *default:* `false`
 - **`enable-recursive-additional-pip` | `ENABLE_RECURSIVE_ADDITIONAL_PIP`**  
   Enable recursive discovery of files named `additional-pip-file`  
+  *default:* `false`
+- **`enable-recursive-blacklisted-packages` | `ENABLE_RECURSIVE_BLACKLISTED_PACKAGES`**  
+  Enable recursive discovery of files named `blacklisted-packages-file`  
   *default:* `false`
 - **`enable-recursive-custom-script` | `ENABLE_RECURSIVE_CUSTOM_SCRIPT`**  
   Enable recursive discovery of files named `custom-script-file`  

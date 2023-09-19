@@ -88,6 +88,14 @@ inputs:
     description: "Enable recursive discovery of files named `additional-pip-file`"
     default: false
 
+  blacklisted-packages-file:
+    description: "Relative filepath to file containing blacklisted packages to remove from workspace"
+    default: docker/blacklisted-packages.txt
+
+  enable-recursive-blacklisted-packages:
+    description: "Enable recursive discovery of files named `blacklisted-packages-file`"
+    default: false
+
   custom-script-file:
     description: "Relative filepath to script containing custom installation commands"
     default: docker/custom.sh
@@ -172,6 +180,8 @@ runs:
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
@@ -227,6 +237,8 @@ runs:
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
@@ -260,6 +272,8 @@ runs:
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
