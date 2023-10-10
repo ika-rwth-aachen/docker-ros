@@ -37,6 +37,7 @@ variables:
   ENABLE_RECURSIVE_ADDITIONAL_PIP:   'false'                          # Enable recursive discovery of files named `additional-pip-file`
   CUSTOM_SCRIPT_FILE:         docker/custom.sh                        # Relative filepath to script containing custom installation commands
   ENABLE_RECURSIVE_CUSTOM_SCRIPT:    'false'                          # Enable recursive discovery of files named `custom-script-file`
+  ENABLE_RECURSIVE_VCS_IMPORT:       'true'                           # Enable recursive discovery of files named `additional-repos-file`
   # -----
   DOCKER_ROS_GIT_REF:     main
 

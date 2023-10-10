@@ -373,6 +373,9 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`enable-recursive-custom-script` | `ENABLE_RECURSIVE_CUSTOM_SCRIPT`**  
   Enable recursive discovery of files named `custom-script-file`  
   *default:* `false`
+- **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
+  Enable recursive discovery of files named `additional-repo-file`  
+  *default:* `true`
 - **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
   Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
 - **`git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY`**  
