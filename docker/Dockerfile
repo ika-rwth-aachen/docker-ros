@@ -80,7 +80,7 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     fi && \
     echo ";" >> $WORKSPACE/.remove-packages.sh && \
     chmod +x $WORKSPACE/.remove-packages.sh && \
-    $WORKSPACE/.remove-packages.sh | xargs rm -rf
+    $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
