@@ -21,6 +21,8 @@
   - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
   - [Build images locally](#build-images-locally)
 - [Advanced Dependencies](#advanced-dependencies)
+  - [Recursion](#recursion)
+  - [Package Blacklist](#package-blacklist)
   - [Extra System Dependencies (*apt*)](#extra-system-dependencies-apt)
   - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
   - [Custom Installation Script](#custom-installation-script)
@@ -38,13 +40,14 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 
 The Dockerfile performs the following steps to build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
-2. The ROS dependencies listed in each package's `package.xml` are installed by [*rosdep*](https://docs.ros.org/en/independent/api/rosdep/html/).
-3. *(optional)* Additional apt dependencies from a special file `additional-debs.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
-4. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
-5. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
-6. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
-7. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
-8. *(deployment)* A custom launch command is configured to run on container start.
+2. *(optional)* Packages blacklisted in a special file `blacklisted-packages.txt` are removed from the workspace (see [*Advanced Dependencies*](#package-blacklist)).
+3. The ROS dependencies listed in each package's `package.xml` are installed by [*rosdep*](https://docs.ros.org/en/independent/api/rosdep/html/).
+4. *(optional)* Additional apt dependencies from a special file `additional-debs.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
+5. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
+6. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
+7. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
+8. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
+9. *(deployment)* A custom launch command is configured to run on container start.
 
 ### Prerequisites
 
@@ -231,7 +234,7 @@ jobs:
     strategy:
       matrix:
         target: [dev, run]
-        platform: [amd64, arm64]  
+        platform: [amd64, arm64]
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
       - uses: ika-rwth-aachen/docker-ros@v1.2.5
@@ -286,6 +289,16 @@ jobs:
 
 In order to keep things organized, we recommend to place all *docker-ros* related files in a `docker` folder on top repository level.
 
+### Recursion
+
+Most of the steps listed in [*About*](#about) and below can be toggled between recursive and non-recursive mode, see [*Configuration Variables*](#configuration-variables). This usually means that not only special files on the top-level are considered (e.g., `docker/additional-requirements.txt`), but also files with the same name (e.g., `additional-requirements.txt`) that are found anywhere in the workspace, even after cloning the upstream repositories in step 1.
+
+### Package Blacklist
+
+If your ROS-based repository (or any of your repository's upstream dependencies, see `.repos`) contains ROS packages that should neither be built nor be used for determining dependencies, you can blacklist those in a special `blacklisted-packages.txt` file.
+
+Create a file `blacklisted-packages.txt` in your `docker` folder (or configure a different `BLACKLISTED_PACKAGES_FILE`) and list any ROS package name to blacklist.
+
 ### Extra System Dependencies (*apt*)
 
 If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-debs.txt` file.
@@ -297,8 +310,6 @@ Create a file `additional-debs.txt` in your `docker` folder (or configure a diff
 If your ROS-based repository requires Python dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-pip-requirements.txt` file.
 
 Create a file `additional-pip-requirements.txt` in your `docker` folder (or configure a different `ADDITIONAL_PIP_FILE`) and list any other Python dependencies that need to be installed via *pip*.
-
-### TODO: Blacklist/Whitelist packages
 
 ### Custom Installation Script
 
@@ -327,15 +338,12 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
-- **`blacklisted-packages-file` | `BLACKLISTED_PACKAGES_FILE`**  
-  Relative filepath to file containing blacklisted packages  
-  *default:* `docker/blacklisted-packages.txt`
-- **`vcs-import-file` | `VCS_IMPORT_FILE`**  
-  Relative filepath to file containing additional repos to install via vcstools (only relevant if `enable-recursive-vcs-import=false`)
-  *default:* `.repos`
 - **`base-image` | `BASE_IMAGE`**  
   Base image `name:tag`  
   *required*  
+- **`blacklisted-packages-file` | `BLACKLISTED_PACKAGES_FILE`**  
+  Relative filepath to file containing blacklisted packages  
+  *default:* `docker/blacklisted-packages.txt`
 - **`build-context` | `BUILD_CONTEXT`**  
   Build context of Docker build process  
   *default:* `${{ github.workspace }}` | `.`  
@@ -418,3 +426,6 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`
   *supported values:* `dev`, `run`
+- **`vcs-import-file` | `VCS_IMPORT_FILE`**  
+  Relative filepath to file containing additional repos to install via vcstools (only relevant if `enable-recursive-vcs-import=false`)  
+  *default:* `.repos`
