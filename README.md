@@ -326,7 +326,7 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
 - **`vcs-import-file` | `VCS_IMPORT_FILE`**  
-  Relative filepath to file containing additional repos to install via vcstools
+  Relative filepath to file containing additional repos to install via vcstools (only relevant if `enable-recursive-vcs-import=false`)
   *default:* `.repos`
 - **`base-image` | `BASE_IMAGE`**  
   Base image `name:tag`  
@@ -377,7 +377,7 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
   Enable recursive discovery of files named `custom-script-file`  
   *default:* `false`
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
-  Enable recursive discovery of files named `additional-repo-file`  
+  Enable recursive discovery of files named `*.repos`  
   *default:* `true`
 - **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
   Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
