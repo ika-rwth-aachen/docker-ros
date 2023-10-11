@@ -88,7 +88,7 @@ ARG ENABLE_RECURSIVE_ADDITIONAL_DEBS="false"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
-        find . -type f -name $(basename {ADDITIONAL_DEBS_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+        find . -type f -name $(basename ${ADDITIONAL_DEBS_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     elif [[ -f src/target/${ADDITIONAL_DEBS_FILE} ]]; then \
         cat src/target/${ADDITIONAL_DEBS_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
