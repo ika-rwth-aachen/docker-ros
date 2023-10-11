@@ -64,7 +64,7 @@ RUN apt-get update && \
 ARG ADDITIONAL_REPOS_FILE=".repos"
 ARG ENABLE_RECURSIVE_VCS_IMPORT="true"
 RUN if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
-        /usr/local/bin/recursive_vcs_import.py src/target src/upstream ${ADDITIONAL_REPOS_FILE}; \
+        /usr/local/bin/recursive_vcs_import.py src src/upstream ; \
     else \
         vcs import src/upstream < src/target/${ADDITIONAL_REPOS_FILE} ; \
     fi
