@@ -63,10 +63,10 @@ RUN apt-get update && \
 
 ARG VCS_IMPORT_FILE=".repos"
 ARG ENABLE_RECURSIVE_VCS_IMPORT="true"
-RUN if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
+RUN if [[ $ENABLE_RECURSIVE_VCS_IMPORT == 'true' ]]; then \
         /usr/local/bin/recursive_vcs_import.py src src/upstream ; \
     else \
-        vcs import src/upstream < src/target/${VCS_IMPORT_FILE} ; \
+        [[ -f src/target/${VCS_IMPORT_FILE} ]] && vcs import src/upstream < src/target/${VCS_IMPORT_FILE} ; \
     fi
 
 # remove blacklisted packages from workspace
