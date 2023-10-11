@@ -13,6 +13,7 @@ def findDotRepos(search_path: str, clone_path: Optional[str] = None) -> List[pat
         repos.extend(list(pathlib.Path(clone_path).glob("**/*.repos")))
     return repos
 
+
 def main():
 
     search_path = sys.argv[1] if len(sys.argv) > 1 else "."
