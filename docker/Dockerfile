@@ -61,12 +61,12 @@ RUN apt-get update && \
     apt-get install -y python-is-python3 && \
     rm -rf /var/lib/apt/lists/*
 
-ARG ADDITIONAL_REPOS_FILE=".repos"
+ARG VCS_IMPORT_FILE=".repos"
 ARG ENABLE_RECURSIVE_VCS_IMPORT="true"
 RUN if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
         /usr/local/bin/recursive_vcs_import.py src src/upstream ; \
     else \
-        vcs import src/upstream < src/target/${ADDITIONAL_REPOS_FILE} ; \
+        vcs import src/upstream < src/target/${VCS_IMPORT_FILE} ; \
     fi
 
 # create install script with list of rosdep dependencies

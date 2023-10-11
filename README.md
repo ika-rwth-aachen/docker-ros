@@ -325,7 +325,7 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
-- **`additional-repos-file` | `ADDITIONAL_REPOS_FILE`**  
+- **`vcs-import-file` | `VCS_IMPORT_FILE`**  
   Relative filepath to file containing additional repos to install via vcstools
   *default:* `.repos`
 - **`base-image` | `BASE_IMAGE`**  
