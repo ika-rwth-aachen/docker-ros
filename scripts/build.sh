@@ -28,6 +28,8 @@ build_image() {
         $(if [[ -n "${ADDITIONAL_FILES_DIR}" ]]; then echo "--build-arg ADDITIONAL_FILES_DIR=${ADDITIONAL_FILES_DIR}"; fi) \
         $(if [[ -n "${ADDITIONAL_PIP_FILE}" ]]; then echo "--build-arg ADDITIONAL_PIP_FILE=${ADDITIONAL_PIP_FILE}"; fi) \
         $(if [[ -n "${ENABLE_RECURSIVE_ADDITIONAL_PIP}" ]]; then echo "--build-arg ENABLE_RECURSIVE_ADDITIONAL_PIP=${ENABLE_RECURSIVE_ADDITIONAL_PIP}"; fi) \
+        $(if [[ -n "${BLACKLISTED_PACKAGES_FILE}" ]]; then echo "--build-arg BLACKLISTED_PACKAGES_FILE=${BLACKLISTED_PACKAGES_FILE}"; fi) \
+        $(if [[ -n "${ENABLE_RECURSIVE_BLACKLISTED_PACKAGES}" ]]; then echo "--build-arg ENABLE_RECURSIVE_BLACKLISTED_PACKAGES=${ENABLE_RECURSIVE_BLACKLISTED_PACKAGES}"; fi) \
         $(if [[ -n "${CUSTOM_SCRIPT_FILE}" ]]; then echo "--build-arg CUSTOM_SCRIPT_FILE=${CUSTOM_SCRIPT_FILE}"; fi) \
         $(if [[ -n "${ENABLE_RECURSIVE_CUSTOM_SCRIPT}" ]]; then echo "--build-arg ENABLE_RECURSIVE_CUSTOM_SCRIPT=${ENABLE_RECURSIVE_CUSTOM_SCRIPT}"; fi) \
         $(if [[ -n "${VCS_IMPORT_FILE}" ]]; then echo "--build-arg VCS_IMPORT_FILE=${VCS_IMPORT_FILE}"; fi) \

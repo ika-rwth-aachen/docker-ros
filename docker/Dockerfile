@@ -63,11 +63,24 @@ RUN apt-get update && \
 
 ARG VCS_IMPORT_FILE=".repos"
 ARG ENABLE_RECURSIVE_VCS_IMPORT="true"
-RUN if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
+RUN if [[ $ENABLE_RECURSIVE_VCS_IMPORT == 'true' ]]; then \
         /usr/local/bin/recursive_vcs_import.py src src/upstream ; \
     else \
-        vcs import src/upstream < src/target/${VCS_IMPORT_FILE} ; \
+        [[ -f src/target/${VCS_IMPORT_FILE} ]] && vcs import src/upstream < src/target/${VCS_IMPORT_FILE} ; \
     fi
+
+# remove blacklisted packages from workspace
+ARG BLACKLISTED_PACKAGES_FILE="docker/blacklisted-packages.txt"
+ARG ENABLE_RECURSIVE_BLACKLISTED_PACKAGES="false"
+RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.remove-packages.sh && \
+    if [[ $ENABLE_RECURSIVE_BLACKLISTED_PACKAGES == 'true' ]]; then \
+        find . -type f -name $(basename ${BLACKLISTED_PACKAGES_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
+    elif [[ -f src/target/${BLACKLISTED_PACKAGES_FILE} ]]; then \
+        cat src/target/${BLACKLISTED_PACKAGES_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
+    fi && \
+    echo ";" >> $WORKSPACE/.remove-packages.sh && \
+    chmod +x $WORKSPACE/.remove-packages.sh && \
+    $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
