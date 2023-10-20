@@ -65,8 +65,8 @@ ARG VCS_IMPORT_FILE=".repos"
 ARG ENABLE_RECURSIVE_VCS_IMPORT="true"
 RUN if [[ $ENABLE_RECURSIVE_VCS_IMPORT == 'true' ]]; then \
         /usr/local/bin/recursive_vcs_import.py src src/upstream ; \
-    else \
-        [[ -f src/target/${VCS_IMPORT_FILE} ]] && vcs import --recursive src/upstream < src/target/${VCS_IMPORT_FILE} ; \
+    elif [[ -f src/target/${VCS_IMPORT_FILE} ]]; then \
+        vcs import --recursive src/upstream < src/target/${VCS_IMPORT_FILE} ; \
     fi
 
 # remove blacklisted packages from workspace
