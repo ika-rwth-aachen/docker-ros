@@ -116,6 +116,14 @@ inputs:
     description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
     default: false
 
+  enable-checkout:
+    description: "Enable checkout of repository prior to running the pipeline"
+    default: true
+
+  enable-checkout-lfs:
+    description: "Enable download of lfs files for the repository checkout"
+    default: true
+
 
 runs:
   using: "composite"
