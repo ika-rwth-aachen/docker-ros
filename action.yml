@@ -131,9 +131,10 @@ runs:
 
     - name: Checkout repository
       uses: actions/checkout@v3
+      if: ${{ inputs.enable-checkout == 'true' }}
       with:
         submodules: true
-        lfs: true
+        lfs: ${{ enable-checkout-lfs }}
 
     - name: Set up docker-ros
       shell: bash
