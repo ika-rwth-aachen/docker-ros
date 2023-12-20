@@ -134,7 +134,7 @@ runs:
       if: ${{ inputs.enable-checkout == 'true' }}
       with:
         submodules: true
-        lfs: ${{ enable-checkout-lfs }}
+        lfs: ${{ inputs.enable-checkout-lfs }}
 
     - name: Set up docker-ros
       shell: bash
