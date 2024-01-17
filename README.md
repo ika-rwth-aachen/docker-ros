@@ -362,11 +362,11 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`-` | `DOCKER_ROS_GIT_REF`**  
   Git reference of *docker-ros* to run in CI  
   *default:* `main` 
-- **`enable-checkout` | `( - )`**  
-  Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline
+- **`enable-checkout` | `-`**  
+  Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
   *default:* `true`
-- **`enable-checkout-lfs` | `( - )`**  
-  Enable [*git-lfs*](https://git-lfs.com/) support for the [*checkout*](https://github.com/actions/checkout) action
+- **`enable-checkout-lfs` | `-`**  
+  Enable [*git-lfs*](https://git-lfs.com/) support for the [*checkout*](https://github.com/actions/checkout) action  
   *default:* `true` 
 - **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
   Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  

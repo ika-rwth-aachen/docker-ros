@@ -117,11 +117,11 @@ inputs:
     default: false
 
   enable-checkout:
-    description: "Enable checkout of repository prior to running the pipeline"
+    description: "Enable checkout action to (re-)download your repository prior to running the pipeline"
     default: true
 
   enable-checkout-lfs:
-    description: "Enable download of lfs files for the repository checkout"
+    description: "Enable git-lfs support for the checkout action "
     default: true
 
 
