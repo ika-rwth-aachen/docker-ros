@@ -116,6 +116,14 @@ inputs:
     description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
     default: false
 
+  enable-checkout:
+    description: "Enable checkout action to (re-)download your repository prior to running the pipeline"
+    default: true
+
+  enable-checkout-lfs:
+    description: "Enable git-lfs support for the checkout action "
+    default: true
+
 
 runs:
   using: "composite"
@@ -123,9 +131,10 @@ runs:
 
     - name: Checkout repository
       uses: actions/checkout@v3
+      if: ${{ inputs.enable-checkout == 'true' }}
       with:
         submodules: true
-        lfs: true
+        lfs: ${{ inputs.enable-checkout-lfs }}
 
     - name: Set up docker-ros
       shell: bash
