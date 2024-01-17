@@ -47,6 +47,10 @@ inputs:
     description: "Docker registry password"
     default: ${{ github.token }}
 
+  rmw-implementation:
+    description: "RMW implementation to use (only for ROS 2)"
+    default: rmw_cyclonedds_cpp
+
   ros-distro:
     description: "ROS Distro (required if ROS is not installed in `base-image`)"
   
@@ -178,6 +182,7 @@ runs:
         IMAGE_TAG: ${{ inputs.image-tag }}
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
@@ -235,6 +240,7 @@ runs:
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
@@ -270,6 +276,7 @@ runs:
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: latest-dev
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}

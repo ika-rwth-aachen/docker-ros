@@ -432,6 +432,10 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`registry-user` | `REGISTRY_USER`**  
   Docker registry username  
   *default:* `${{ github.actor }}` | `$CI_REGISTRY_USER`  
+- **`rmw-implementation` | `RMW_IMPLEMENTATION`**  
+  ROS 2 middleware implementation  
+  *default:* `rmw_cyclonedds_cpp`  
+  *supported values:* `rmw_fastrtps_cpp`, `rmw_cyclonedds_cpp`, `rmw_gurumdds_cpp`, ...  
 - **`ros-distro` | `ROS_DISTRO`**  
   ROS Distro  
   *required if ROS is not installed in `base-image`*  
