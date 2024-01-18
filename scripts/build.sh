@@ -17,6 +17,7 @@ build_image() {
         $(if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then echo "--push"; else echo "--load"; fi) \
         --build-arg BASE_IMAGE="${BASE_IMAGE}" \
         --build-arg COMMAND="${COMMAND}" \
+        $(if [[ -n "${RMW_IMPLEMENTATION}" ]]; then echo "--build-arg RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}"; fi) \
         $(if [[ -n "${ROS_DISTRO}" ]]; then echo "--build-arg ROS_DISTRO=${ROS_DISTRO}"; fi) \
         $(if [[ -n "${GIT_HTTPS_SERVER}" ]]; then echo "--build-arg GIT_HTTPS_SERVER=${GIT_HTTPS_SERVER}"; fi) \
         $(if [[ -n "${GIT_HTTPS_USER}" ]]; then echo "--build-arg GIT_HTTPS_USER=${GIT_HTTPS_USER}"; fi) \
