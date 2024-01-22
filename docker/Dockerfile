@@ -208,7 +208,8 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 # install desired ROS 2 middleware
 ARG RMW_IMPLEMENTATION
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
-RUN if [[ "$ROS_VERSION" == "2" ]]; then \
+RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
+    if [[ "$ROS_VERSION" == "2" ]]; then \
         apt-get update && \
         RMW_PACKAGE=ros-$ROS_DISTRO-$(echo $RMW_IMPLEMENTATION | tr '_' '-') && \
         apt-get install -y $RMW_PACKAGE && \
