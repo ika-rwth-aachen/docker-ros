@@ -206,7 +206,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     && rm -rf /var/lib/apt/lists/*
 
 # install desired ROS 2 middleware
-ARG RMW_IMPLEMENTATION
+ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$ROS_VERSION" == "2" ]]; then \
