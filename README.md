@@ -373,8 +373,11 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`enable-checkout` | `-`**  
   Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
   *default:* `true`
+- **`enable-checkout-submodules` | `-`**  
+  Enable submodules for the [*checkout*](https://github.com/actions/checkout) action (`false`|`true`|`recursive`)  
+  *default:* `recursive`
 - **`enable-checkout-lfs` | `-`**  
-  Enable [*git-lfs*](https://git-lfs.com/) support for the [*checkout*](https://github.com/actions/checkout) action  
+  Enable [*Git LFS*](https://git-lfs.com/) support for the [*checkout*](https://github.com/actions/checkout) action  
   *default:* `true` 
 - **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
   Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
