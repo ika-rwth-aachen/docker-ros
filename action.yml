@@ -6,17 +6,17 @@ inputs:
   target:
     description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
     default: run
-  
+
   platform:
     description: "Target platform architecture (comma-separated list) [amd64|arm64|...]"
-  
+
   base-image:
     description: "Base image name:tag"
     required: true
-  
+
   command:
     description: "Launch command of run image (required if target=run)"
-  
+
   image-name:
     description: "Image name of run image"
     default: ghcr.io/${{ github.repository }}
@@ -53,15 +53,15 @@ inputs:
 
   ros-distro:
     description: "ROS Distro (required if ROS is not installed in `base-image`)"
-  
+
   git-https-server:
     description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
     default: "github.com"
-  
+
   git-https-user:
     description: "Username for cloning private Git repositories via HTTPS"
     default: ${{ github.actor }}
-  
+
   git-https-password:
     description: "Password for cloning private Git repositories via HTTPS"
     default: ${{ github.token }}
@@ -75,7 +75,7 @@ inputs:
   additional-debs-file:
     description: "Relative filepath to file containing additional apt deb packages to install"
     default: docker/additional-debs.txt
-  
+
   enable-recursive-additional-debs:
     description: "Enable recursive discovery of files named `additional-debs-file`"
     default: false
@@ -87,7 +87,7 @@ inputs:
   additional-pip-file:
     description: "Relative filepath to file containing additional pip packages to install"
     default: docker/additional-pip-requirements.txt
-  
+
   enable-recursive-additional-pip:
     description: "Enable recursive discovery of files named `additional-pip-file`"
     default: false
@@ -103,7 +103,7 @@ inputs:
   custom-script-file:
     description: "Relative filepath to script containing custom installation commands"
     default: docker/custom.sh
-  
+
   enable-recursive-custom-script:
     description: "Enable recursive discovery of files named `custom-script-file`"
     default: false
@@ -111,11 +111,11 @@ inputs:
   enable-industrial-ci:
     description: "Enable industrial_ci"
     default: false
-  
+
   enable-singlearch-push:
     description: "Enable push of single arch images with [-amd64|-arm64] postfix"
     default: false
-  
+
   enable-push-as-latest:
     description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
     default: false
@@ -124,8 +124,12 @@ inputs:
     description: "Enable checkout action to (re-)download your repository prior to running the pipeline"
     default: true
 
+  enable-checkout-submodules:
+    description: "Enable submodules for the checkout action (false|true|recursive)"
+    default: recursive
+
   enable-checkout-lfs:
-    description: "Enable git-lfs support for the checkout action "
+    description: "Enable Git LFS support for the checkout action"
     default: true
 
 
@@ -137,7 +141,7 @@ runs:
       uses: actions/checkout@v3
       if: ${{ inputs.enable-checkout == 'true' }}
       with:
-        submodules: true
+        submodules: ${{ inputs.enable-checkout-submodules }}
         lfs: ${{ inputs.enable-checkout-lfs }}
 
     - name: Set up docker-ros
@@ -164,7 +168,7 @@ runs:
         registry: ${{ inputs.registry }}
         username: ${{ inputs.registry-user }}
         password: ${{ inputs.registry-password }}
-    
+
     - name: Set up Docker buildx
       uses: docker/setup-buildx-action@v3
 
