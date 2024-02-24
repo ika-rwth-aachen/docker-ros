@@ -19,7 +19,7 @@ inputs:
 
   image-name:
     description: "Image name of run image"
-    default: ghcr.io/${{ lower(github.repository) }}
+    default: ghcr.io/${{ github.repository }}
 
   image-tag:
     description: "Image tag of run image"
