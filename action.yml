@@ -172,6 +172,18 @@ runs:
     - name: Set up Docker buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Enforce lower-case image name 
+      id: image-name
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ${{ inputs.image-name }}
+
+    - name: Enforce lower-case dev image name 
+      id: dev-image-name
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ${{ inputs.dev-image-name }}
+
     - name: Build images
       id: build-images
       shell: bash
@@ -182,9 +194,9 @@ runs:
         TARGET: ${{ inputs.target }}
         BASE_IMAGE: ${{ inputs.base-image }}
         COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ inputs.image-name }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: ${{ inputs.image-tag }}
-        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
@@ -239,7 +251,7 @@ runs:
         TARGET: ${{ inputs.target }}
         BASE_IMAGE: ${{ inputs.base-image }}
         COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ inputs.image-name }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: ${{ inputs.image-tag }}
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
@@ -275,7 +287,7 @@ runs:
         TARGET: ${{ inputs.target }}
         BASE_IMAGE: ${{ inputs.base-image }}
         COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ inputs.image-name }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: latest
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
         DEV_IMAGE_TAG: latest-dev
