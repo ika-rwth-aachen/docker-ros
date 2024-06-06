@@ -33,8 +33,12 @@ RUN apt-get update && \
         git \
         python3-rosdep \
         python3-vcstool \
-        ros-${ROS_DISTRO}-ros-core \
-    && rm -rf /var/lib/apt/lists/*
+        ros-${ROS_DISTRO}-ros-core && \
+    if [[ "$ROS_DISTRO" == "noetic" ]]; then \
+        apt-get install -y \
+            python3-catkin-tools ; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
 
 # copy contents of repository
 COPY . src/target
@@ -72,15 +76,23 @@ RUN if [[ $ENABLE_RECURSIVE_VCS_IMPORT == 'true' ]]; then \
 # remove blacklisted packages from workspace
 ARG BLACKLISTED_PACKAGES_FILE="docker/blacklisted-packages.txt"
 ARG ENABLE_RECURSIVE_BLACKLISTED_PACKAGES="false"
-RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.remove-packages.sh && \
+RUN if [[ -x "$(command -v colcon)" ]]; then \
+        echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.remove-packages.sh ; \
+    elif [[ -x "$(command -v catkin)" ]]; then \
+        echo "for pkg in \\" >> $WORKSPACE/.remove-packages.sh ; \
+    fi && \
     if [[ $ENABLE_RECURSIVE_BLACKLISTED_PACKAGES == 'true' ]]; then \
         find . -type f -name $(basename ${BLACKLISTED_PACKAGES_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
     elif [[ -f src/target/${BLACKLISTED_PACKAGES_FILE} ]]; then \
         cat src/target/${BLACKLISTED_PACKAGES_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
     fi && \
-    echo ";" >> $WORKSPACE/.remove-packages.sh && \
+    if [[ -x "$(command -v colcon)" ]]; then \
+        echo ";" >> $WORKSPACE/.remove-packages.sh ; \
+    elif [[ -x "$(command -v catkin)" ]]; then \
+        echo "do find . -type f -name package.xml -path \"*/$pkg/package.xml\" -exec dirname {} \;; done" >> $WORKSPACE/.remove-packages.sh ; \
+    fi && \
     chmod +x $WORKSPACE/.remove-packages.sh && \
-    $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
+    $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rfv
 
 # create install script with list of rosdep dependencies
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
