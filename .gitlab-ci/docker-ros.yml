@@ -43,7 +43,7 @@ variables:
   VCS_IMPORT_FILE:                                .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
   ENABLE_RECURSIVE_VCS_IMPORT:                    'true'                                  # Enable recursive discovery of files named `*.repos`
   ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS:  'false'                                 # Enable `rosdep install -r`
-  ENABLE_CONTINUE_BUILD_DESPITE_ERRORS            'false'                                 # Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
+  ENABLE_CONTINUE_BUILD_DESPITE_ERRORS:           'false'                                 # Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
   # -----
   DOCKER_ROS_GIT_REF:     main
 
