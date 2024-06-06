@@ -9,57 +9,69 @@ workflow:
 
 
 variables:
-  TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
-  PLATFORM:                   amd64                                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
-  BASE_IMAGE:                 ''                                      # Base image name:tag (required)
-  COMMAND:                    ''                                      # Launch command of run image (required if target=run)
-  IMAGE_NAME:                 ${CI_REGISTRY_IMAGE}                    # Image name of run image
-  IMAGE_TAG:                  latest                                  # Image tag of run image
-  DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image
-  DEV_IMAGE_TAG:              ${IMAGE_TAG}-dev                        # Image tag of dev image
-  BUILD_CONTEXT:              .                                       # Build context of Docker build process
-  REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
-  REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
-  REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
-  ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
-  ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
-  ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
-  RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
-  ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
-  GIT_HTTPS_SERVER:           ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
-  GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
-  GIT_HTTPS_PASSWORD:         ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
-  GIT_SSH_PRIVATE_KEY:        ''                                      # SSH private key for cloning private Git repositories via SSH
-  GIT_SSH_KNOWN_HOST_KEYS:    ''                                      # Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)
-  ADDITIONAL_DEBS_FILE:       docker/additional-debs.txt              # Relative filepath to file containing additional apt deb packages to install
-  ENABLE_RECURSIVE_ADDITIONAL_DEBS:  'false'                          # Enable recursive discovery of files named `additional-debs-file`
-  ADDITIONAL_FILES_DIR:       docker/additional-files                 # Relative path to directory containing additional files to copy into image"
-  ADDITIONAL_PIP_FILE:        docker/additional-pip-requirements.txt  # Relative filepath to file containing additional pip packages to install
-  ENABLE_RECURSIVE_ADDITIONAL_PIP:   'false'                          # Enable recursive discovery of files named `additional-pip-file`
-  BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
-  ENABLE_RECURSIVE_BLACKLISTED_PACKAGES:  'false'                     # Enable recursive discovery of files named `blacklisted-packages-file`
-  CUSTOM_SCRIPT_FILE:         docker/custom.sh                        # Relative filepath to script containing custom installation commands
-  ENABLE_RECURSIVE_CUSTOM_SCRIPT:    'false'                          # Enable recursive discovery of files named `custom-script-file`
-  VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
-  ENABLE_RECURSIVE_VCS_IMPORT:       'true'                           # Enable recursive discovery of files named `*.repos`
+  ADDITIONAL_DEBS_FILE:                           docker/additional-debs.txt              # Relative filepath to file containing additional apt deb packages to install
+  ADDITIONAL_FILES_DIR:                           docker/additional-files                 # Relative path to directory containing additional files to copy into image"
+  ADDITIONAL_PIP_FILE:                            docker/additional-pip-requirements.txt  # Relative filepath to file containing additional pip packages to install
+  BASE_IMAGE:                                     ''                                      # Base image name:tag (required)
+  BLACKLISTED_PACKAGES_FILE:                      docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
+  BUILD_CONTEXT:                                  .                                       # Build context of Docker build process
+  BUILD_IMAGE_NAME:                               ${IMAGE_NAME}                           # Image name of build image
+  BUILD_IMAGE_TAG:                                ${IMAGE_TAG}-build                      # Image tag of build image
+  COMMAND:                                        ''                                      # Launch command of build/run image (required if target=run)
+  CUSTOM_SCRIPT_FILE:                             docker/custom.sh                        # Relative filepath to script containing custom installation commands
+  DEV_IMAGE_NAME:                                 ${IMAGE_NAME}                           # Image name of dev image
+  DEV_IMAGE_TAG:                                  ${IMAGE_TAG}-dev                        # Image tag of dev image
+  ENABLE_CONTINUE_BUILD_DESPITE_ERRORS:           'false'                                 # Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
+  ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS:  'false'                                 # Enable `rosdep install -r`
+  ENABLE_INDUSTRIAL_CI:                           'false'                                 # Enable industrial_ci
+  ENABLE_PUSH_AS_LATEST:                          'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
+  ENABLE_RECURSIVE_ADDITIONAL_DEBS:               'false'                                 # Enable recursive discovery of files named `additional-debs-file`
+  ENABLE_RECURSIVE_ADDITIONAL_PIP:                'false'                                 # Enable recursive discovery of files named `additional-pip-file`
+  ENABLE_RECURSIVE_BLACKLISTED_PACKAGES:          'false'                                 # Enable recursive discovery of files named `blacklisted-packages-file`
+  ENABLE_RECURSIVE_CUSTOM_SCRIPT:                 'false'                                 # Enable recursive discovery of files named `custom-script-file`
+  ENABLE_RECURSIVE_VCS_IMPORT:                    'true'                                  # Enable recursive discovery of files named `*.repos`
+  ENABLE_ROS1_DEVEL_SPACE:                        'false'                                 # Enable building to ROS devel space instead of install space (ROS 1 only)
+  ENABLE_SINGLEARCH_PUSH:                         'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
+  GIT_HTTPS_PASSWORD:                             ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
+  GIT_HTTPS_SERVER:                               ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
+  GIT_HTTPS_USER:                                 gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
+  GIT_SSH_KNOWN_HOST_KEYS:                        ''                                      # Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)
+  GIT_SSH_PRIVATE_KEY:                            ''                                      # SSH private key for cloning private Git repositories via SSH
+  IMAGE_NAME:                                     ${CI_REGISTRY_IMAGE}                    # Image name of run image
+  IMAGE_TAG:                                      latest                                  # Image tag of run image
+  PLATFORM:                                       amd64                                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  REGISTRY_PASSWORD:                              ${CI_REGISTRY_PASSWORD}                 # Docker registry password
+  REGISTRY_USER:                                  ${CI_REGISTRY_USER}                     # Docker registry username
+  REGISTRY:                                       ${CI_REGISTRY}                          # Docker registry to push images to
+  RMW_IMPLEMENTATION:                             'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
+  ROS_DISTRO:                                     ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
+  TARGET:                                         run                                     # Target stage of Dockerfile (comma-separated list) [dev|build|run]
+  VCS_IMPORT_FILE:                                .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
   # -----
   DOCKER_ROS_GIT_REF:     main
 
   _RUN_IMAGE:             ${IMAGE_NAME}:${IMAGE_TAG}
+  _BUILD_IMAGE:           ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
   _DEV_IMAGE:             ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
 
-  _IMAGE_DEV_CI:          ${_DEV_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
-  _IMAGE_RUN_CI:          ${_RUN_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
-  _IMAGE_DEV_CI_AMD64:    ${_IMAGE_DEV_CI}-amd64
-  _IMAGE_DEV_CI_ARM64:    ${_IMAGE_DEV_CI}-arm64
-  _IMAGE_RUN_CI_AMD64:    ${_IMAGE_RUN_CI}-amd64
-  _IMAGE_RUN_CI_ARM64:    ${_IMAGE_RUN_CI}-arm64
-  _IMAGE_DEV_LATEST:      ${DEV_IMAGE_NAME}:latest-dev
-  _IMAGE_RUN_LATEST:      ${IMAGE_NAME}:latest
-  _IMAGE_DEV_TARGET_TAG:  ${_DEV_IMAGE}-${CI_COMMIT_TAG}
-  _IMAGE_RUN_TARGET_TAG:  ${_RUN_IMAGE}-${CI_COMMIT_TAG}
-  _IMAGE_DEV_TAG:         ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
-  _IMAGE_RUN_TAG:         ${IMAGE_NAME}:${CI_COMMIT_TAG}
+  _IMAGE_DEV_CI:           ${_DEV_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_BUILD_CI:         ${_BUILD_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_RUN_CI:           ${_RUN_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_DEV_CI_AMD64:     ${_IMAGE_DEV_CI}-amd64
+  _IMAGE_DEV_CI_ARM64:     ${_IMAGE_DEV_CI}-arm64
+  _IMAGE_BUILD_CI_AMD64:   ${_IMAGE_BUILD_CI}-amd64
+  _IMAGE_BUILD_CI_ARM64:   ${_IMAGE_BUILD_CI}-arm64
+  _IMAGE_RUN_CI_AMD64:     ${_IMAGE_RUN_CI}-amd64
+  _IMAGE_RUN_CI_ARM64:     ${_IMAGE_RUN_CI}-arm64
+  _IMAGE_DEV_LATEST:       ${DEV_IMAGE_NAME}:latest-dev
+  _IMAGE_BUILD_LATEST:     ${BUILD_IMAGE_NAME}:latest-build
+  _IMAGE_RUN_LATEST:       ${IMAGE_NAME}:latest
+  _IMAGE_DEV_TARGET_TAG:   ${_DEV_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_BUILD_TARGET_TAG: ${_BUILD_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_RUN_TARGET_TAG:   ${_RUN_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_DEV_TAG:          ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
+  _IMAGE_BUILD_TAG:        ${BUILD_IMAGE_NAME}:${CI_COMMIT_TAG}-build
+  _IMAGE_RUN_TAG:          ${IMAGE_NAME}:${CI_COMMIT_TAG}
 
   GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_DRIVER: overlay2
@@ -69,6 +81,7 @@ variables:
 
 stages:
   - Build dev Images
+  - Build build Images
   - Build run Images
   - Test ROS Industrial CI
   - Push Multi-Arch Images
@@ -135,11 +148,44 @@ dev-arm64:
     ENABLE_SINGLEARCH_PUSH: 'true'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
+build-amd64:
+  stage: Build build Images
+  extends: .build
+  needs:
+    - job: dev-amd64
+      optional: true
+  rules:
+    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*build.*/
+  variables:
+    _PLATFORM: amd64
+    _TARGET: build
+    IMAGE: ${_IMAGE_BUILD_CI_AMD64}
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
+
+build-arm64:
+  stage: Build build Images
+  extends: .build
+  tags: [privileged, arm64]
+  needs:
+    - job: dev-arm64
+      optional: true
+  rules:
+    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*build.*/
+  variables:
+    _PLATFORM: arm64
+    _TARGET: build
+    IMAGE: ${_IMAGE_BUILD_CI_ARM64}
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
+
 run-amd64:
   stage: Build run Images
   extends: .build
   needs:
     - job: dev-amd64
+      optional: true
+    - job: build-amd64
       optional: true
   rules:
     - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
@@ -156,6 +202,8 @@ run-arm64:
   tags: [privileged, arm64]
   needs:
     - job: dev-arm64
+      optional: true
+    - job: build-arm64
       optional: true
   rules:
     - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
@@ -237,6 +285,10 @@ Test run-arm64:
       optional: true
     - job: dev-arm64
       optional: true
+    - job: build-amd64
+      optional: true
+    - job: build-arm64
+      optional: true
     - job: run-amd64
       optional: true
     - job: run-arm64
@@ -259,6 +311,10 @@ Test run-arm64:
           docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
           docker manifest push ${IMG_DEV}
         fi
+        if [[ "${TARGET}" =~ build ]]; then
+          docker manifest create ${IMG_BUILD} --amend ${_IMAGE_BUILD_CI_AMD64} --amend ${_IMAGE_BUILD_CI_ARM64}
+          docker manifest push ${IMG_BUILD}
+        fi
         if [[ "${TARGET}" =~ run ]]; then
           docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
           docker manifest push ${IMG_RUN}
@@ -268,6 +324,11 @@ Test run-arm64:
           docker pull ${_IMAGE_DEV_CI_AMD64}
           docker tag ${_IMAGE_DEV_CI_AMD64} ${IMG_DEV}
           docker push ${IMG_DEV}
+        fi
+        if [[ "${TARGET}" =~ build ]]; then
+          docker pull ${_IMAGE_BUILD_CI_AMD64}
+          docker tag ${_IMAGE_BUILD_CI_AMD64} ${IMG_BUILD}
+          docker push ${IMG_BUILD}
         fi
         if [[ "${TARGET}" =~ run ]]; then
           docker pull ${_IMAGE_RUN_CI_AMD64}
@@ -279,6 +340,11 @@ Test run-arm64:
           docker pull ${_IMAGE_DEV_CI_ARM64}
           docker tag ${_IMAGE_DEV_CI_ARM64} ${IMG_DEV}
           docker push ${IMG_DEV}
+        fi
+        if [[ "${TARGET}" =~ build ]]; then
+          docker pull ${_IMAGE_BUILD_CI_ARM64}
+          docker tag ${_IMAGE_BUILD_CI_ARM64} ${IMG_BUILD}
+          docker push ${IMG_BUILD}
         fi
         if [[ "${TARGET}" =~ run ]]; then
           docker pull ${_IMAGE_RUN_CI_ARM64}
@@ -297,6 +363,7 @@ Push CI:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
   variables:
     IMG_DEV: ${_IMAGE_DEV_CI}
+    IMG_BUILD: ${_IMAGE_BUILD_CI}
     IMG_RUN: ${_IMAGE_RUN_CI}
 
 Push:
@@ -307,6 +374,7 @@ Push:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   variables:
     IMG_DEV: ${_DEV_IMAGE}
+    IMG_BUILD: ${_BUILD_IMAGE}
     IMG_RUN: ${_RUN_IMAGE}
 
 Push latest:
@@ -317,6 +385,7 @@ Push latest:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $ENABLE_PUSH_AS_LATEST == 'true'
   variables:
     IMG_DEV: ${_IMAGE_DEV_LATEST}
+    IMG_BUILD: ${_IMAGE_BUILD_LATEST}
     IMG_RUN: ${_IMAGE_RUN_LATEST}
 
 Push target tag:
@@ -327,6 +396,7 @@ Push target tag:
     - if: $CI_COMMIT_TAG
   variables:
     IMG_DEV: ${_IMAGE_DEV_TARGET_TAG}
+    IMG_BUILD: ${_IMAGE_BUILD_TARGET_TAG}
     IMG_RUN: ${_IMAGE_RUN_TARGET_TAG}
 
 Push tag:
@@ -337,4 +407,5 @@ Push tag:
     - if: $CI_COMMIT_TAG && $ENABLE_PUSH_AS_LATEST == 'true'
   variables:
     IMG_DEV: ${_IMAGE_DEV_TAG}
+    IMG_BUILD: ${_IMAGE_BUILD_TAG}
     IMG_RUN: ${_IMAGE_RUN_TAG}

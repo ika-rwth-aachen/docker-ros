@@ -2,6 +2,8 @@
 
 # *docker-ros* – Automated Containerization of ROS Apps
 
+// TODO: explain build image somewhere
+
 <p align="center">
   <img src="https://img.shields.io/github/v/release/ika-rwth-aachen/docker-ros"/></a>
   <img src="https://img.shields.io/github/license/ika-rwth-aachen/docker-ros"/>
@@ -15,9 +17,7 @@
 > This repository is open-sourced and maintained by the [**Institute for Automotive Engineering (ika) at RWTH Aachen University**](https://www.ika.rwth-aachen.de/).  
 > **DevOps, Containerization and Orchestration of Software-Defined Vehicles** are some of many research topics within our [*Vehicle Intelligence & Automated Driving*](https://www.ika.rwth-aachen.de/en/competences/fields-of-research/vehicle-intelligence-automated-driving.html) domain.  
 > If you would like to learn more about how we can support your DevOps or automated driving efforts, feel free to reach out to us!  
-> &nbsp;&nbsp;&nbsp;&nbsp; *Timo Woopen - Manager Research Area Vehicle Intelligence & Automated Driving*  
-> &nbsp;&nbsp;&nbsp;&nbsp; *+49 241 80 23549*  
-> &nbsp;&nbsp;&nbsp;&nbsp; *timo.woopen@ika.rwth-aachen.de*  
+> :email: ***opensource@ika.rwth-aachen.de***
 
 - [About](#about)
   - [Prerequisites](#prerequisites)
@@ -307,6 +307,8 @@ If your ROS-based repository (or any of your repository's upstream dependencies,
 
 Create a file `blacklisted-packages.txt` in your `docker` folder (or configure a different `BLACKLISTED_PACKAGES_FILE`) and list any ROS package name to blacklist.
 
+If you are having problems with (upstream) packages that you don't need, also have a look at `ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS` and `ENABLE_CONTINUE_BUILD_DESPITE_ERRORS`.
+
 ### Extra System Dependencies (*apt*)
 
 If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-debs.txt` file.
@@ -355,8 +357,14 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`build-context` | `BUILD_CONTEXT`**  
   Build context of Docker build process  
   *default:* `${{ github.workspace }}` | `.`  
+- **`build-image-name` | `BUILD_IMAGE_NAME`**  
+  Image name of build image  
+  *default:* `<IMAGE_NAME>`  
+- **`build-image-tag` | `BUILD_IMAGE_TAG`**  
+  Image tag of build image  
+  *default:* `<IMAGE_TAG>-build` 
 - **`command` | `COMMAND`**  
-  Launch command of run image  
+  Launch command of build/run image  
   *required if `target=run`*  
 - **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
   Relative filepath to script containing custom installation commands  
@@ -373,30 +381,24 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`enable-checkout` | `-`**  
   Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
   *default:* `true`
-- **`enable-checkout-submodules` | `-`**  
-  Enable submodules for the [*checkout*](https://github.com/actions/checkout) action (`false`|`true`|`recursive`)  
-  *default:* `recursive`
 - **`enable-checkout-lfs` | `-`**  
   Enable [*Git LFS*](https://git-lfs.com/) support for the [*checkout*](https://github.com/actions/checkout) action  
   *default:* `true` 
+- **`enable-checkout-submodules` | `-`**  
+  Enable submodules for the [*checkout*](https://github.com/actions/checkout) action (`false`|`true`|`recursive`)  
+  *default:* `recursive`
+- **`enable-continue-build-despite-errors` | `ENABLE_CONTINUE_BUILD_DESPITE_ERRORS`**  
+  Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
+  *default:* `false`
+- **`enable-continue-rosdep-install-despite-errors` | `ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS`**  
+  Enable `rosdep install -r`
+  *default:* `false`
 - **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
   Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
   *default:* `false` 
 - **`enable-push-as-latest` | `ENABLE_PUSH_AS_LATEST`**  
-  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
+  Push images with tag `latest`/`latest-dev`/`latest-build` in addition to the configured image names  
   *default:* `false`  
-- **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
-  Enable push of single arch images with `-amd64`/`-arm64` postfix  
-  *default:* `false` 
-- **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
-  Password for cloning private Git repositories via HTTPS  
-  *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
-- **`git-https-server` | `GIT_HTTPS_SERVER`**  
-  Server URL (without protocol) for cloning private Git repositories via HTTPS  
-  *default:* `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` 
-- **`git-https-user` | `GIT_HTTPS_USER`**  
-  Username for cloning private Git repositories via HTTPS  
-  *default:* `${{ github.actor }}` | `gitlab-ci-token`  
 - **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
   Enable recursive discovery of files named `additional-debs-file`  
   *default:* `false`
@@ -412,6 +414,21 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
   Enable recursive discovery of files named `*.repos`  
   *default:* `true`
+- **`enable-ros1-devel-space` | `ENABLE_ROS1_DEVEL_SPACE`**  
+  Enable building to ROS devel space instead of install space (ROS 1 only)
+  *default:* `false`
+- **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
+  Enable push of single arch images with `-amd64`/`-arm64` postfix  
+  *default:* `false` 
+- **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
+  Password for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
+- **`git-https-server` | `GIT_HTTPS_SERVER`**  
+  Server URL (without protocol) for cloning private Git repositories via HTTPS  
+  *default:* `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` 
+- **`git-https-user` | `GIT_HTTPS_USER`**  
+  Username for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.actor }}` | `gitlab-ci-token`  
 - **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
   Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
 - **`git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY`**  
@@ -446,7 +463,7 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`target` | `TARGET`**  
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`
-  *supported values:* `dev`, `run`
+  *supported values:* `dev`, `build`, `run`
 - **`vcs-import-file` | `VCS_IMPORT_FILE`**  
   Relative filepath to file containing additional repos to install via vcstools (only relevant if `enable-recursive-vcs-import=false`)  
   *default:* `.repos`
