@@ -132,7 +132,17 @@ inputs:
     description: "Enable Git LFS support for the checkout action"
     default: true
 
-  # TODO!
+  enable-continue-build-despite-errors:
+    description: Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
+    default: false
+
+  enable-continue-rosdep-install-despite-errors:
+    description: Enable `rosdep install -r`
+    default: false
+
+  enable-ros1-devel-space:
+    description: Enable building to ROS devel space instead of install space (ROS 1 only)
+    default: false
 
 
 runs:
