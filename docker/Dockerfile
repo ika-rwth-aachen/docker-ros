@@ -89,7 +89,7 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
     if [[ -x "$(command -v colcon)" ]]; then \
         echo ";" >> $WORKSPACE/.remove-packages.sh ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
-        echo "do find . -type f -name package.xml -path \"*/$pkg/package.xml\" -exec dirname {} \;; done" >> $WORKSPACE/.remove-packages.sh ; \
+        echo "; do find . -type f -name package.xml -path \"*/\$pkg/package.xml\" -exec dirname {} \;; done" >> $WORKSPACE/.remove-packages.sh ; \
     fi && \
     chmod +x $WORKSPACE/.remove-packages.sh && \
     cat $WORKSPACE/.remove-packages.sh && \
