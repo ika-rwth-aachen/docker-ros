@@ -132,6 +132,8 @@ inputs:
     description: "Enable Git LFS support for the checkout action"
     default: true
 
+  # TODO!
+
 
 runs:
   using: "composite"
@@ -190,34 +192,35 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
-        PLATFORM: ${{ inputs.platform }}
-        TARGET: ${{ inputs.target }}
-        BASE_IMAGE: ${{ inputs.base-image }}
-        COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
-        IMAGE_TAG: ${{ inputs.image-tag }}
-        DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
-        DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
-        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
-        ROS_DISTRO: ${{ inputs.ros-distro }}
-        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
-        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
-        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
-        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
-        VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
-        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
+        DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
+        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
+        ENABLE_ROS1_DEVEL_SPACE: ${{ inputs.enable-ros1-devel-space }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        PLATFORM: ${{ inputs.platform }}
+        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
+        TARGET: ${{ inputs.target }}
+        VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
 
     - name: Set up industrial_ci
       if: ${{ inputs.enable-industrial-ci == 'true' }}
@@ -228,15 +231,15 @@ runs:
       if: ${{ inputs.enable-industrial-ci == 'true' }}
       uses: ros-industrial/industrial_ci@master
       env:
-        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
-        TARGET_WORKSPACE: ${{ inputs.build-context }}
         ADDITIONAL_DEBS: git
         AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
-        SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
-        DOCKER_RUN_OPTS: -u root:root
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
+        DOCKER_RUN_OPTS: -u root:root
+        SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
+        TARGET_WORKSPACE: ${{ inputs.build-context }}
+        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
 
     - name: Slugify ref name
       id: slugify-ref-name
@@ -249,35 +252,36 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
-        PLATFORM: ${{ inputs.platform }}
-        TARGET: ${{ inputs.target }}
-        BASE_IMAGE: ${{ inputs.base-image }}
-        COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
-        IMAGE_TAG: ${{ inputs.image-tag }}
-        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
-        DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
-        ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
-        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
-        ROS_DISTRO: ${{ inputs.ros-distro }}
-        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
-        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
-        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
-        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
-        VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
-        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
+        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
+        ENABLE_ROS1_DEVEL_SPACE: ${{ inputs.enable-ros1-devel-space }}
+        ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        PLATFORM: ${{ inputs.platform }}
+        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
+        TARGET: ${{ inputs.target }}
+        VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
 
@@ -287,34 +291,35 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
-        PLATFORM: ${{ inputs.platform }}
-        TARGET: ${{ inputs.target }}
-        BASE_IMAGE: ${{ inputs.base-image }}
-        COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
-        IMAGE_TAG: latest
-        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
-        DEV_IMAGE_TAG: latest-dev
-        ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
-        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
-        ROS_DISTRO: ${{ inputs.ros-distro }}
-        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
-        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
-        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
-        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
-        VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
-        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_TAG: latest-dev
         ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
+        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
+        ENABLE_ROS1_DEVEL_SPACE: ${{ inputs.enable-ros1-devel-space }}
+        ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
+        IMAGE_TAG: latest
+        PLATFORM: ${{ inputs.platform }}
+        RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
+        ROS_DISTRO: ${{ inputs.ros-distro }}
+        TARGET: ${{ inputs.target }}
+        VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}

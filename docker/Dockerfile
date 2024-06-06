@@ -256,15 +256,18 @@ FROM dev as build
 
 # build ROS workspace
 ARG ENABLE_CONTINUE_BUILD_DESPITE_ERRORS="false"
-RUN if [[ -x "$(command -v colcon)" ]]; then \
-        source /opt/ros/${ROS_DISTRO}/setup.bash && \
+ARG ENABLE_ROS1_DEVEL_SPACE="false"
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
+    if [[ -x "$(command -v colcon)" ]]; then \
         if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
             colcon build --continue-on-error --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
         else \
             colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
         fi ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
-        catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
+        if [[ $ENABLE_ROS1_DEVEL_SPACE == 'false' ]]; then \
+            catkin config --install --extend /opt/ros/${ROS_DISTRO} ; \
+        fi && \
         if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
             catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize --continue-on-failure ; \
         else \

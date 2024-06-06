@@ -373,36 +373,24 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`enable-checkout` | `-`**  
   Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
   *default:* `true`
-- **`enable-checkout-submodules` | `-`**  
-  Enable submodules for the [*checkout*](https://github.com/actions/checkout) action (`false`|`true`|`recursive`)  
-  *default:* `recursive`
 - **`enable-checkout-lfs` | `-`**  
   Enable [*Git LFS*](https://git-lfs.com/) support for the [*checkout*](https://github.com/actions/checkout) action  
   *default:* `true` 
-- **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
-  Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
-  *default:* `false` 
-- **`enable-push-as-latest` | `ENABLE_PUSH_AS_LATEST`**  
-  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
-  *default:* `false`  
-- **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
-  Enable push of single arch images with `-amd64`/`-arm64` postfix  
-  *default:* `false` 
-- **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
-  Password for cloning private Git repositories via HTTPS  
-  *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
-- **`git-https-server` | `GIT_HTTPS_SERVER`**  
-  Server URL (without protocol) for cloning private Git repositories via HTTPS  
-  *default:* `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` 
-- **`git-https-user` | `GIT_HTTPS_USER`**  
-  Username for cloning private Git repositories via HTTPS  
-  *default:* `${{ github.actor }}` | `gitlab-ci-token`  
+- **`enable-checkout-submodules` | `-`**  
+  Enable submodules for the [*checkout*](https://github.com/actions/checkout) action (`false`|`true`|`recursive`)  
+  *default:* `recursive`
 - **`enable-continue-build-despite-errors` | `ENABLE_CONTINUE_BUILD_DESPITE_ERRORS`**  
   Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
   *default:* `false`
 - **`enable-continue-rosdep-install-despite-errors` | `ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS`**  
   Enable `rosdep install -r`
   *default:* `false`
+- **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
+  Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
+  *default:* `false` 
+- **`enable-push-as-latest` | `ENABLE_PUSH_AS_LATEST`**  
+  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
+  *default:* `false`  
 - **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
   Enable recursive discovery of files named `additional-debs-file`  
   *default:* `false`
@@ -418,6 +406,21 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
   Enable recursive discovery of files named `*.repos`  
   *default:* `true`
+- **`enable-ros1-devel-space` | `ENABLE_ROS1_DEVEL_SPACE`**  
+  Enable building to ROS devel space instead of install space (ROS 1 only)
+  *default:* `false`
+- **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
+  Enable push of single arch images with `-amd64`/`-arm64` postfix  
+  *default:* `false` 
+- **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
+  Password for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
+- **`git-https-server` | `GIT_HTTPS_SERVER`**  
+  Server URL (without protocol) for cloning private Git repositories via HTTPS  
+  *default:* `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` 
+- **`git-https-user` | `GIT_HTTPS_USER`**  
+  Username for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.actor }}` | `gitlab-ci-token`  
 - **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
   Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
 - **`git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY`**  
