@@ -234,7 +234,9 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     fi
 
 # source ROS
-RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc && \
+    echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
+    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # set entrypoint
 ENV TINI_VERSION v0.19.0
@@ -275,14 +277,17 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
         fi ; \
     fi
 
+# setup command
+ARG COMMAND=bash
+ENV DEFAULT_CMD=${COMMAND}
+CMD bash -c "${DEFAULT_CMD}"
+
 ############ run ###############################################################
 FROM dependencies-install as run
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 RUN ldconfig
-RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
-    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # setup command
 ARG COMMAND

@@ -2,6 +2,8 @@
 
 # *docker-ros* – Automated Containerization of ROS Apps
 
+// TODO: explain build image somewhere
+
 <p align="center">
   <img src="https://img.shields.io/github/v/release/ika-rwth-aachen/docker-ros"/></a>
   <img src="https://img.shields.io/github/license/ika-rwth-aachen/docker-ros"/>
@@ -355,8 +357,14 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`build-context` | `BUILD_CONTEXT`**  
   Build context of Docker build process  
   *default:* `${{ github.workspace }}` | `.`  
+- **`build-image-name` | `BUILD_IMAGE_NAME`**  
+  Image name of build image  
+  *default:* `<IMAGE_NAME>`  
+- **`build-image-tag` | `BUILD_IMAGE_TAG`**  
+  Image tag of build image  
+  *default:* `<IMAGE_TAG>-build` 
 - **`command` | `COMMAND`**  
-  Launch command of run image  
+  Launch command of build/run image  
   *required if `target=run`*  
 - **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
   Relative filepath to script containing custom installation commands  
@@ -389,7 +397,7 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
   Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
   *default:* `false` 
 - **`enable-push-as-latest` | `ENABLE_PUSH_AS_LATEST`**  
-  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
+  Push images with tag `latest`/`latest-dev`/`latest-build` in addition to the configured image names  
   *default:* `false`  
 - **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
   Enable recursive discovery of files named `additional-debs-file`  
@@ -455,7 +463,7 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`target` | `TARGET`**  
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`
-  *supported values:* `dev`, `run`
+  *supported values:* `dev`, `build`, `run`
 - **`vcs-import-file` | `VCS_IMPORT_FILE`**  
   Relative filepath to file containing additional repos to install via vcstools (only relevant if `enable-recursive-vcs-import=false`)  
   *default:* `.repos`

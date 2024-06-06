@@ -4,7 +4,7 @@ description: "docker-ros automatically builds development and deployment Docker 
 inputs:
 
   target:
-    description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
+    description: "Target stage of Dockerfile (comma-separated list) [dev|build|run]"
     default: run
 
   platform:
@@ -15,7 +15,7 @@ inputs:
     required: true
 
   command:
-    description: "Launch command of run image (required if target=run)"
+    description: "Launch command of build/run image (required if target=run)"
 
   image-name:
     description: "Image name of run image"
@@ -30,6 +30,12 @@ inputs:
 
   dev-image-tag:
     description: "Image tag of dev image"
+
+  build-image-name:
+    description: "Image name of build image"
+
+  build-image-tag:
+    description: "Image tag of build image"
 
   build-context:
     description: "Build context of Docker build process"
@@ -117,7 +123,7 @@ inputs:
     default: false
 
   enable-push-as-latest:
-    description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
+    description: "Push images with tag `latest`/`latest-dev`/`latest-build` in addition to the configured image names"
     default: false
 
   enable-checkout:
@@ -196,6 +202,12 @@ runs:
       with:
         string: ${{ inputs.dev-image-name }}
 
+    - name: Enforce lower-case build image name 
+      id: build-image-name
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ${{ inputs.build-image-name }}
+
     - name: Build images
       id: build-images
       shell: bash
@@ -207,6 +219,8 @@ runs:
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILD_IMAGE_NAME: ${{ steps.build-image-name.outputs.lowercase }}
+        BUILD_IMAGE_TAG: ${{ inputs.build-image-tag }}
         COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
@@ -267,6 +281,8 @@ runs:
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILD_IMAGE_NAME: ${{ steps.build-image-name.outputs.lowercase }}
+        BUILD_IMAGE_TAG: ${{ inputs.build-image-tag }}
         COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
@@ -306,6 +322,8 @@ runs:
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILD_IMAGE_NAME: ${{ steps.build-image-name.outputs.lowercase }}
+        BUILD_IMAGE_TAG: ${{ inputs.build-image-tag }}
         COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}

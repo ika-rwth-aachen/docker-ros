@@ -1,11 +1,12 @@
-x-base-image: &base-image BASE_IMAGE  # e.g. rwthika/ros2:humble
-x-dev-image:  &dev-image  DEV_IMAGE   # e.g. my-image:latest-dev
-x-run-image:  &run-image  RUN_IMAGE   # e.g. my-image:latest
-x-command:    &command    COMMAND     # e.g. ros2 run my_pkg my_node
+x-base-image:   &base-image   BASE_IMAGE  # e.g. rwthika/ros2:humble
+x-dev-image:    &dev-image    DEV_IMAGE   # e.g. my-image:latest-dev
+x-build-image:  &build-image  BUILD_IMAGE # e.g. my-image:latest-build
+x-run-image:    &run-image    RUN_IMAGE   # e.g. my-image:latest
+x-command:      &command      COMMAND     # e.g. ros2 run my_pkg my_node
 
 # ==============================================================================
 
-x-build: &build
+x-build-template: &build-template
   dockerfile: ./docker/docker-ros/docker/Dockerfile
   context: ../
   args:
@@ -38,9 +39,14 @@ services:
     image: *dev-image
     build:
       target: dev
-      <<: *build
+      <<: *build-template
+  build:
+    image: *build-image
+    build:
+      target: build
+      <<: *build-template
   run:
     image: *run-image
     build:
       target: run
-      <<: *build
+      <<: *build-template
