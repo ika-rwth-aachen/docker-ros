@@ -35,6 +35,8 @@ build_image() {
         $(if [[ -n "${ENABLE_RECURSIVE_CUSTOM_SCRIPT}" ]]; then echo "--build-arg ENABLE_RECURSIVE_CUSTOM_SCRIPT=${ENABLE_RECURSIVE_CUSTOM_SCRIPT}"; fi) \
         $(if [[ -n "${VCS_IMPORT_FILE}" ]]; then echo "--build-arg VCS_IMPORT_FILE=${VCS_IMPORT_FILE}"; fi) \
         $(if [[ -n "${ENABLE_RECURSIVE_VCS_IMPORT}" ]]; then echo "--build-arg ENABLE_RECURSIVE_VCS_IMPORT=${ENABLE_RECURSIVE_VCS_IMPORT}"; fi) \
+        $(if [[ -n "${ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS}" ]]; then echo "--build-arg ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS=${ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS}"; fi) \
+        $(if [[ -n "${ENABLE_CONTINUE_BUILD_DESPITE_ERRORS}" ]]; then echo "--build-arg ENABLE_CONTINUE_BUILD_DESPITE_ERRORS=${ENABLE_CONTINUE_BUILD_DESPITE_ERRORS}"; fi) \
         .
     echo "Successfully built stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}'"
 }

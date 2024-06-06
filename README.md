@@ -305,6 +305,8 @@ If your ROS-based repository (or any of your repository's upstream dependencies,
 
 Create a file `blacklisted-packages.txt` in your `docker` folder (or configure a different `BLACKLISTED_PACKAGES_FILE`) and list any ROS package name to blacklist.
 
+If you are having problems with (upstream) packages that you don't need, also have a look at `ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS` and `ENABLE_CONTINUE_BUILD_DESPITE_ERRORS`.
+
 ### Extra System Dependencies (*apt*)
 
 If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-debs.txt` file.
@@ -395,6 +397,12 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`git-https-user` | `GIT_HTTPS_USER`**  
   Username for cloning private Git repositories via HTTPS  
   *default:* `${{ github.actor }}` | `gitlab-ci-token`  
+- **`enable-continue-build-despite-errors` | `ENABLE_CONTINUE_BUILD_DESPITE_ERRORS`**  
+  Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
+  *default:* `false`
+- **`enable-continue-rosdep-install-despite-errors` | `ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS`**  
+  Enable `rosdep install -r`
+  *default:* `false`
 - **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
   Enable recursive discovery of files named `additional-debs-file`  
   *default:* `false`

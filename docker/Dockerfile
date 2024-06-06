@@ -95,6 +95,7 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
     $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rfv
 
 # create install script with list of rosdep dependencies
+ARG ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS="false"
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
@@ -103,7 +104,11 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     export OS="ubuntu:$(lsb_release -c | awk '{print $2}')" && \
     if [[ "$ROS_DISTRO" = "rolling" && "$OS" = "ubuntu:focal" ]]; then export OS="ubuntu:jammy"; fi && \
     set -o pipefail && \
-    ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | tee -a $WORKSPACE/.install-dependencies.sh && \
+    if [[ $ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS == 'true' ]]; then \
+        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src -r | tee -a $WORKSPACE/.install-dependencies.sh ; \
+    else \
+        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | tee -a $WORKSPACE/.install-dependencies.sh ; \
+    fi && \
     chmod +x $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
@@ -250,12 +255,21 @@ CMD ["bash"]
 FROM dev as build
 
 # build ROS workspace
+ARG ENABLE_CONTINUE_BUILD_DESPITE_ERRORS="false"
 RUN if [[ -x "$(command -v colcon)" ]]; then \
         source /opt/ros/${ROS_DISTRO}/setup.bash && \
-        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
+        if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
+            colcon build --continue-on-error --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
+        else \
+            colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
+        fi ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
-        catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
+        if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
+            catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize --continue-on-failure ; \
+        else \
+            catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
+        fi ; \
     fi
 
 ############ run ###############################################################

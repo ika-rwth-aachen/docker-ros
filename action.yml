@@ -216,6 +216,8 @@ runs:
         ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
+        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
 
     - name: Set up industrial_ci
       if: ${{ inputs.enable-industrial-ci == 'true' }}
@@ -274,6 +276,8 @@ runs:
         ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
+        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
 
@@ -310,5 +314,7 @@ runs:
         ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
+        ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
+        ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
