@@ -185,6 +185,8 @@ run-amd64:
   needs:
     - job: dev-amd64
       optional: true
+    - job: build-amd64
+      optional: true
   rules:
     - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
   variables:
@@ -200,6 +202,8 @@ run-arm64:
   tags: [privileged, arm64]
   needs:
     - job: dev-arm64
+      optional: true
+    - job: build-arm64
       optional: true
   rules:
     - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
