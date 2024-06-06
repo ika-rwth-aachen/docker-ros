@@ -303,6 +303,8 @@ Most of the steps listed in [*About*](#about) and below can be toggled between r
 
 ### Package Blacklist
 
+*:warning: only supported on ROS 2*
+
 If your ROS-based repository (or any of your repository's upstream dependencies, see `.repos`) contains ROS packages that should neither be built nor be used for determining dependencies, you can blacklist those in a special `blacklisted-packages.txt` file.
 
 Create a file `blacklisted-packages.txt` in your `docker` folder (or configure a different `BLACKLISTED_PACKAGES_FILE`) and list any ROS package name to blacklist.
