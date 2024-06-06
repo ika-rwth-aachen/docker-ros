@@ -92,7 +92,6 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
         echo "; do find . -type f -name package.xml -path \"*/\$pkg/package.xml\" -exec dirname {} \;; done" >> $WORKSPACE/.remove-packages.sh ; \
     fi && \
     chmod +x $WORKSPACE/.remove-packages.sh && \
-    cat $WORKSPACE/.remove-packages.sh && \
     $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rfv
 
 # create install script with list of rosdep dependencies
