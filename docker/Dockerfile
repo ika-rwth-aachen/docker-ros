@@ -260,7 +260,7 @@ ARG ENABLE_ROS1_DEVEL_SPACE="false"
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
     if [[ -x "$(command -v colcon)" ]]; then \
         if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
-            colcon build --continue-on-error --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
+            colcon build --continue-on-error --cmake-args -DCMAKE_BUILD_TYPE=Release || true ; \
         else \
             colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
         fi ; \
@@ -269,7 +269,7 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
             catkin config --install --extend /opt/ros/${ROS_DISTRO} ; \
         fi && \
         if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
-            catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize --continue-on-failure ; \
+            catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize --continue-on-failure || true ; \
         else \
             catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
         fi ; \
