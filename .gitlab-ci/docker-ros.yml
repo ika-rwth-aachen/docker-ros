@@ -151,6 +151,9 @@ dev-arm64:
 build-amd64:
   stage: Build build Images
   extends: .build
+  needs:
+    - job: dev-amd64
+      optional: true
   rules:
     - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*build.*/
   variables:
@@ -164,6 +167,9 @@ build-arm64:
   stage: Build build Images
   extends: .build
   tags: [privileged, arm64]
+  needs:
+    - job: dev-arm64
+      optional: true
   rules:
     - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*build.*/
   variables:
