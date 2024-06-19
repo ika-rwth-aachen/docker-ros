@@ -91,7 +91,9 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     export OS="ubuntu:$(lsb_release -c | awk '{print $2}')" && \
     if [[ "$ROS_DISTRO" = "rolling" && "$OS" = "ubuntu:focal" ]]; then export OS="ubuntu:jammy"; fi && \
     set -o pipefail && \
-    ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | tee -a $WORKSPACE/.install-dependencies.sh && \
+    ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src \
+    | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" \
+    | tee -a $WORKSPACE/.install-dependencies.sh && \
     chmod +x $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
