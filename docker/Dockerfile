@@ -187,6 +187,10 @@ RUN apt-get update && \
         ros-${ROS_DISTRO}-ros-core \
     && rm -rf /var/lib/apt/lists/*
 
+# configure pip
+RUN mkdir -p ~/.config/pip && \
+    echo -e "[global]\nbreak-system-packages = true" >> ~/.config/pip/pip.conf
+
 # copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
 
