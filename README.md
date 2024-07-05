@@ -7,6 +7,8 @@
   <img src="https://img.shields.io/github/license/ika-rwth-aachen/docker-ros"/>
   <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml/badge.svg"/></a>
   <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml/badge.svg"/></a>
+  <img src="https://img.shields.io/badge/ROS-noetic-blueviolet"/>
+  <img src="https://img.shields.io/badge/ROS 2-foxy|humble|iron|jazzy-blueviolet"/>
 </p>
 
 *docker-ros* automatically builds minimal container images of ROS applications.
@@ -14,10 +16,8 @@
 > [!IMPORTANT]  
 > This repository is open-sourced and maintained by the [**Institute for Automotive Engineering (ika) at RWTH Aachen University**](https://www.ika.rwth-aachen.de/).  
 > **DevOps, Containerization and Orchestration of Software-Defined Vehicles** are some of many research topics within our [*Vehicle Intelligence & Automated Driving*](https://www.ika.rwth-aachen.de/en/competences/fields-of-research/vehicle-intelligence-automated-driving.html) domain.  
-> If you would like to learn more about how we can support your DevOps or automated driving efforts, feel free to reach out to us!  
-> &nbsp;&nbsp;&nbsp;&nbsp; *Timo Woopen - Manager Research Area Vehicle Intelligence & Automated Driving*  
-> &nbsp;&nbsp;&nbsp;&nbsp; *+49 241 80 23549*  
-> &nbsp;&nbsp;&nbsp;&nbsp; *timo.woopen@ika.rwth-aachen.de*  
+> If you would like to learn more about how we can support your advanced driver assistance and automated driving efforts, feel free to reach out to us!  
+> :email: ***opensource@ika.rwth-aachen.de***
 
 - [About](#about)
   - [Prerequisites](#prerequisites)
