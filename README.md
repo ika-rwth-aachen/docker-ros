@@ -35,6 +35,8 @@
   - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
   - [Custom Installation Script](#custom-installation-script)
   - [Extra Image Files](#extra-image-files)
+- [Additional Information](#additional-information)
+  - [User Setup](#user-setup)
 - [Configuration Variables](#configuration-variables)
 
 We recommend to use *docker-ros* in combination with our other tools for Docker and ROS.
@@ -330,6 +332,19 @@ Create a script `custom.sh` in your `docker` folder (or configure a different `C
 If you need to have additional files present in the deployment image, you can use a special `additional-files` folder. The folder contents will be copied into the container before the custom installation script `custom.sh` is executed.
 
 Create a folder `additional-files` in your `docker` folder (or configure a different `ADDITIONAL_FILES_DIR`) and place any files or directories in it. The contents will be copied to `/docker-ros/additional-files` in the image.
+
+
+## Additional Information
+
+### User Setup
+
+Containers of the provided images start with `root` user by default. If the two environment variables `DOCKER_UID` and `DOCKER_GID` are passed, a new user with the corresponding UID/GID is created on the fly. Most importantly, this features allows to mount and edit files of the host user in the container without having to deal with permission issues.
+
+```bash
+docker run --rm -it -e DOCKER_UID=$(id -u) -e DOCKER_GID=$(id -g) -e DOCKER_USER=$(id -un) rwthika/ros:latest
+```
+
+The password of the custom user is set to its username (`dockeruser:dockeruser` by default).
 
 
 ## Configuration Variables
