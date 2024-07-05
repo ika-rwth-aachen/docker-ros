@@ -23,8 +23,10 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
                 touch /home/$DOCKER_USER/.sudo_as_admin_successful
         cp /root/.bashrc /home/$DOCKER_USER
         ln -s $WORKSPACE /home/$DOCKER_USER/ws
-        chown -R $DOCKER_UID:$DOCKER_GID $WORKSPACE
-        chown -R $DOCKER_UID:$DOCKER_GID /home/$DOCKER_USER
+        chown -h $DOCKER_UID:$DOCKER_GID $WORKSPACE /home/$DOCKER_USER/ws /home/$DOCKER_USER/.sudo_as_admin_successful
+        if [[ -d $WORKSPACE/src ]]; then
+            chown -R $DOCKER_USER:$DOCKER_USER $WORKSPACE/src
+        fi
     fi
     [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
     exec gosu $DOCKER_USER "$@"
