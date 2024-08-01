@@ -188,13 +188,6 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # configure pip
-# for /usr/pip.conf
-RUN python -m pip config --site set global.break-system-packages true
-
-# for /root/.config/pip/pip.conf
-RUN python -m pip config --user set global.break-system-packages true 
-
-# for /etc/pip.conf
 RUN python -m pip config --global set global.break-system-packages true
 
 # copy install script from dependencies stage
