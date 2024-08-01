@@ -188,16 +188,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # configure pip
-RUN python - <<-"EOF"
-import configparser; import os
-config = configparser.ConfigParser()
-config_file = '/root/.config/pip/pip.conf'
-open(config_file, 'w').close() if not os.path.exists(config_file) else None
-config.read(config_file)
-if 'global' not in config: config['global'] = {}
-config['global']['break-system-packages'] = 'true'
-with open(config_file, 'w') as file: config.write(file)
-EOF
+RUN python -m pip config --site set global.break-system-packages true
 
 # copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
