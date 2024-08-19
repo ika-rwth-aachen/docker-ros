@@ -43,7 +43,7 @@ variables:
   VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
   ENABLE_RECURSIVE_VCS_IMPORT:       'true'                           # Enable recursive discovery of files named `*.repos`
   # -----
-  DOCKER_ROS_GIT_REF:     patch-1
+  DOCKER_ROS_GIT_REF:     main
 
   _RUN_IMAGE:             ${IMAGE_NAME}:${IMAGE_TAG}
   _DEV_IMAGE:             ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
@@ -88,7 +88,7 @@ default:
     - |-
       if [[ ! -d docker/docker-ros ]]; then
         mkdir -p docker
-        git clone --depth=1  https://github.com/cgeller/docker-ros.git docker/docker-ros
+        git clone --depth=1  https://github.com/ika-rwth-aachen/docker-ros.git docker/docker-ros
         cd docker/docker-ros
         git fetch origin ${DOCKER_ROS_GIT_REF}
         git checkout FETCH_HEAD
