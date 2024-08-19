@@ -13,12 +13,13 @@ authors:
 
 preferred-citation:
   title: "Enabling the Deployment of Any-Scale Robotic Applications in Microservice-Based Service-Oriented Architectures through Automated Containerization"
-  type: misc
-  # conference:
-  #   name:
-  # month:
-  year: 2023
-  # doi: ""
+  type: conference-paper
+  conference:
+    name: "2024 IEEE International Conference on Robotics and Automation (ICRA)"
+  year: 2024
+  pages: "17650-17656"
+  doi: "10.1109/ICRA57147.2024.10611586"
+  url: "https://ieeexplore.ieee.org/document/10611586"
   authors:
     - given-names: Jean-Pierre
       family-names: Busch
