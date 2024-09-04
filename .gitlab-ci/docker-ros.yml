@@ -238,8 +238,9 @@ Test run-arm64:
     - tar -xvf ds.tar.gz
     - cd dist_linux
   script:
-    - ./slim build --target ${IMAGE} --tag ${IMAGE}_slim --pull --continue-after=10 --show-clogs --http-probe=false
-    - docker push ${IMAGE}
+    - docker pull ${IMAGE}
+    - ./slim build --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
+    - docker push ${IMAGE}_slim
 
 Slim run-amd64:
   stage: Slim Images
