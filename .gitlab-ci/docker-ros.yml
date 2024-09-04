@@ -71,6 +71,7 @@ stages:
   - Build dev Images
   - Build run Images
   - Test ROS Industrial CI
+  - Slim Images
   - Push Multi-Arch Images
 
 
@@ -168,6 +169,7 @@ run-arm64:
 
 
 .test:
+  stage: Test ROS Industrial CI
   variables:
     UPSTREAM_WORKSPACE: ${BUILD_CONTEXT}/.repos
     TARGET_WORKSPACE: ${BUILD_CONTEXT}
@@ -186,7 +188,6 @@ run-arm64:
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:
-  stage: Test ROS Industrial CI
   extends: .test
   needs:
     - job: dev-amd64
@@ -197,7 +198,6 @@ Test dev-amd64:
     _PLATFORM: amd64
 
 Test dev-arm64:
-  stage: Test ROS Industrial CI
   extends: .test
   tags: [privileged, arm64]
   needs:
@@ -209,7 +209,6 @@ Test dev-arm64:
     _PLATFORM: arm64
 
 Test run-amd64:
-  stage: Test ROS Industrial CI
   extends: .test
   needs:
     - job: run-amd64
@@ -220,7 +219,6 @@ Test run-amd64:
     _PLATFORM: amd64
 
 Test run-arm64:
-  stage: Test ROS Industrial CI
   extends: .test
   needs:
     - job: run-arm64
@@ -229,6 +227,30 @@ Test run-arm64:
   variables:
     DOCKER_IMAGE: ${_IMAGE_RUN_CI_ARM64}
     _PLATFORM: arm64
+
+
+.slim:
+  stage: Slim Images
+  before_script:
+    - curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+    - tar -xvf ds.tar.gz
+    - cd dist_linux
+  script:
+    - ./slim --target ${IMAGE} --tag ${IMAGE}_slim --pull --continue-after=10 --show-clogs --http-probe=false
+    - docker push ${IMAGE}
+
+Slim run-amd64:
+  stage: Slim Images
+  extends: .slim
+  needs:
+    - job: run-amd64
+      optional: true
+    - job: Test run-amd64
+      optional: true
+  rules:
+    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
+  variables:
+    IMAGE: ${_IMAGE_RUN_CI_AMD64}
 
 
 .push:
@@ -248,6 +270,8 @@ Test run-arm64:
     - job: Test run-amd64
       optional: true
     - job: Test run-arm64
+      optional: true
+    - job: Slim run-amd64
       optional: true
   rules:
     - if: $PLATFORM == '' || $TARGET == ''
