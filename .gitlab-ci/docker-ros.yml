@@ -233,13 +233,9 @@ Test run-arm64:
   stage: Slim Images
   before_script:
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
-    - apk add --update --upgrade curl tar
-    - curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
-    - tar -xvf ds.tar.gz
-    - cd dist_linux
-  script:
     - docker pull ${IMAGE}
-    - ./slim --in-container build --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
+  script:
+    - docker run -e DOCKER_HOST=tcp://$(grep docker /etc/hosts | cut -f1):2375 dslim/slim build --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
     - docker push ${IMAGE}_slim
   artifacts:
     expire_in: 1 day
