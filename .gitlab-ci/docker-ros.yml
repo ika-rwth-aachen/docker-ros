@@ -76,7 +76,7 @@ stages:
 
 
 default:
-  image: docker:20.10.22-git
+  image: docker:20.10.22-git # TODO: upgrade?
   services:
     - docker:20.10.22-dind
   tags:
@@ -239,8 +239,12 @@ Test run-arm64:
     - cd dist_linux
   script:
     - docker pull ${IMAGE}
-    - ./slim build --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
+    - ./slim --in-container build --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
     - docker push ${IMAGE}_slim
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - slim.report.json
 
 Slim run-amd64:
   stage: Slim Images
