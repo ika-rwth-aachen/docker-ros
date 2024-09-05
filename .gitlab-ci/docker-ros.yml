@@ -238,15 +238,8 @@ Test run-arm64:
     - cd dist_linux
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker pull ${IMAGE}
-    - echo "docker IP:"
-    - echo $(grep docker /etc/hosts)
-    - echo "DOCKER_HOST var:"
-    - echo $DOCKER_HOST
-    - ping -c 3 docker
-    - docker info
-    - docker network inspect bridge
   script:
-    - ./slim --debug build --sensor-ipc-mode proxy --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
+    - ./slim build --sensor-ipc-mode proxy --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
     - docker push ${IMAGE}_slim
   artifacts:
     expire_in: 1 day
