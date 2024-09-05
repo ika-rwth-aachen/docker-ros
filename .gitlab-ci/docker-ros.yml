@@ -17,6 +17,8 @@ variables:
   IMAGE_TAG:                  latest                                  # Image tag of run image
   DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image
   DEV_IMAGE_TAG:              ${IMAGE_TAG}-dev                        # Image tag of dev image
+  SLIM_IMAGE_NAME:            ${IMAGE_NAME}                           # Image name of slim run image
+  SLIM_IMAGE_TAG:             ${IMAGE_TAG}-slim                       # Image tag of slim run image
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
   REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
@@ -47,19 +49,26 @@ variables:
 
   _RUN_IMAGE:             ${IMAGE_NAME}:${IMAGE_TAG}
   _DEV_IMAGE:             ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
+  _SLIM_IMAGE:            ${SLIM_IMAGE_NAME}:${SLIM_IMAGE_TAG}
 
   _IMAGE_DEV_CI:          ${_DEV_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
   _IMAGE_RUN_CI:          ${_RUN_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_SLIM_CI:         ${_SLIM_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
   _IMAGE_DEV_CI_AMD64:    ${_IMAGE_DEV_CI}-amd64
   _IMAGE_DEV_CI_ARM64:    ${_IMAGE_DEV_CI}-arm64
   _IMAGE_RUN_CI_AMD64:    ${_IMAGE_RUN_CI}-amd64
   _IMAGE_RUN_CI_ARM64:    ${_IMAGE_RUN_CI}-arm64
-  _IMAGE_DEV_LATEST:      ${DEV_IMAGE_NAME}:latest-dev
+  _IMAGE_SLIM_CI_AMD64:   ${_IMAGE_SLIM_CI}-amd64
+  _IMAGE_SLIM_CI_ARM64:   ${_IMAGE_SLIM_CI}-arm64
+  _IMAGE_DEV_LATEST:      ${DEV_IMAGE_NAME}:latest-dev # TODO: is this a bug here that DEV_IMAGE_TAG is not used?
   _IMAGE_RUN_LATEST:      ${IMAGE_NAME}:latest
+  _IMAGE_SLIM_LATEST:     ${SLIM_IMAGE_NAME}:latest-slim
   _IMAGE_DEV_TARGET_TAG:  ${_DEV_IMAGE}-${CI_COMMIT_TAG}
   _IMAGE_RUN_TARGET_TAG:  ${_RUN_IMAGE}-${CI_COMMIT_TAG}
-  _IMAGE_DEV_TAG:         ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
+  _IMAGE_SLIM_TARGET_TAG: ${_SLIM_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_DEV_TAG:         ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev # TODO: is this a bug here that DEV_IMAGE_TAG is not used?
   _IMAGE_RUN_TAG:         ${IMAGE_NAME}:${CI_COMMIT_TAG}
+  _IMAGE_SLIM_TAG:        ${SLIM_IMAGE_NAME}:${CI_COMMIT_TAG}-slim
 
   GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_DRIVER: overlay2
@@ -237,10 +246,10 @@ Test run-arm64:
     - tar -xvf ds.tar.gz
     - cd dist_linux*
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
-    - docker pull ${IMAGE}
+    - docker pull ${FAT_IMAGE}
   script:
-    - ./slim build --sensor-ipc-mode proxy --target ${IMAGE} --tag ${IMAGE}_slim --continue-after=10 --show-clogs --http-probe=false
-    - docker push ${IMAGE}_slim
+    - ./slim build --sensor-ipc-mode proxy --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} --continue-after=10 --show-clogs --http-probe=false
+    - docker push ${SLIM_IMAGE}
   artifacts:
     expire_in: 1 day
     paths:
@@ -257,7 +266,8 @@ Slim run-amd64:
   rules:
     - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
   variables:
-    IMAGE: ${_IMAGE_RUN_CI_AMD64}
+    FAT_IMAGE: ${_IMAGE_RUN_CI_AMD64}
+    SLIM_IMAGE: ${_IMAGE_SLIM_CI_AMD64}
     SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz"
 
 Slim run-arm64:
@@ -272,7 +282,8 @@ Slim run-arm64:
   rules:
     - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
   variables:
-    IMAGE: ${_IMAGE_RUN_CI_ARM64}
+    FAT_IMAGE: ${_IMAGE_RUN_CI_ARM64}
+    SLIM_IMAGE: ${_IMAGE_SLIM_CI_ARM64}
     SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux_arm64.tar.gz"
 
 
