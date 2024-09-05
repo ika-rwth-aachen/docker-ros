@@ -233,9 +233,9 @@ Test run-arm64:
   stage: Slim Images
   before_script:
     - apk add --update --upgrade curl tar
-    - curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+    - curl -L -o ds.tar.gz ${SLIM_DOWNLOAD_URL}
     - tar -xvf ds.tar.gz
-    - cd dist_linux
+    - cd dist_linux*
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker pull ${IMAGE}
   script:
@@ -258,6 +258,22 @@ Slim run-amd64:
     - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
   variables:
     IMAGE: ${_IMAGE_RUN_CI_AMD64}
+    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz"
+
+Slim run-arm64:
+  stage: Slim Images
+  extends: .slim
+  tags: [privileged, arm64]
+  needs:
+    - job: run-arm64
+      optional: true
+    - job: Test run-arm64
+      optional: true
+  rules:
+    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
+  variables:
+    IMAGE: ${_IMAGE_RUN_CI_ARM64}
+    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux_arm64.tar.gz"
 
 
 .push:
@@ -279,6 +295,8 @@ Slim run-amd64:
     - job: Test run-arm64
       optional: true
     - job: Slim run-amd64
+      optional: true
+    - job: Slim run-arm64
       optional: true
   rules:
     - if: $PLATFORM == '' || $TARGET == ''
