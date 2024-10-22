@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 
 ############ dependencies ######################################################
-FROM ${BASE_IMAGE} as dependencies
+FROM ${BASE_IMAGE} AS dependencies
 
 USER root
 SHELL ["/bin/bash", "-c"]
@@ -232,14 +232,14 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # set entrypoint
-ENV TINI_VERSION v0.19.0
+ENV TINI_VERSION=v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${TARGETARCH} /tini
 RUN chmod +x /tini
 COPY docker/docker-ros/docker/entrypoint.sh /
 ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 
 ############ dev ###############################################################
-FROM dependencies-install as dev
+FROM dependencies-install AS dev
 
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
@@ -247,7 +247,7 @@ COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 CMD ["bash"]
 
 ############ build #############################################################
-FROM dev as build
+FROM dev AS build
 
 # build ROS workspace
 RUN if [[ -x "$(command -v colcon)" ]]; then \
@@ -259,7 +259,7 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
     fi
 
 ############ run ###############################################################
-FROM dependencies-install as run
+FROM dependencies-install AS run
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
