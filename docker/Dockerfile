@@ -214,7 +214,14 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    if [[ "$ROS_VERSION" == "2" ]]; then \
+    if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh" ]]; then \
+        git clone https://github.com/ros2/rmw_zenoh.git $WORKSPACE/src/upstream/rmw_zenoh && \
+        rosdep init || true && \
+        rosdep update --rosdistro $ROS_DISTRO && \
+        apt-get update && \
+        rosdep install -y --from-paths $WORKSPACE/src/upstream/rmw_zenoh --ignore-src --rosdistro $ROS_DISTRO && \
+        rm -rf /var/lib/apt/lists/* ; \
+    elif [[ "$ROS_VERSION" == "2" ]]; then \
         apt-get update && \
         RMW_PACKAGE=ros-$ROS_DISTRO-$(echo $RMW_IMPLEMENTATION | tr '_' '-') && \
         apt-get install -y $RMW_PACKAGE && \
