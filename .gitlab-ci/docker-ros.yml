@@ -25,7 +25,7 @@ variables:
   REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
   ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
   ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
-  SLIM_BUILD_ARGUMENTS:       '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false '  # Arguments to `slim build` (except for `--target` and `--tag`)
+  SLIM_BUILD_ARGUMENTS:       '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'  # Arguments to `slim build` (except for `--target` and `--tag`)
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
   ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
   RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)

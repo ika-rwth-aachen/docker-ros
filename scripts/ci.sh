@@ -16,9 +16,13 @@ IMAGE_TAG="${IMAGE_TAG:-latest}"
 [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
 DEV_IMAGE_NAME="${DEV_IMAGE_NAME:-${IMAGE_NAME}}"
 DEV_IMAGE_TAG="${DEV_IMAGE_TAG:-${IMAGE_TAG}-dev}"
+SLIM_IMAGE_NAME="${SLIM_IMAGE_NAME:-${IMAGE_NAME}}"
+SLIM_IMAGE_TAG="${SLIM_IMAGE_TAG:-${IMAGE_TAG}-slim}"
 
 IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
 DEV_IMAGE="${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
+SLIM_IMAGE="${SLIM_IMAGE_NAME}:${SLIM_IMAGE_TAG}"
+ENABLE_SLIM="${ENABLE_SLIM:-true}"
 ENABLE_SINGLEARCH_PUSH="${ENABLE_SINGLEARCH_PUSH:-false}"
 RMW_IMPLEMENTATION="${RMW_IMPLEMENTATION:-}"
 ROS_DISTRO="${ROS_DISTRO:-}"
@@ -76,3 +80,10 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         close_log_group
     done
 done
+
+# push slim images
+if [[ "${ENABLE_SLIM}" == "true" && "${_ENABLE_IMAGE_PUSH}" == "true" && "${TARGET}" == *"run"* ]]; then
+    open_log_group "Push slim image"
+    docker push "${SLIM_IMAGE}"
+    close_log_group
+fi
