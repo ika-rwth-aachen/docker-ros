@@ -17,7 +17,6 @@ variables:
   IMAGE_TAG:                  latest                                  # Image tag of run image
   DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image
   DEV_IMAGE_TAG:              ${IMAGE_TAG}-dev                        # Image tag of dev image
-  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
   SLIM_IMAGE_NAME:            ${IMAGE_NAME}                           # Image name of slim run image
   SLIM_IMAGE_TAG:             ${IMAGE_TAG}-slim                       # Image tag of slim run image
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
@@ -25,6 +24,8 @@ variables:
   REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
   REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
   ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
+  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
+  SLIM_BUILD_ARGUMENTS:       '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false '  # Arguments to `slim build` (except for `--target` and `--tag`)
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
   ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
   RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
@@ -249,7 +250,7 @@ Test run-arm64:
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker pull ${FAT_IMAGE}
   script:
-    - ./slim build --sensor-ipc-mode proxy --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} --continue-after=10 --show-clogs --http-probe=false
+    - ./slim build --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGUMENTS}
     - docker push ${SLIM_IMAGE}
   artifacts:
     expire_in: 1 day
