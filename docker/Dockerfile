@@ -257,6 +257,7 @@ FROM dev AS build
 # build ROS workspace
 RUN if [[ -x "$(command -v colcon)" ]]; then \
         source /opt/ros/${ROS_DISTRO}/setup.bash && \
+        [[ -f /opt/ws_rmw_zenoh/install/setup.bash ]] && source /opt/ws_rmw_zenoh/install/setup.bash ; \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
