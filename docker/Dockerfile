@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 
 ############ dependencies ######################################################
-FROM ${BASE_IMAGE} as dependencies
+FROM ${BASE_IMAGE} AS dependencies
 
 USER root
 SHELL ["/bin/bash", "-c"]
@@ -214,7 +214,19 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    if [[ "$ROS_VERSION" == "2" ]]; then \
+    if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
+        mkdir -p /tmp/ws_rmw_zenoh/src && \
+        git clone https://github.com/ros2/rmw_zenoh.git /tmp/ws_rmw_zenoh/src/ && \
+        rosdep init || true && \
+        rosdep update --rosdistro $ROS_DISTRO && \
+        apt-get update && \
+        cd /tmp/ws_rmw_zenoh && \
+        rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO && \
+        rm -rf /var/lib/apt/lists/* && \
+        source /opt/ros/${ROS_DISTRO}/setup.bash && \
+        colcon build --install-base /opt/ros/${ROS_DISTRO}/ --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release && \
+        rm -rf /tmp/ws_rmw_zenoh ; \
+    elif [[ "$ROS_VERSION" == "2" ]]; then \
         apt-get update && \
         RMW_PACKAGE=ros-$ROS_DISTRO-$(echo $RMW_IMPLEMENTATION | tr '_' '-') && \
         apt-get install -y $RMW_PACKAGE && \
@@ -225,14 +237,14 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # set entrypoint
-ENV TINI_VERSION v0.19.0
+ENV TINI_VERSION=v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${TARGETARCH} /tini
 RUN chmod +x /tini
 COPY docker/docker-ros/docker/entrypoint.sh /
 ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 
 ############ dev ###############################################################
-FROM dependencies-install as dev
+FROM dependencies-install AS dev
 
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
@@ -240,7 +252,7 @@ COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 CMD ["bash"]
 
 ############ build #############################################################
-FROM dev as build
+FROM dev AS build
 
 # build ROS workspace
 RUN if [[ -x "$(command -v colcon)" ]]; then \
@@ -252,7 +264,7 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
     fi
 
 ############ run ###############################################################
-FROM dependencies-install as run
+FROM dependencies-install AS run
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
