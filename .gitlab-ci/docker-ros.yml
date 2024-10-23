@@ -17,6 +17,7 @@ variables:
   IMAGE_TAG:                  latest                                  # Image tag of run image
   DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image
   DEV_IMAGE_TAG:              ${IMAGE_TAG}-dev                        # Image tag of dev image
+  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
   SLIM_IMAGE_NAME:            ${IMAGE_NAME}                           # Image name of slim run image
   SLIM_IMAGE_TAG:             ${IMAGE_TAG}-slim                       # Image tag of slim run image
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
@@ -264,7 +265,7 @@ Slim run-amd64:
     - job: Test run-amd64
       optional: true
   rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
+    - if: $ENABLE_SLIM == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
   variables:
     FAT_IMAGE: ${_IMAGE_RUN_CI_AMD64}
     SLIM_IMAGE: ${_IMAGE_SLIM_CI_AMD64}
@@ -280,7 +281,7 @@ Slim run-arm64:
     - job: Test run-arm64
       optional: true
   rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
+    - if: $ENABLE_SLIM == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
   variables:
     FAT_IMAGE: ${_IMAGE_RUN_CI_ARM64}
     SLIM_IMAGE: ${_IMAGE_SLIM_CI_ARM64}
