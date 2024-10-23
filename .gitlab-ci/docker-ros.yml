@@ -60,13 +60,13 @@ variables:
   _IMAGE_RUN_CI_ARM64:    ${_IMAGE_RUN_CI}-arm64
   _IMAGE_SLIM_CI_AMD64:   ${_IMAGE_SLIM_CI}-amd64
   _IMAGE_SLIM_CI_ARM64:   ${_IMAGE_SLIM_CI}-arm64
-  _IMAGE_DEV_LATEST:      ${DEV_IMAGE_NAME}:latest-dev # TODO: is this a bug here that DEV_IMAGE_TAG is not used?
+  _IMAGE_DEV_LATEST:      ${DEV_IMAGE_NAME}:latest-dev
   _IMAGE_RUN_LATEST:      ${IMAGE_NAME}:latest
   _IMAGE_SLIM_LATEST:     ${SLIM_IMAGE_NAME}:latest-slim
   _IMAGE_DEV_TARGET_TAG:  ${_DEV_IMAGE}-${CI_COMMIT_TAG}
   _IMAGE_RUN_TARGET_TAG:  ${_RUN_IMAGE}-${CI_COMMIT_TAG}
   _IMAGE_SLIM_TARGET_TAG: ${_SLIM_IMAGE}-${CI_COMMIT_TAG}
-  _IMAGE_DEV_TAG:         ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev # TODO: is this a bug here that DEV_IMAGE_TAG is not used?
+  _IMAGE_DEV_TAG:         ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
   _IMAGE_RUN_TAG:         ${IMAGE_NAME}:${CI_COMMIT_TAG}
   _IMAGE_SLIM_TAG:        ${SLIM_IMAGE_NAME}:${CI_COMMIT_TAG}-slim
 
@@ -85,7 +85,7 @@ stages:
 
 
 default:
-  image: docker:20.10.22-git # TODO: upgrade?
+  image: docker:20.10.22-git
   services:
     - docker:20.10.22-dind
   tags:
