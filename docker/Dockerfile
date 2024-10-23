@@ -215,17 +215,17 @@ ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
-        mkdir -p /opt/ws_rmw_zenoh/src && \
-        git clone https://github.com/ros2/rmw_zenoh.git /opt/ws_rmw_zenoh/src/rmw_zenoh && \
+        mkdir -p /tmp/ws_rmw_zenoh/src && \
+        git clone https://github.com/ros2/rmw_zenoh.git /tmp/ws_rmw_zenoh/src/ && \
         rosdep init || true && \
         rosdep update --rosdistro $ROS_DISTRO && \
         apt-get update && \
-        cd /opt/ws_rmw_zenoh && \
+        cd /tmp/ws_rmw_zenoh && \
         rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO && \
         rm -rf /var/lib/apt/lists/* && \
         source /opt/ros/${ROS_DISTRO}/setup.bash && \
-        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release && \
-        echo "source /opt/ws_rmw_zenoh/install/setup.bash" >> ~/.bashrc ; \
+        colcon build --install-base /opt/ros/${ROS_DISTRO}/ --merge-install --cmake-args -DCMAKE_BUILD_TYPE=Release && \
+        rm -rf /tmp/ws_rmw_zenoh ; \
     elif [[ "$ROS_VERSION" == "2" ]]; then \
         apt-get update && \
         RMW_PACKAGE=ros-$ROS_DISTRO-$(echo $RMW_IMPLEMENTATION | tr '_' '-') && \
@@ -257,7 +257,6 @@ FROM dev AS build
 # build ROS workspace
 RUN if [[ -x "$(command -v colcon)" ]]; then \
         source /opt/ros/${ROS_DISTRO}/setup.bash && \
-        [[ -f /opt/ws_rmw_zenoh/install/setup.bash ]] && source /opt/ws_rmw_zenoh/install/setup.bash ; \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
