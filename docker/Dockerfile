@@ -214,7 +214,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh" ]]; then \
+    if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
         git clone https://github.com/ros2/rmw_zenoh.git $WORKSPACE/src/upstream/rmw_zenoh && \
         rosdep init || true && \
         rosdep update --rosdistro $ROS_DISTRO && \
