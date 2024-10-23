@@ -324,6 +324,10 @@ Slim run-arm64:
           docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
           docker manifest push ${IMG_RUN}
         fi
+        if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
+          docker manifest create ${IMG_SLIM} --amend ${_IMAGE_SLIM_CI_AMD64} --amend ${_IMAGE_SLIM_CI_ARM64}
+          docker manifest push ${IMG_SLIM}
+        fi
       elif [[ "${PLATFORM}" =~ amd64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
           docker pull ${_IMAGE_DEV_CI_AMD64}
@@ -335,6 +339,11 @@ Slim run-arm64:
           docker tag ${_IMAGE_RUN_CI_AMD64} ${IMG_RUN}
           docker push ${IMG_RUN}
         fi
+        if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
+          docker pull ${_IMAGE_SLIM_CI_AMD64}
+          docker tag ${_IMAGE_SLIM_CI_AMD64} ${IMG_SLIM}
+          docker push ${IMG_SLIM}
+        fi
       elif [[ "${PLATFORM}" =~ arm64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
           docker pull ${_IMAGE_DEV_CI_ARM64}
@@ -345,6 +354,11 @@ Slim run-arm64:
           docker pull ${_IMAGE_RUN_CI_ARM64}
           docker tag ${_IMAGE_RUN_CI_ARM64} ${IMG_RUN}
           docker push ${IMG_RUN}
+        fi
+        if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
+          docker pull ${_IMAGE_SLIM_CI_ARM64}
+          docker tag ${_IMAGE_SLIM_CI_ARM64} ${IMG_SLIM}
+          docker push ${IMG_SLIM}
         fi
       fi
 
@@ -359,6 +373,7 @@ Push CI:
   variables:
     IMG_DEV: ${_IMAGE_DEV_CI}
     IMG_RUN: ${_IMAGE_RUN_CI}
+    IMG_SLIM: ${_IMAGE_SLIM_CI}
 
 Push:
   stage: Push Multi-Arch Images
@@ -369,6 +384,7 @@ Push:
   variables:
     IMG_DEV: ${_DEV_IMAGE}
     IMG_RUN: ${_RUN_IMAGE}
+    IMG_SLIM: ${_SLIM_IMAGE}
 
 Push latest:
   stage: Push Multi-Arch Images
@@ -379,6 +395,7 @@ Push latest:
   variables:
     IMG_DEV: ${_IMAGE_DEV_LATEST}
     IMG_RUN: ${_IMAGE_RUN_LATEST}
+    IMG_SLIM: ${_IMAGE_SLIM_LATEST}
 
 Push target tag:
   stage: Push Multi-Arch Images
@@ -389,6 +406,7 @@ Push target tag:
   variables:
     IMG_DEV: ${_IMAGE_DEV_TARGET_TAG}
     IMG_RUN: ${_IMAGE_RUN_TARGET_TAG}
+    IMG_SLIM: ${_IMAGE_SLIM_TARGET_TAG}
 
 Push tag:
   stage: Push Multi-Arch Images
@@ -399,3 +417,4 @@ Push tag:
   variables:
     IMG_DEV: ${_IMAGE_DEV_TAG}
     IMG_RUN: ${_IMAGE_RUN_TAG}
+    IMG_SLIM: ${_IMAGE_SLIM_TAG}
