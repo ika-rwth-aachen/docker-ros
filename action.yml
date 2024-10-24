@@ -27,15 +27,19 @@ inputs:
 
   dev-image-name:
     description: "Image name of dev image"
+    default: ${{ inputs.image-name }}
 
   dev-image-tag:
     description: "Image tag of dev image"
+    default: latest-dev
 
   slim-image-name:
     description: "Image name of slim run image"
+    default: ${{ inputs.image-name }}
 
   slim-image-tag:
     description: "Image tag of slim run image"
+    default: latest-slim
 
   build-context:
     description: "Build context of Docker build process"
