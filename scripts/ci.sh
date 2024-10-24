@@ -23,6 +23,7 @@ IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
 DEV_IMAGE="${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}"
 SLIM_IMAGE="${SLIM_IMAGE_NAME}:${SLIM_IMAGE_TAG}"
 ENABLE_SLIM="${ENABLE_SLIM:-true}"
+SLIM_BUILD_ARGS="${SLIM_BUILD_ARGS:-'--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'}"
 ENABLE_SINGLEARCH_PUSH="${ENABLE_SINGLEARCH_PUSH:-false}"
 RMW_IMPLEMENTATION="${RMW_IMPLEMENTATION:-}"
 ROS_DISTRO="${ROS_DISTRO:-}"
@@ -68,6 +69,10 @@ fi
 unset TARGET
 unset PLATFORM
 
+# prepare slim
+curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+tar -xvf ds.tar.gz
+
 # loop over targets and platforms to build images
 for PLATFORM in "${PLATFORMS[@]}"; do
     for TARGET in "${TARGETS[@]}"; do
@@ -79,11 +84,23 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         IMAGE="${image}" build_image
         close_log_group
     done
-done
 
-# push slim images
-if [[ "${ENABLE_SLIM}" == "true" && "${_ENABLE_IMAGE_PUSH}" == "true" && "${TARGET}" == *"run"* ]]; then
-    open_log_group "Push slim image"
-    docker push "${SLIM_IMAGE}"
-    close_log_group
-fi
+    # slim image
+    if [[ "${ENABLE_SLIM}" == "true" && "${TARGET}" == "run" ]]; then
+        open_log_group "Slim image (${PLATFORM})"
+        image="${IMAGE}"
+        slim_image="${SLIM_IMAGE}"
+        [[ -n "${_IMAGE_POSTFIX}" ]] && image="${image}${_IMAGE_POSTFIX}"
+        [[ -n "${_IMAGE_POSTFIX}" ]] && slim_image="${slim_image}${_IMAGE_POSTFIX}"
+        [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
+        # TODO: not yet working; builds image with suffix, pushed without? [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
+        if [[ "${_ENABLE_IMAGE_PUSH}" == "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]]; then
+            docker push "${slim_image}"
+        else
+            cd dist_linux*
+            ./slim build --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
+            cd -
+        fi
+        close_log_group
+    fi
+done

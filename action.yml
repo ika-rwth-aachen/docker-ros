@@ -31,7 +31,6 @@ inputs:
 
   dev-image-tag:
     description: "Image tag of dev image"
-    default: latest-dev
 
   slim-image-name:
     description: "Image name of slim run image"
@@ -39,7 +38,6 @@ inputs:
 
   slim-image-tag:
     description: "Image tag of slim run image"
-    default: latest-slim
 
   build-context:
     description: "Build context of Docker build process"
@@ -126,7 +124,7 @@ inputs:
     description: "Enable an extra slimmed run image via slim (only if run stage is targeted)"
     default: true
 
-  slim-build-arguments:
+  slim-build-args:
     description: "Arguments to `slim build` (except for `--target` and `--tag`)"
     default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
 
@@ -222,6 +220,10 @@ runs:
         IMAGE_TAG: ${{ inputs.image-tag }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
@@ -260,16 +262,6 @@ runs:
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
 
-    - name: Slim images
-      if: ${{ inputs.enable-slim == 'true' && contains(inputs.target, 'run') }}
-      shell: bash
-      working-directory: ${{ inputs.build-context }}
-      run: |
-        curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
-        tar -xvf ds.tar.gz
-        cd dist_linux*
-        ./slim build --target ${{ steps.image-name.outputs.lowercase }}:${{ inputs.image-tag }} --tag ${{ steps.slim-image-name.outputs.lowercase }}:${{ inputs.slim-image-tag }} ${{ inputs.slim-build-arguments }}
-
     - name: Slugify ref name
       id: slugify-ref-name
       uses: gacts/github-slug@v1
@@ -292,6 +284,7 @@ runs:
         SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
         SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
         ENABLE_SLIM: ${{ inputs.enable-slim }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
@@ -331,6 +324,7 @@ runs:
         SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
         SLIM_IMAGE_TAG: latest-slim
         ENABLE_SLIM: ${{ inputs.enable-slim }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
