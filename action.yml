@@ -27,9 +27,17 @@ inputs:
 
   dev-image-name:
     description: "Image name of dev image"
+    default: ghcr.io/${{ github.repository }}
 
   dev-image-tag:
     description: "Image tag of dev image"
+
+  slim-image-name:
+    description: "Image name of slim run image"
+    default: ghcr.io/${{ github.repository }}
+
+  slim-image-tag:
+    description: "Image tag of slim run image"
 
   build-context:
     description: "Build context of Docker build process"
@@ -112,6 +120,14 @@ inputs:
     description: "Enable industrial_ci"
     default: false
 
+  enable-slim:
+    description: "Enable an extra slimmed run image via slim (only if run stage is targeted)"
+    default: true
+
+  slim-build-args:
+    description: "Arguments to `slim build` (except for `--target` and `--tag`)"
+    default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
+
   enable-singlearch-push:
     description: "Enable push of single arch images with [-amd64|-arm64] postfix"
     default: false
@@ -184,6 +200,12 @@ runs:
       with:
         string: ${{ inputs.dev-image-name }}
 
+    - name: Enforce lower-case slim image name 
+      id: slim-image-name
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ${{ inputs.slim-image-name }}
+
     - name: Build images
       id: build-images
       shell: bash
@@ -198,6 +220,10 @@ runs:
         IMAGE_TAG: ${{ inputs.image-tag }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
@@ -253,8 +279,12 @@ runs:
         COMMAND: ${{ inputs.command }}
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: ${{ inputs.image-tag }}
-        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
@@ -289,8 +319,12 @@ runs:
         COMMAND: ${{ inputs.command }}
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: latest
-        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: latest-dev
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: latest-slim
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
