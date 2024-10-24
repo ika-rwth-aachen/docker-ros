@@ -27,7 +27,7 @@ inputs:
 
   dev-image-name:
     description: "Image name of dev image"
-    default: ${{ inputs.image-name }}
+    default: ghcr.io/${{ github.repository }}
 
   dev-image-tag:
     description: "Image tag of dev image"
@@ -35,7 +35,7 @@ inputs:
 
   slim-image-name:
     description: "Image name of slim run image"
-    default: ${{ inputs.image-name }}
+    default: ghcr.io/${{ github.repository }}
 
   slim-image-tag:
     description: "Image tag of slim run image"
