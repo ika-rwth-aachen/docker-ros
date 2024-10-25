@@ -70,8 +70,10 @@ unset TARGET
 unset PLATFORM
 
 # prepare slim
-curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
-tar -xvf ds.tar.gz
+if [[ "${ENABLE_SLIM}" == "true" ]]; then
+    curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+    tar -xvf ds.tar.gz
+fi
 
 # loop over targets and platforms to build images
 for PLATFORM in "${PLATFORMS[@]}"; do
