@@ -97,6 +97,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
         [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
         if [[ "${_ENABLE_IMAGE_PUSH}" == "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]]; then
+            [[ "${ENABLE_SINGLEARCH_PUSH}" != "true" ]] && docker tag "${slim_image}-${PLATFORM}" "${slim_image}"
             docker push "${slim_image}"
         else
             cd dist_linux*
