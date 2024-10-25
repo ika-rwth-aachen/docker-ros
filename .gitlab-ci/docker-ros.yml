@@ -132,6 +132,7 @@ dev-amd64:
     _TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 dev-arm64:
@@ -145,6 +146,7 @@ dev-arm64:
     _TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 run-amd64:
@@ -160,6 +162,7 @@ run-amd64:
     _TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 run-arm64:
@@ -176,6 +179,7 @@ run-arm64:
     _TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 
