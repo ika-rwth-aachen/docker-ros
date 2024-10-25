@@ -226,6 +226,7 @@ runs:
       if: ${{ inputs.enable-industrial-ci == 'true' }}
       uses: ros-industrial/industrial_ci@master
       env:
+        RMW_IMPLEMENTATION: rmw_cyclonedds_cpp # avoid missing rmw_zenoh_cpp errors, if used
         UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
         TARGET_WORKSPACE: ${{ inputs.build-context }}
         ADDITIONAL_DEBS: git

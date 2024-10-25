@@ -169,6 +169,7 @@ run-arm64:
 
 .test:
   variables:
+    RMW_IMPLEMENTATION: rmw_cyclonedds_cpp # avoid missing rmw_zenoh_cpp errors, if used
     UPSTREAM_WORKSPACE: ${BUILD_CONTEXT}/.repos
     TARGET_WORKSPACE: ${BUILD_CONTEXT}
     ADDITIONAL_DEBS: git
