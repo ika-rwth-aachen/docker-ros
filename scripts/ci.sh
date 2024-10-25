@@ -95,7 +95,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         [[ -n "${_IMAGE_POSTFIX}" ]] && image="${image}${_IMAGE_POSTFIX}"
         [[ -n "${_IMAGE_POSTFIX}" ]] && slim_image="${slim_image}${_IMAGE_POSTFIX}"
         [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
-        # TODO: not yet working; builds image with suffix, pushed without? [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
+        [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
         if [[ "${_ENABLE_IMAGE_PUSH}" == "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]]; then
             docker push "${slim_image}"
         else
