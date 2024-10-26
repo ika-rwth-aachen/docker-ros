@@ -226,11 +226,10 @@ runs:
       if: ${{ inputs.enable-industrial-ci == 'true' }}
       uses: ros-industrial/industrial_ci@master
       env:
-        UNDERLAY: /opt/ws_rmw_zenoh/install
         UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
         TARGET_WORKSPACE: ${{ inputs.build-context }}
         ADDITIONAL_DEBS: git
-        AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
+        AFTER_INIT_EMBED: '[[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]] && export UNDERLAY="/opt/ws_rmw_zenoh/install" ; [[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
         SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
         DOCKER_RUN_OPTS: -u root:root
