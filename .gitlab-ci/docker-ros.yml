@@ -183,6 +183,10 @@ run-arm64:
       fi
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
     - test -f ${BUILD_CONTEXT}/.repos || echo "repositories:" > ${BUILD_CONTEXT}/.repos
+    - |-
+      if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then
+        export UNDERLAY="/opt/ws_rmw_zenoh/install"
+      fi
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:
