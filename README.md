@@ -46,7 +46,7 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 
 ## About
 
-*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. Building such images can easily be automated by integrating *docker-ros* into CI through the provided [GitHub action](action.yml) or [GitLab CI template](.gitlab-ci/docker-ros.yml). The development image built by *docker-ros* contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository. *docker-ros* is also able to build multi-arch Docker images for *amd64* and *arm64* architectures.
+*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. Building such images can easily be automated by integrating *docker-ros* into CI through the provided [GitHub action](action.yml) or [GitLab CI template](.gitlab-ci/docker-ros.yml). The development image built by *docker-ros* contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository. *docker-ros* is also able to build multi-arch Docker images for *amd64* and *arm64* architectures. In addition, [*slim*](https://github.com/slimtoolkit/slim) is integrated for slimming Docker image size of the deployment image by up to 30x (see [*Slim Deployment Image*](#slim-deployment-image)).
 
 The Dockerfile performs the following steps to build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
@@ -73,7 +73,7 @@ Note that GitHub is currently only offering Linux runners based on the *amd64* a
 
 <details><summary>GitLab</summary>
 
-> **Note**  
+> [!NOTE]  
 > - GitLab runners must be based on the Docker executor, [see here](https://docs.gitlab.com/runner/executors/docker.html)
 > - GitLab runners must run in privileged mode for Docker-in-Docker, [see here](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode)
 > - GitLab runners must be tagged with tags `privileged` and either `amd64` or `arm64` depending on their architecture
@@ -111,7 +111,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -123,7 +123,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -142,7 +142,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -155,7 +155,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -175,7 +175,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -189,7 +189,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -210,7 +210,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -223,7 +223,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -247,7 +247,7 @@ jobs:
         platform: [amd64, arm64]
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.0
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -285,7 +285,7 @@ jobs:
       IMAGE="my-image:latest" \
     ./docker/docker-ros/scripts/build.sh
     ```
-    > **Note**  
+    > [!NOTE]  
     > You can alternatively store your environment variable configuration in a `.env` file:
     > ```bash
     > # .env
@@ -346,10 +346,14 @@ docker run --rm -it -e DOCKER_UID=$(id -u) -e DOCKER_GID=$(id -g) -e DOCKER_USER
 
 The password of the custom user is set to its username (`dockeruser:dockeruser` by default).
 
+### Slim Deployment Image
+
+*docker-ros* integrates the [*slim*](https://github.com/slimtoolkit/slim) toolkit for minifying container images. *slim* is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that the slimmed deployment image is stripped of every single thing not needed for executing the default launch command. The slimming process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
+
 
 ## Configuration Variables
 
-> **Note**  
+> [!NOTE]  
 > *GitHub Action input* | *GitLab CI environment variable*
 
 - **`additional-debs-file` | `ADDITIONAL_DEBS_FILE`**  
@@ -403,15 +407,6 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
   Enable push of single arch images with `-amd64`/`-arm64` postfix  
   *default:* `false` 
-- **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
-  Password for cloning private Git repositories via HTTPS  
-  *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
-- **`git-https-server` | `GIT_HTTPS_SERVER`**  
-  Server URL (without protocol) for cloning private Git repositories via HTTPS  
-  *default:* `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` 
-- **`git-https-user` | `GIT_HTTPS_USER`**  
-  Username for cloning private Git repositories via HTTPS  
-  *default:* `${{ github.actor }}` | `gitlab-ci-token`  
 - **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
   Enable recursive discovery of files named `additional-debs-file`  
   *default:* `false`
@@ -427,6 +422,18 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
   Enable recursive discovery of files named `*.repos`  
   *default:* `true`
+- **`enable-slim` | `ENABLE_SLIM`**  
+  Enable an extra slimmed run image via [slim](https://github.com/slimtoolkit/slim) (only if `run` stage is targeted)  
+  *default:* `true`
+- **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
+  Password for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
+- **`git-https-server` | `GIT_HTTPS_SERVER`**  
+  Server URL (without protocol) for cloning private Git repositories via HTTPS  
+  *default:* `github.com` | `$CI_SERVER_HOST:$CI_SERVER_PORT` 
+- **`git-https-user` | `GIT_HTTPS_USER`**  
+  Username for cloning private Git repositories via HTTPS  
+  *default:* `${{ github.actor }}` | `gitlab-ci-token`  
 - **`git-ssh-known-host-keys` | `GIT_SSH_KNOWN_HOST_KEYS`**  
   Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)  
 - **`git-ssh-private-key` | `GIT_SSH_PRIVATE_KEY`**  
@@ -458,6 +465,15 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   ROS Distro  
   *required if ROS is not installed in `base-image`*  
   *supported values:* `rolling`, ..., `noetic`, ...
+- **`slim-build-args` | `SLIM_BUILD_ARGS`**  
+  [Arguments to `slim build`](https://github.com/slimtoolkit/slim?tab=readme-ov-file#build-command-options) (except for `--target` and `--tag`)  
+  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false`  
+- **`slim-image-name` | `SLIM_IMAGE_NAME`**  
+  Image name of slim run image  
+  *default:* `<IMAGE_NAME>`  
+- **`slim-image-tag` | `SLIM_IMAGE_TAG`**  
+  Image tag of slim run image  
+  *default:* `<IMAGE_TAG>-slim`  
 - **`target` | `TARGET`**  
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`
