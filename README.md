@@ -37,6 +37,7 @@
   - [Extra Image Files](#extra-image-files)
 - [Additional Information](#additional-information)
   - [User Setup](#user-setup)
+  - [Slim Deployment Image](#slim-deployment-image)
 - [Configuration Variables](#configuration-variables)
 
 We recommend to use *docker-ros* in combination with our other tools for Docker and ROS.
