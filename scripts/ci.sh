@@ -96,14 +96,12 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         [[ -n "${_IMAGE_POSTFIX}" ]] && slim_image="${slim_image}${_IMAGE_POSTFIX}"
         [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
         [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
-        if [[ "${_ENABLE_IMAGE_PUSH}" == "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]]; then
-            [[ "${ENABLE_SINGLEARCH_PUSH}" != "true" ]] && docker tag "${slim_image}-${PLATFORM}" "${slim_image}"
+        cd dist_linux*
+        ./slim build --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
+        if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then
             docker push "${slim_image}"
-        else
-            cd dist_linux*
-            ./slim build --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
-            cd -
         fi
+        cd -
         close_log_group
     fi
 done
