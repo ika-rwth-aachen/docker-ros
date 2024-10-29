@@ -1,5 +1,8 @@
 name: "docker-ros"
 description: "docker-ros automatically builds development and deployment Docker images for your ROS-based repositories."
+branding:
+  color: blue
+  icon: package
 
 inputs:
 
