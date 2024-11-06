@@ -223,7 +223,9 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
         mkdir -p /opt/ws_rmw_zenoh/src && \
         git clone https://github.com/ros2/rmw_zenoh.git /opt/ws_rmw_zenoh/src/rmw_zenoh && \
-        git clone https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR && \
+        if [[ "$UBUNTU_VERSION" == "22.04" ]]; then \
+            git clone https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR ; \
+        fi && \
         rosdep init || true && \
         rosdep update --rosdistro $ROS_DISTRO && \
         apt-get update && \
