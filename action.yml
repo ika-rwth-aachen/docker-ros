@@ -65,6 +65,10 @@ inputs:
   ros-distro:
     description: "ROS Distro (required if ROS is not installed in `base-image`)"
 
+  disable-ros-installation:
+    description: "Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS"
+    default: false
+
   git-https-server:
     description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
     default: "github.com"
@@ -229,6 +233,7 @@ runs:
         SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
@@ -291,6 +296,7 @@ runs:
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
@@ -331,6 +337,7 @@ runs:
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}

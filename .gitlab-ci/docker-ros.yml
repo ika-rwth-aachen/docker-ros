@@ -30,6 +30,7 @@ variables:
   ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
   RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
+  DISABLE_ROS_INSTALLATION:   'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
   GIT_HTTPS_SERVER:           ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
   GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
   GIT_HTTPS_PASSWORD:         ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS

@@ -387,6 +387,10 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`dev-image-tag` | `DEV_IMAGE_TAG`**  
   Image tag of dev image  
   *default:* `<IMAGE_TAG>-dev`  
+- **`disable-ros-installation` | `DISABLE_ROS_INSTALLATION`**  
+  Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package  
+  *e.g., if ROS is already installed in `base-image` and package is not available for the OS*  
+  *default:* `false`
 - **`-` | `DOCKER_ROS_GIT_REF`**  
   Git reference of *docker-ros* to run in CI  
   *default:* `main` 
