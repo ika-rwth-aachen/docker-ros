@@ -112,7 +112,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.6.0
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -124,7 +124,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -143,7 +143,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.6.0
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -156,7 +156,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -176,7 +176,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.6.0
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -190,7 +190,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -211,7 +211,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.6.0
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -224,7 +224,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -248,7 +248,7 @@ jobs:
         platform: [amd64, arm64]
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.6.0
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
