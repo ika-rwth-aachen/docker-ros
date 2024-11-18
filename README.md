@@ -2,6 +2,8 @@
 
 # *docker-ros* – Automated Containerization of ROS Apps
 
+// TODO: explain build image somewhere
+
 <p align="center">
   <img src="https://img.shields.io/github/v/release/ika-rwth-aachen/docker-ros"/></a>
   <img src="https://img.shields.io/github/license/ika-rwth-aachen/docker-ros"/>
@@ -310,6 +312,8 @@ If your ROS-based repository (or any of your repository's upstream dependencies,
 
 Create a file `blacklisted-packages.txt` in your `docker` folder (or configure a different `BLACKLISTED_PACKAGES_FILE`) and list any ROS package name to blacklist.
 
+If you are having problems with (upstream) packages that you don't need, also have a look at `ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS` and `ENABLE_CONTINUE_BUILD_DESPITE_ERRORS`.
+
 ### Extra System Dependencies (*apt*)
 
 If your ROS-based repository requires system dependencies that cannot be installed by specifying their [rosdep](https://docs.ros.org/en/independent/api/rosdep/html/) keys in a `package.xml`, you can use a special `additional-debs.txt` file.
@@ -375,8 +379,14 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`build-context` | `BUILD_CONTEXT`**  
   Build context of Docker build process  
   *default:* `${{ github.workspace }}` | `.`  
+- **`build-image-name` | `BUILD_IMAGE_NAME`**  
+  Image name of build image  
+  *default:* `<IMAGE_NAME>`  
+- **`build-image-tag` | `BUILD_IMAGE_TAG`**  
+  Image tag of build image  
+  *default:* `<IMAGE_TAG>-build` 
 - **`command` | `COMMAND`**  
-  Launch command of run image  
+  Launch command of build/run image  
   *required if `target=run`*  
 - **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
   Relative filepath to script containing custom installation commands  
@@ -397,21 +407,24 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-checkout` | `-`**  
   Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
   *default:* `true`
-- **`enable-checkout-submodules` | `-`**  
-  Enable submodules for the [*checkout*](https://github.com/actions/checkout) action (`false`|`true`|`recursive`)  
-  *default:* `recursive`
 - **`enable-checkout-lfs` | `-`**  
   Enable [*Git LFS*](https://git-lfs.com/) support for the [*checkout*](https://github.com/actions/checkout) action  
   *default:* `true` 
+- **`enable-checkout-submodules` | `-`**  
+  Enable submodules for the [*checkout*](https://github.com/actions/checkout) action (`false`|`true`|`recursive`)  
+  *default:* `recursive`
+- **`enable-continue-build-despite-errors` | `ENABLE_CONTINUE_BUILD_DESPITE_ERRORS`**  
+  Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
+  *default:* `false`
+- **`enable-continue-rosdep-install-despite-errors` | `ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS`**  
+  Enable `rosdep install -r`
+  *default:* `false`
 - **`enable-industrial-ci` | `ENABLE_INDUSTRIAL_CI`**  
   Enable [*industrial_ci*](https://github.com/ros-industrial/industrial_ci)  
   *default:* `false` 
 - **`enable-push-as-latest` | `ENABLE_PUSH_AS_LATEST`**  
-  Push images with tag `latest`/`latest-dev` in addition to the configured image names  
+  Push images with tag `latest`/`latest-dev`/`latest-build` in addition to the configured image names  
   *default:* `false`  
-- **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
-  Enable push of single arch images with `-amd64`/`-arm64` postfix  
-  *default:* `false` 
 - **`enable-recursive-additional-debs` | `ENABLE_RECURSIVE_ADDITIONAL_DEBS`**  
   Enable recursive discovery of files named `additional-debs-file`  
   *default:* `false`
@@ -427,6 +440,12 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
   Enable recursive discovery of files named `*.repos`  
   *default:* `true`
+- **`enable-ros1-devel-space` | `ENABLE_ROS1_DEVEL_SPACE`**  
+  Enable building to ROS devel space instead of install space (ROS 1 only)
+  *default:* `false`
+- **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
+  Enable push of single arch images with `-amd64`/`-arm64` postfix  
+  *default:* `false` 
 - **`enable-slim` | `ENABLE_SLIM`**  
   Enable an extra slimmed run image via [slim](https://github.com/slimtoolkit/slim) (only if `run` stage is targeted)  
   *default:* `true`
@@ -482,7 +501,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`target` | `TARGET`**  
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`
-  *supported values:* `dev`, `run`
+  *supported values:* `dev`, `build`, `run`
 - **`vcs-import-file` | `VCS_IMPORT_FILE`**  
   Relative filepath to file containing additional repos to install via vcstools (only relevant if `enable-recursive-vcs-import=false`)  
   *default:* `.repos`

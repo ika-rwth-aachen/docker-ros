@@ -34,6 +34,9 @@ RUN apt-get update && \
         git \
         python3-rosdep \
         python3-vcstool && \
+    if [[ "$ROS_DISTRO" == "noetic" ]]; then \
+        apt-get install -y python3-catkin-tools; \
+    fi && \
     if [[ "$DISABLE_ROS_INSTALLATION" != "true" ]]; then \
         apt-get install -y ros-${ROS_DISTRO}-ros-core; \
     fi && \
@@ -75,17 +78,26 @@ RUN if [[ $ENABLE_RECURSIVE_VCS_IMPORT == 'true' ]]; then \
 # remove blacklisted packages from workspace
 ARG BLACKLISTED_PACKAGES_FILE="docker/blacklisted-packages.txt"
 ARG ENABLE_RECURSIVE_BLACKLISTED_PACKAGES="false"
-RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.remove-packages.sh && \
+RUN if [[ -x "$(command -v colcon)" ]]; then \
+        echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.remove-packages.sh ; \
+    elif [[ -x "$(command -v catkin)" ]]; then \
+        echo "for pkg in \\" >> $WORKSPACE/.remove-packages.sh ; \
+    fi && \
     if [[ $ENABLE_RECURSIVE_BLACKLISTED_PACKAGES == 'true' ]]; then \
         find . -type f -name $(basename ${BLACKLISTED_PACKAGES_FILE}) -exec sed '$a\' {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
     elif [[ -f src/target/${BLACKLISTED_PACKAGES_FILE} ]]; then \
         cat src/target/${BLACKLISTED_PACKAGES_FILE} | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
     fi && \
-    echo ";" >> $WORKSPACE/.remove-packages.sh && \
+    if [[ -x "$(command -v colcon)" ]]; then \
+        echo ";" >> $WORKSPACE/.remove-packages.sh ; \
+    elif [[ -x "$(command -v catkin)" ]]; then \
+        echo "; do find . -type f -name package.xml -path \"*/\$pkg/package.xml\" -exec dirname {} \;; done" >> $WORKSPACE/.remove-packages.sh ; \
+    fi && \
     chmod +x $WORKSPACE/.remove-packages.sh && \
-    $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
+    $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rfv
 
 # create install script with list of rosdep dependencies
+ARG ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS="false"
 RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
@@ -94,9 +106,11 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     export OS="ubuntu:$(lsb_release -c | awk '{print $2}')" && \
     if [[ "$ROS_DISTRO" = "rolling" && "$OS" = "ubuntu:focal" ]]; then export OS="ubuntu:jammy"; fi && \
     set -o pipefail && \
-    ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src \
-    | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" \
-    | tee -a $WORKSPACE/.install-dependencies.sh && \
+    if [[ $ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS == 'true' ]]; then \
+        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src -r | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" | tee -a $WORKSPACE/.install-dependencies.sh ; \
+    else \
+        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" | tee -a $WORKSPACE/.install-dependencies.sh ; \
+    fi && \
     chmod +x $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
@@ -243,7 +257,9 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     fi
 
 # source ROS
-RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc && \
+    echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
+    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # set entrypoint
 ENV TINI_VERSION=v0.19.0
@@ -264,14 +280,31 @@ CMD ["bash"]
 FROM dev AS build
 
 # build ROS workspace
-RUN if [[ -x "$(command -v colcon)" ]]; then \
-        source /opt/ros/${ROS_DISTRO}/setup.bash && \
-        [[ -f /opt/ws_rmw_zenoh/install/setup.bash ]] && source /opt/ws_rmw_zenoh/install/setup.bash ; \
-        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
+ARG ENABLE_CONTINUE_BUILD_DESPITE_ERRORS="false"
+ARG ENABLE_ROS1_DEVEL_SPACE="false"
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
+    if [[ -x "$(command -v colcon)" ]]; then \
+        [[ -f /opt/ws_rmw_zenoh/install/setup.bash ]] && source /opt/ws_rmw_zenoh/install/setup.bash && \
+        if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
+            colcon build --continue-on-error --cmake-args -DCMAKE_BUILD_TYPE=Release || true ; \
+        else \
+            colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
+        fi ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
-        catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
-        catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
+        if [[ $ENABLE_ROS1_DEVEL_SPACE == 'false' ]]; then \
+            catkin config --install --extend /opt/ros/${ROS_DISTRO} ; \
+        fi && \
+        if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
+            catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize --continue-on-failure || true ; \
+        else \
+            catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
+        fi ; \
     fi
+
+# setup command
+ARG COMMAND=bash
+ENV DEFAULT_CMD=${COMMAND}
+CMD bash -c "${DEFAULT_CMD}"
 
 ############ run ###############################################################
 FROM dependencies-install AS run
@@ -279,8 +312,6 @@ FROM dependencies-install AS run
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 RUN ldconfig
-RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
-    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # setup command
 ARG COMMAND
