@@ -276,6 +276,9 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
 ############ run ###############################################################
 FROM dependencies-install AS run
 
+# remove source folder
+RUN rm -rf $WORKSPACE/src
+
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 RUN ldconfig
