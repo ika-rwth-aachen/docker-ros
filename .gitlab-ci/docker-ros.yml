@@ -21,6 +21,7 @@ variables:
   CUSTOM_SCRIPT_FILE:                             docker/custom.sh                        # Relative filepath to script containing custom installation commands
   DEV_IMAGE_NAME:                                 ${IMAGE_NAME}                           # Image name of dev image
   DEV_IMAGE_TAG:                                  ${IMAGE_TAG}-dev                        # Image tag of dev image
+  DISABLE_ROS_INSTALLATION:                       'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
   ENABLE_CONTINUE_BUILD_DESPITE_ERRORS:           'false'                                 # Enable `catkin build --continue-on-failure` / `colcon build --continue-on-error`
   ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS:  'false'                                 # Enable `rosdep install -r`
   ENABLE_INDUSTRIAL_CI:                           'false'                                 # Enable industrial_ci
@@ -32,6 +33,7 @@ variables:
   ENABLE_RECURSIVE_VCS_IMPORT:                    'true'                                  # Enable recursive discovery of files named `*.repos`
   ENABLE_ROS1_DEVEL_SPACE:                        'false'                                 # Enable building to ROS devel space instead of install space (ROS 1 only)
   ENABLE_SINGLEARCH_PUSH:                         'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
+  ENABLE_SLIM:                                    'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
   GIT_HTTPS_PASSWORD:                             ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
   GIT_HTTPS_SERVER:                               ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
   GIT_HTTPS_USER:                                 gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
@@ -45,6 +47,9 @@ variables:
   REGISTRY:                                       ${CI_REGISTRY}                          # Docker registry to push images to
   RMW_IMPLEMENTATION:                             'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
   ROS_DISTRO:                                     ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
+  SLIM_BUILD_ARGS:                                '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'  # Arguments to `slim build` (except for `--target` and `--tag`)
+  SLIM_IMAGE_NAME:                                ${IMAGE_NAME}                           # Image name of slim run image
+  SLIM_IMAGE_TAG:                                 ${IMAGE_TAG}-slim                       # Image tag of slim run image
   TARGET:                                         run                                     # Target stage of Dockerfile (comma-separated list) [dev|build|run]
   VCS_IMPORT_FILE:                                .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
   # -----
@@ -53,25 +58,32 @@ variables:
   _RUN_IMAGE:             ${IMAGE_NAME}:${IMAGE_TAG}
   _BUILD_IMAGE:           ${BUILD_IMAGE_NAME}:${BUILD_IMAGE_TAG}
   _DEV_IMAGE:             ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}
+  _SLIM_IMAGE:            ${SLIM_IMAGE_NAME}:${SLIM_IMAGE_TAG}
 
-  _IMAGE_DEV_CI:           ${_DEV_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
-  _IMAGE_BUILD_CI:         ${_BUILD_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
-  _IMAGE_RUN_CI:           ${_RUN_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
-  _IMAGE_DEV_CI_AMD64:     ${_IMAGE_DEV_CI}-amd64
-  _IMAGE_DEV_CI_ARM64:     ${_IMAGE_DEV_CI}-arm64
   _IMAGE_BUILD_CI_AMD64:   ${_IMAGE_BUILD_CI}-amd64
   _IMAGE_BUILD_CI_ARM64:   ${_IMAGE_BUILD_CI}-arm64
+  _IMAGE_BUILD_CI:         ${_BUILD_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_BUILD_LATEST:     ${BUILD_IMAGE_NAME}:latest-build
+  _IMAGE_BUILD_TAG:        ${BUILD_IMAGE_NAME}:${CI_COMMIT_TAG}-build
+  _IMAGE_BUILD_TARGET_TAG: ${_BUILD_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_DEV_CI_AMD64:     ${_IMAGE_DEV_CI}-amd64
+  _IMAGE_DEV_CI_ARM64:     ${_IMAGE_DEV_CI}-arm64
+  _IMAGE_DEV_CI:           ${_DEV_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_DEV_LATEST:       ${DEV_IMAGE_NAME}:latest-dev
+  _IMAGE_DEV_TAG:          ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
+  _IMAGE_DEV_TARGET_TAG:   ${_DEV_IMAGE}-${CI_COMMIT_TAG}
   _IMAGE_RUN_CI_AMD64:     ${_IMAGE_RUN_CI}-amd64
   _IMAGE_RUN_CI_ARM64:     ${_IMAGE_RUN_CI}-arm64
-  _IMAGE_DEV_LATEST:       ${DEV_IMAGE_NAME}:latest-dev
-  _IMAGE_BUILD_LATEST:     ${BUILD_IMAGE_NAME}:latest-build
+  _IMAGE_RUN_CI:           ${_RUN_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
   _IMAGE_RUN_LATEST:       ${IMAGE_NAME}:latest
-  _IMAGE_DEV_TARGET_TAG:   ${_DEV_IMAGE}-${CI_COMMIT_TAG}
-  _IMAGE_BUILD_TARGET_TAG: ${_BUILD_IMAGE}-${CI_COMMIT_TAG}
-  _IMAGE_RUN_TARGET_TAG:   ${_RUN_IMAGE}-${CI_COMMIT_TAG}
-  _IMAGE_DEV_TAG:          ${DEV_IMAGE_NAME}:${CI_COMMIT_TAG}-dev
-  _IMAGE_BUILD_TAG:        ${BUILD_IMAGE_NAME}:${CI_COMMIT_TAG}-build
   _IMAGE_RUN_TAG:          ${IMAGE_NAME}:${CI_COMMIT_TAG}
+  _IMAGE_RUN_TARGET_TAG:   ${_RUN_IMAGE}-${CI_COMMIT_TAG}
+  _IMAGE_SLIM_CI_AMD64:   ${_IMAGE_SLIM_CI}-amd64
+  _IMAGE_SLIM_CI_ARM64:   ${_IMAGE_SLIM_CI}-arm64
+  _IMAGE_SLIM_CI:         ${_SLIM_IMAGE}_${CI_COMMIT_REF_SLUG}_ci
+  _IMAGE_SLIM_LATEST:     ${SLIM_IMAGE_NAME}:latest-slim
+  _IMAGE_SLIM_TAG:        ${SLIM_IMAGE_NAME}:${CI_COMMIT_TAG}-slim
+  _IMAGE_SLIM_TARGET_TAG: ${_SLIM_IMAGE}-${CI_COMMIT_TAG}
 
   GIT_SUBMODULE_STRATEGY: recursive
   DOCKER_DRIVER: overlay2
@@ -84,6 +96,7 @@ stages:
   - Build build Images
   - Build run Images
   - Test ROS Industrial CI
+  - Slim Images
   - Push Multi-Arch Images
 
 
@@ -96,7 +109,7 @@ default:
     - amd64
   before_script:
     - echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
-    - apk add bash
+    - apk add --update bash
     - cd ${BUILD_CONTEXT}
     - |-
       if [[ ! -d docker/docker-ros ]]; then
@@ -133,6 +146,7 @@ dev-amd64:
     _TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 dev-arm64:
@@ -146,6 +160,7 @@ dev-arm64:
     _TARGET: dev
     IMAGE: ${_IMAGE_DEV_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 build-amd64:
@@ -194,6 +209,7 @@ run-amd64:
     _TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 run-arm64:
@@ -212,10 +228,12 @@ run-arm64:
     _TARGET: run
     IMAGE: ${_IMAGE_RUN_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 
 .test:
+  stage: Test ROS Industrial CI
   variables:
     UPSTREAM_WORKSPACE: ${BUILD_CONTEXT}/.repos
     TARGET_WORKSPACE: ${BUILD_CONTEXT}
@@ -231,10 +249,13 @@ run-arm64:
       fi
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
     - test -f ${BUILD_CONTEXT}/.repos || echo "repositories:" > ${BUILD_CONTEXT}/.repos
+    - |-
+      if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then
+        export UNDERLAY="/opt/ws_rmw_zenoh/install"
+      fi
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:
-  stage: Test ROS Industrial CI
   extends: .test
   needs:
     - job: dev-amd64
@@ -245,7 +266,6 @@ Test dev-amd64:
     _PLATFORM: amd64
 
 Test dev-arm64:
-  stage: Test ROS Industrial CI
   extends: .test
   tags: [privileged, arm64]
   needs:
@@ -257,7 +277,6 @@ Test dev-arm64:
     _PLATFORM: arm64
 
 Test run-amd64:
-  stage: Test ROS Industrial CI
   extends: .test
   needs:
     - job: run-amd64
@@ -268,7 +287,6 @@ Test run-amd64:
     _PLATFORM: amd64
 
 Test run-arm64:
-  stage: Test ROS Industrial CI
   extends: .test
   needs:
     - job: run-arm64
@@ -277,6 +295,51 @@ Test run-arm64:
   variables:
     DOCKER_IMAGE: ${_IMAGE_RUN_CI_ARM64}
     _PLATFORM: arm64
+
+
+.slim:
+  stage: Slim Images
+  before_script:
+    - apk add --update --upgrade curl tar
+    - curl -L -o ds.tar.gz ${SLIM_DOWNLOAD_URL}
+    - tar -xvf ds.tar.gz
+    - cd dist_linux*
+    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - docker pull ${FAT_IMAGE}
+  script:
+    - ./slim build --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS}
+    - docker push ${SLIM_IMAGE}
+
+Slim run-amd64:
+  stage: Slim Images
+  extends: .slim
+  needs:
+    - job: run-amd64
+      optional: true
+    - job: Test run-amd64
+      optional: true
+  rules:
+    - if: $ENABLE_SLIM == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
+  variables:
+    FAT_IMAGE: ${_IMAGE_RUN_CI_AMD64}
+    SLIM_IMAGE: ${_IMAGE_SLIM_CI_AMD64}
+    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz"
+
+Slim run-arm64:
+  stage: Slim Images
+  extends: .slim
+  tags: [privileged, arm64]
+  needs:
+    - job: run-arm64
+      optional: true
+    - job: Test run-arm64
+      optional: true
+  rules:
+    - if: $ENABLE_SLIM == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
+  variables:
+    FAT_IMAGE: ${_IMAGE_RUN_CI_ARM64}
+    SLIM_IMAGE: ${_IMAGE_SLIM_CI_ARM64}
+    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux_arm64.tar.gz"
 
 
 .push:
@@ -301,6 +364,10 @@ Test run-arm64:
       optional: true
     - job: Test run-arm64
       optional: true
+    - job: Slim run-amd64
+      optional: true
+    - job: Slim run-arm64
+      optional: true
   rules:
     - if: $PLATFORM == '' || $TARGET == ''
       when: never
@@ -319,6 +386,10 @@ Test run-arm64:
           docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
           docker manifest push ${IMG_RUN}
         fi
+        if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
+          docker manifest create ${IMG_SLIM} --amend ${_IMAGE_SLIM_CI_AMD64} --amend ${_IMAGE_SLIM_CI_ARM64}
+          docker manifest push ${IMG_SLIM}
+        fi
       elif [[ "${PLATFORM}" =~ amd64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
           docker pull ${_IMAGE_DEV_CI_AMD64}
@@ -334,6 +405,11 @@ Test run-arm64:
           docker pull ${_IMAGE_RUN_CI_AMD64}
           docker tag ${_IMAGE_RUN_CI_AMD64} ${IMG_RUN}
           docker push ${IMG_RUN}
+        fi
+        if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
+          docker pull ${_IMAGE_SLIM_CI_AMD64}
+          docker tag ${_IMAGE_SLIM_CI_AMD64} ${IMG_SLIM}
+          docker push ${IMG_SLIM}
         fi
       elif [[ "${PLATFORM}" =~ arm64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
@@ -351,6 +427,11 @@ Test run-arm64:
           docker tag ${_IMAGE_RUN_CI_ARM64} ${IMG_RUN}
           docker push ${IMG_RUN}
         fi
+        if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
+          docker pull ${_IMAGE_SLIM_CI_ARM64}
+          docker tag ${_IMAGE_SLIM_CI_ARM64} ${IMG_SLIM}
+          docker push ${IMG_SLIM}
+        fi
       fi
 
 Push CI:
@@ -365,6 +446,7 @@ Push CI:
     IMG_DEV: ${_IMAGE_DEV_CI}
     IMG_BUILD: ${_IMAGE_BUILD_CI}
     IMG_RUN: ${_IMAGE_RUN_CI}
+    IMG_SLIM: ${_IMAGE_SLIM_CI}
 
 Push:
   stage: Push Multi-Arch Images
@@ -376,6 +458,7 @@ Push:
     IMG_DEV: ${_DEV_IMAGE}
     IMG_BUILD: ${_BUILD_IMAGE}
     IMG_RUN: ${_RUN_IMAGE}
+    IMG_SLIM: ${_SLIM_IMAGE}
 
 Push latest:
   stage: Push Multi-Arch Images
@@ -387,6 +470,7 @@ Push latest:
     IMG_DEV: ${_IMAGE_DEV_LATEST}
     IMG_BUILD: ${_IMAGE_BUILD_LATEST}
     IMG_RUN: ${_IMAGE_RUN_LATEST}
+    IMG_SLIM: ${_IMAGE_SLIM_LATEST}
 
 Push target tag:
   stage: Push Multi-Arch Images
@@ -398,6 +482,7 @@ Push target tag:
     IMG_DEV: ${_IMAGE_DEV_TARGET_TAG}
     IMG_BUILD: ${_IMAGE_BUILD_TARGET_TAG}
     IMG_RUN: ${_IMAGE_RUN_TARGET_TAG}
+    IMG_SLIM: ${_IMAGE_SLIM_TARGET_TAG}
 
 Push tag:
   stage: Push Multi-Arch Images
@@ -409,3 +494,4 @@ Push tag:
     IMG_DEV: ${_IMAGE_DEV_TAG}
     IMG_BUILD: ${_IMAGE_BUILD_TAG}
     IMG_RUN: ${_IMAGE_RUN_TAG}
+    IMG_SLIM: ${_IMAGE_SLIM_TAG}

@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 
 ############ dependencies ######################################################
-FROM ${BASE_IMAGE} as dependencies
+FROM ${BASE_IMAGE} AS dependencies
 
 USER root
 SHELL ["/bin/bash", "-c"]
@@ -18,25 +18,27 @@ ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
 RUN apt-get update && \
     apt-get install -y curl gnupg && \
-    if [[ "$ROS_DISTRO" == "noetic" ]]; then \
+    if [[ "$ROS_DISTRO" == "noetic" ]] && ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
         apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
         echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list ; \
-    else \
+    elif ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
     	curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
     	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null ; \
     fi && \
     rm -rf /var/lib/apt/lists/*
 
 # install ROS bootstrapping tools
+ARG DISABLE_ROS_INSTALLATION="false"
 RUN apt-get update && \
     apt-get install -y \
         git \
         python3-rosdep \
-        python3-vcstool \
-        ros-${ROS_DISTRO}-ros-core && \
+        python3-vcstool && \
     if [[ "$ROS_DISTRO" == "noetic" ]]; then \
-        apt-get install -y \
-            python3-catkin-tools ; \
+        apt-get install -y python3-catkin-tools; \
+    fi && \
+    if [[ "$DISABLE_ROS_INSTALLATION" != "true" ]]; then \
+        apt-get install -y ros-${ROS_DISTRO}-ros-core; \
     fi && \
     rm -rf /var/lib/apt/lists/*
 
@@ -105,9 +107,9 @@ RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
     if [[ "$ROS_DISTRO" = "rolling" && "$OS" = "ubuntu:focal" ]]; then export OS="ubuntu:jammy"; fi && \
     set -o pipefail && \
     if [[ $ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS == 'true' ]]; then \
-        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src -r | tee -a $WORKSPACE/.install-dependencies.sh ; \
+        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src -r | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" | tee -a $WORKSPACE/.install-dependencies.sh ; \
     else \
-        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | tee -a $WORKSPACE/.install-dependencies.sh ; \
+        ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" | tee -a $WORKSPACE/.install-dependencies.sh ; \
     fi && \
     chmod +x $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
@@ -179,10 +181,10 @@ ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
 RUN apt-get update && \
     apt-get install -y curl gnupg && \
-    if [[ "$ROS_DISTRO" == "noetic" ]]; then \
+    if [[ "$ROS_DISTRO" == "noetic" ]] && ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
         apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
         echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list ; \
-    else \
+    elif ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
     	curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
     	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null ; \
     fi && \
@@ -193,14 +195,20 @@ ARG ADDITIONAL_FILES_DIR="docker/additional-files"
 ADD ${ADDITIONAL_FILES_DIR}* /docker-ros/additional-files/
 
 # install essential build tools and dependencies for install script
+ARG DISABLE_ROS_INSTALLATION="false"
 RUN apt-get update && \
     apt-get install -y \
         build-essential \
         gosu \
         python-is-python3 \
-        python3-pip \
-        ros-${ROS_DISTRO}-ros-core \
-    && rm -rf /var/lib/apt/lists/*
+        python3-pip && \
+    if [[ "$DISABLE_ROS_INSTALLATION" != "true" ]]; then \
+        apt-get install -y ros-${ROS_DISTRO}-ros-core; \
+    fi && \
+    rm -rf /var/lib/apt/lists/*
+
+# configure pip
+RUN python -m pip config --global set global.break-system-packages true
 
 # copy install script from dependencies stage
 COPY --from=dependencies $WORKSPACE/.install-dependencies.sh $WORKSPACE/.install-dependencies.sh
@@ -226,7 +234,22 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    if [[ "$ROS_VERSION" == "2" ]]; then \
+    if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
+        mkdir -p /opt/ws_rmw_zenoh/src && \
+        git clone https://github.com/ros2/rmw_zenoh.git /opt/ws_rmw_zenoh/src/rmw_zenoh && \
+        if [[ "$(lsb_release -r | awk '{print $2}')" == "22.04" ]]; then \
+            git clone https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR ; \
+        fi && \
+        rosdep init || true && \
+        rosdep update --rosdistro $ROS_DISTRO && \
+        apt-get update && \
+        cd /opt/ws_rmw_zenoh && \
+        rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO && \
+        rm -rf /var/lib/apt/lists/* && \
+        source /opt/ros/${ROS_DISTRO}/setup.bash && \
+        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release && \
+        echo "source /opt/ws_rmw_zenoh/install/setup.bash" >> ~/.bashrc ; \
+    elif [[ "$ROS_VERSION" == "2" ]]; then \
         apt-get update && \
         RMW_PACKAGE=ros-$ROS_DISTRO-$(echo $RMW_IMPLEMENTATION | tr '_' '-') && \
         apt-get install -y $RMW_PACKAGE && \
@@ -239,14 +262,14 @@ RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc && \
     echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # set entrypoint
-ENV TINI_VERSION v0.19.0
+ENV TINI_VERSION=v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${TARGETARCH} /tini
 RUN chmod +x /tini
 COPY docker/docker-ros/docker/entrypoint.sh /
 ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 
 ############ dev ###############################################################
-FROM dependencies-install as dev
+FROM dependencies-install AS dev
 
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
@@ -254,13 +277,14 @@ COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 CMD ["bash"]
 
 ############ build #############################################################
-FROM dev as build
+FROM dev AS build
 
 # build ROS workspace
 ARG ENABLE_CONTINUE_BUILD_DESPITE_ERRORS="false"
 ARG ENABLE_ROS1_DEVEL_SPACE="false"
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
     if [[ -x "$(command -v colcon)" ]]; then \
+        [[ -f /opt/ws_rmw_zenoh/install/setup.bash ]] && source /opt/ws_rmw_zenoh/install/setup.bash && \
         if [[ $ENABLE_CONTINUE_BUILD_DESPITE_ERRORS == 'true' ]]; then \
             colcon build --continue-on-error --cmake-args -DCMAKE_BUILD_TYPE=Release || true ; \
         else \
@@ -283,7 +307,7 @@ ENV DEFAULT_CMD=${COMMAND}
 CMD bash -c "${DEFAULT_CMD}"
 
 ############ run ###############################################################
-FROM dependencies-install as run
+FROM dependencies-install AS run
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install

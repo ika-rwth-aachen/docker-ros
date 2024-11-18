@@ -1,5 +1,8 @@
 name: "docker-ros"
 description: "docker-ros automatically builds development and deployment Docker images for your ROS-based repositories."
+branding:
+  color: blue
+  icon: package
 
 inputs:
 
@@ -27,6 +30,7 @@ inputs:
 
   dev-image-name:
     description: "Image name of dev image"
+    default: ghcr.io/${{ github.repository }}
 
   dev-image-tag:
     description: "Image tag of dev image"
@@ -36,6 +40,13 @@ inputs:
 
   build-image-tag:
     description: "Image tag of build image"
+
+  slim-image-name:
+    description: "Image name of slim run image"
+    default: ghcr.io/${{ github.repository }}
+
+  slim-image-tag:
+    description: "Image tag of slim run image"
 
   build-context:
     description: "Build context of Docker build process"
@@ -59,6 +70,10 @@ inputs:
 
   ros-distro:
     description: "ROS Distro (required if ROS is not installed in `base-image`)"
+
+  disable-ros-installation:
+    description: "Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS"
+    default: false
 
   git-https-server:
     description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
@@ -117,6 +132,14 @@ inputs:
   enable-industrial-ci:
     description: "Enable industrial_ci"
     default: false
+
+  enable-slim:
+    description: "Enable an extra slimmed run image via slim (only if run stage is targeted)"
+    default: true
+
+  slim-build-args:
+    description: "Arguments to `slim build` (except for `--target` and `--tag`)"
+    default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
 
   enable-singlearch-push:
     description: "Enable push of single arch images with [-amd64|-arm64] postfix"
@@ -208,6 +231,12 @@ runs:
       with:
         string: ${{ inputs.build-image-name }}
 
+    - name: Enforce lower-case slim image name 
+      id: slim-image-name
+      uses: ASzc/change-string-case-action@v6
+      with:
+        string: ${{ inputs.slim-image-name }}
+
     - name: Build images
       id: build-images
       shell: bash
@@ -225,6 +254,7 @@ runs:
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
         ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
         ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
@@ -233,6 +263,7 @@ runs:
         ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_ROS1_DEVEL_SPACE: ${{ inputs.enable-ros1-devel-space }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
@@ -243,6 +274,9 @@ runs:
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
         TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
 
@@ -256,7 +290,7 @@ runs:
       uses: ros-industrial/industrial_ci@master
       env:
         ADDITIONAL_DEBS: git
-        AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
+        AFTER_INIT_EMBED: '[[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]] && export UNDERLAY="/opt/ws_rmw_zenoh/install" ; [[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
         DOCKER_RUN_OPTS: -u root:root
@@ -276,6 +310,8 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
+        _ENABLE_IMAGE_PUSH: true
+        _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
@@ -285,8 +321,9 @@ runs:
         BUILD_IMAGE_TAG: ${{ inputs.build-image-tag }}
         COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
         ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
         ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
@@ -296,6 +333,7 @@ runs:
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_ROS1_DEVEL_SPACE: ${{ inputs.enable-ros1-devel-space }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
@@ -306,10 +344,11 @@ runs:
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
         TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        _ENABLE_IMAGE_PUSH: true
-        _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
 
     - name: Push images (as latest)
       if: ${{ inputs.enable-push-as-latest == 'true' }}
@@ -317,6 +356,8 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
+        _ENABLE_IMAGE_PUSH: true
+        _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
@@ -326,8 +367,9 @@ runs:
         BUILD_IMAGE_TAG: ${{ inputs.build-image-tag }}
         COMMAND: ${{ inputs.command }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        DEV_IMAGE_NAME: ${{ inputs.dev-image-name }}
+        DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: latest-dev
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         ENABLE_CONTINUE_BUILD_DESPITE_ERRORS: ${{ inputs.enable-continue-build-despite-errors }}
         ENABLE_CONTINUE_ROSDEP_INSTALL_DESPITE_ERRORS: ${{ inputs.enable-continue-rosdep-install-despite-errors }}
         ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
@@ -337,6 +379,7 @@ runs:
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_ROS1_DEVEL_SPACE: ${{ inputs.enable-ros1-devel-space }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
         GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
         GIT_HTTPS_USER: ${{ inputs.git-https-user }}
@@ -347,7 +390,8 @@ runs:
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: latest-slim
         TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        _ENABLE_IMAGE_PUSH: true
-        _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}

@@ -9,6 +9,8 @@
   <img src="https://img.shields.io/github/license/ika-rwth-aachen/docker-ros"/>
   <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml/badge.svg"/></a>
   <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml/badge.svg"/></a>
+  <img src="https://img.shields.io/badge/ROS-noetic-blueviolet"/>
+  <img src="https://img.shields.io/badge/ROS 2-foxy|humble|iron|jazzy-blueviolet"/>
 </p>
 
 *docker-ros* automatically builds minimal container images of ROS applications.
@@ -16,7 +18,7 @@
 > [!IMPORTANT]  
 > This repository is open-sourced and maintained by the [**Institute for Automotive Engineering (ika) at RWTH Aachen University**](https://www.ika.rwth-aachen.de/).  
 > **DevOps, Containerization and Orchestration of Software-Defined Vehicles** are some of many research topics within our [*Vehicle Intelligence & Automated Driving*](https://www.ika.rwth-aachen.de/en/competences/fields-of-research/vehicle-intelligence-automated-driving.html) domain.  
-> If you would like to learn more about how we can support your DevOps or automated driving efforts, feel free to reach out to us!  
+> If you would like to learn more about how we can support your advanced driver assistance and automated driving efforts, feel free to reach out to us!  
 > :email: ***opensource@ika.rwth-aachen.de***
 
 - [About](#about)
@@ -35,6 +37,9 @@
   - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
   - [Custom Installation Script](#custom-installation-script)
   - [Extra Image Files](#extra-image-files)
+- [Additional Information](#additional-information)
+  - [User Setup](#user-setup)
+  - [Slim Deployment Image](#slim-deployment-image)
 - [Configuration Variables](#configuration-variables)
 
 We recommend to use *docker-ros* in combination with our other tools for Docker and ROS.
@@ -44,7 +49,7 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 
 ## About
 
-*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. Building such images can easily be automated by integrating *docker-ros* into CI through the provided [GitHub action](action.yml) or [GitLab CI template](.gitlab-ci/docker-ros.yml). The development image built by *docker-ros* contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository. *docker-ros* is also able to build multi-arch Docker images for *amd64* and *arm64* architectures.
+*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. Building such images can easily be automated by integrating *docker-ros* into CI through the provided [GitHub action](action.yml) or [GitLab CI template](.gitlab-ci/docker-ros.yml). The development image built by *docker-ros* contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository. *docker-ros* is also able to build multi-arch Docker images for *amd64* and *arm64* architectures. In addition, [*slim*](https://github.com/slimtoolkit/slim) is integrated for slimming Docker image size of the deployment image by up to 30x (see [*Slim Deployment Image*](#slim-deployment-image)).
 
 The Dockerfile performs the following steps to build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
@@ -71,7 +76,7 @@ Note that GitHub is currently only offering Linux runners based on the *amd64* a
 
 <details><summary>GitLab</summary>
 
-> **Note**  
+> [!NOTE]  
 > - GitLab runners must be based on the Docker executor, [see here](https://docs.gitlab.com/runner/executors/docker.html)
 > - GitLab runners must run in privileged mode for Docker-in-Docker, [see here](https://docs.gitlab.com/runner/executors/docker.html#use-docker-in-docker-with-privileged-mode)
 > - GitLab runners must be tagged with tags `privileged` and either `amd64` or `arm64` depending on their architecture
@@ -109,7 +114,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -121,7 +126,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -140,7 +145,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -153,7 +158,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -173,7 +178,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -187,7 +192,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -208,7 +213,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -221,7 +226,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.3.1/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.6.1/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:humble
@@ -245,7 +250,7 @@ jobs:
         platform: [amd64, arm64]
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.3.1
+      - uses: ika-rwth-aachen/docker-ros@v1.6.1
         with:
           base-image: rwthika/ros2:humble
           command: ros2 run my_pkg my_node
@@ -283,7 +288,7 @@ jobs:
       IMAGE="my-image:latest" \
     ./docker/docker-ros/scripts/build.sh
     ```
-    > **Note**  
+    > [!NOTE]  
     > You can alternatively store your environment variable configuration in a `.env` file:
     > ```bash
     > # .env
@@ -334,9 +339,26 @@ If you need to have additional files present in the deployment image, you can us
 Create a folder `additional-files` in your `docker` folder (or configure a different `ADDITIONAL_FILES_DIR`) and place any files or directories in it. The contents will be copied to `/docker-ros/additional-files` in the image.
 
 
+## Additional Information
+
+### User Setup
+
+Containers of the provided images start with `root` user by default. If the two environment variables `DOCKER_UID` and `DOCKER_GID` are passed, a new user with the corresponding UID/GID is created on the fly. Most importantly, this features allows to mount and edit files of the host user in the container without having to deal with permission issues.
+
+```bash
+docker run --rm -it -e DOCKER_UID=$(id -u) -e DOCKER_GID=$(id -g) -e DOCKER_USER=$(id -un) rwthika/ros:latest
+```
+
+The password of the custom user is set to its username (`dockeruser:dockeruser` by default).
+
+### Slim Deployment Image
+
+*docker-ros* integrates the [*slim*](https://github.com/slimtoolkit/slim) toolkit for minifying container images. *slim* is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that the slimmed deployment image is stripped of every single thing not needed for executing the default launch command. The slimming process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
+
+
 ## Configuration Variables
 
-> **Note**  
+> [!NOTE]  
 > *GitHub Action input* | *GitLab CI environment variable*
 
 - **`additional-debs-file` | `ADDITIONAL_DEBS_FILE`**  
@@ -375,6 +397,10 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`dev-image-tag` | `DEV_IMAGE_TAG`**  
   Image tag of dev image  
   *default:* `<IMAGE_TAG>-dev`  
+- **`disable-ros-installation` | `DISABLE_ROS_INSTALLATION`**  
+  Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package  
+  *e.g., if ROS is already installed in `base-image` and package is not available for the OS*  
+  *default:* `false`
 - **`-` | `DOCKER_ROS_GIT_REF`**  
   Git reference of *docker-ros* to run in CI  
   *default:* `main` 
@@ -420,6 +446,9 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`enable-singlearch-push` | `ENABLE_SINGLEARCH_PUSH`**  
   Enable push of single arch images with `-amd64`/`-arm64` postfix  
   *default:* `false` 
+- **`enable-slim` | `ENABLE_SLIM`**  
+  Enable an extra slimmed run image via [slim](https://github.com/slimtoolkit/slim) (only if `run` stage is targeted)  
+  *default:* `true`
 - **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
   Password for cloning private Git repositories via HTTPS  
   *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
@@ -455,11 +484,20 @@ Create a folder `additional-files` in your `docker` folder (or configure a diffe
 - **`rmw-implementation` | `RMW_IMPLEMENTATION`**  
   ROS 2 middleware implementation  
   *default:* `rmw_cyclonedds_cpp`  
-  *supported values:* `rmw_fastrtps_cpp`, `rmw_cyclonedds_cpp`, `rmw_gurumdds_cpp`, ...  
+  *supported values:* `rmw_zenoh_cpp`, `rmw_fastrtps_cpp`, `rmw_cyclonedds_cpp`, `rmw_gurumdds_cpp`, ...  
 - **`ros-distro` | `ROS_DISTRO`**  
   ROS Distro  
   *required if ROS is not installed in `base-image`*  
   *supported values:* `rolling`, ..., `noetic`, ...
+- **`slim-build-args` | `SLIM_BUILD_ARGS`**  
+  [Arguments to `slim build`](https://github.com/slimtoolkit/slim?tab=readme-ov-file#build-command-options) (except for `--target` and `--tag`)  
+  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false`  
+- **`slim-image-name` | `SLIM_IMAGE_NAME`**  
+  Image name of slim run image  
+  *default:* `<IMAGE_NAME>`  
+- **`slim-image-tag` | `SLIM_IMAGE_TAG`**  
+  Image tag of slim run image  
+  *default:* `<IMAGE_TAG>-slim`  
 - **`target` | `TARGET`**  
   Target stage of Dockerfile (comma-separated list)  
   *default:* `run`
