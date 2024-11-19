@@ -86,7 +86,7 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
 
 # create install script with list of rosdep dependencies
-RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
+RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
     source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
     rosdep init || true && \
