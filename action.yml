@@ -62,7 +62,7 @@ inputs:
     description: "RMW implementation to use (only for ROS 2)"
     default: rmw_cyclonedds_cpp
 
-  rmw-implementation:
+  rmw-zenoh-git-ref:
     description: "Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`"
     default: 28d917e0532fed6e9703f044662298f2b3553716
 
