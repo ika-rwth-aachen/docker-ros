@@ -161,6 +161,13 @@ ENV WORKSPACE=/docker-ros/ws
 ENV COLCON_HOME=$WORKSPACE/.colcon
 WORKDIR $WORKSPACE
 
+# create new workspace if $WORKSPACE/install exists
+RUN if [[ -d $WORKSPACE/install ]]; then \
+        mkdir -p /opt/ws_base_image && \
+        mv $WORKSPACE/install /opt/ws_base_image/ && \
+        echo "source /opt/ws_base_image/install/setup.bash" >> ~/.bashrc ; \
+    fi
+
 # setup keys and sources.list for ROS packages
 ARG ROS_DISTRO
 ENV ROS_DISTRO=${ROS_DISTRO}
