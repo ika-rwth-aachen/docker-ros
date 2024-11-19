@@ -283,7 +283,7 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
 ############ run ###############################################################
 FROM dependencies-install AS run
 
-# remove source folder
+# remove source code, if still existing from custom.sh modifications
 RUN rm -rf $WORKSPACE/src
 
 # copy ROS install space from build stage
