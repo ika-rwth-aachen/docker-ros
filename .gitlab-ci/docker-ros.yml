@@ -9,47 +9,49 @@ workflow:
 
 
 variables:
-  TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
-  PLATFORM:                   amd64                                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  ADDITIONAL_DEBS_FILE:       docker/additional-debs.txt              # Relative filepath to file containing additional apt deb packages to install
+  ADDITIONAL_FILES_DIR:       docker/additional-files                 # Relative path to directory containing additional files to copy into image"
+  ADDITIONAL_PIP_FILE:        docker/additional-pip-requirements.txt  # Relative filepath to file containing additional pip packages to install
   BASE_IMAGE:                 ''                                      # Base image name:tag (required)
+  BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
+  BUILD_CONTEXT:              .                                       # Build context of Docker build process
   COMMAND:                    ''                                      # Launch command of run image (required if target=run)
+  CUSTOM_SCRIPT_FILE:         docker/custom.sh                        # Relative filepath to script containing custom installation commands
+  DISABLE_ROS_INSTALLATION:   'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
+  DOCKER_ROS_GIT_REF:         main                                    # Git ref of *docker-ros* to run in CI
+  ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
+  ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
+  ENABLE_RECURSIVE_ADDITIONAL_DEBS:  'false'                          # Enable recursive discovery of files named `additional-debs-file`
+  ENABLE_RECURSIVE_ADDITIONAL_PIP:   'false'                          # Enable recursive discovery of files named `additional-pip-file`
+  ENABLE_RECURSIVE_BLACKLISTED_PACKAGES:  'false'                     # Enable recursive discovery of files named `blacklisted-packages-file`
+  ENABLE_RECURSIVE_CUSTOM_SCRIPT:    'false'                          # Enable recursive discovery of files named `custom-script-file`
+  ENABLE_RECURSIVE_VCS_IMPORT:       'true'                           # Enable recursive discovery of files named `*.repos`
+  ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
+  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
+  GIT_HTTPS_PASSWORD:         ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
+  GIT_HTTPS_SERVER:           ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
+  GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
+  GIT_SSH_KNOWN_HOST_KEYS:    ''                                      # Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)
+  GIT_SSH_PRIVATE_KEY:        ''                                      # SSH private key for cloning private Git repositories via SSH
   IMAGE_NAME:                 ${CI_REGISTRY_IMAGE}                    # Image name of run image
   IMAGE_TAG:                  latest                                  # Image tag of run image
+  PLATFORM:                   amd64                                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
+  REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
+  REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
+  REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
+  RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
+  RMW_ZENOH_GIT_REF:          '28d917e0532fed6e9703f044662298f2b3553716'  # Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`
+  ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
+  SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'  # Arguments to `slim build` (except for `--target` and `--tag`)
+  TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
+  VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
+  
   DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image
   DEV_IMAGE_TAG:              ${IMAGE_TAG}-dev                        # Image tag of dev image
   SLIM_IMAGE_NAME:            ${IMAGE_NAME}                           # Image name of slim run image
   SLIM_IMAGE_TAG:             ${IMAGE_TAG}-slim                       # Image tag of slim run image
-  BUILD_CONTEXT:              .                                       # Build context of Docker build process
-  REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
-  REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
-  REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
-  ENABLE_INDUSTRIAL_CI:       'false'                                 # Enable industrial_ci
-  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
-  SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'  # Arguments to `slim build` (except for `--target` and `--tag`)
-  ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
-  ENABLE_PUSH_AS_LATEST:      'false'                                 # Push images with tag `latest`/`latest-dev` in addition to the configured image names
-  RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
-  RMW_ZENOH_GIT_REF:          '28d917e0532fed6e9703f044662298f2b3553716'  # Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`
-  ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
-  DISABLE_ROS_INSTALLATION:   'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
-  GIT_HTTPS_SERVER:           ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
-  GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
-  GIT_HTTPS_PASSWORD:         ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
-  GIT_SSH_PRIVATE_KEY:        ''                                      # SSH private key for cloning private Git repositories via SSH
-  GIT_SSH_KNOWN_HOST_KEYS:    ''                                      # Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)
-  ADDITIONAL_DEBS_FILE:       docker/additional-debs.txt              # Relative filepath to file containing additional apt deb packages to install
-  ENABLE_RECURSIVE_ADDITIONAL_DEBS:  'false'                          # Enable recursive discovery of files named `additional-debs-file`
-  ADDITIONAL_FILES_DIR:       docker/additional-files                 # Relative path to directory containing additional files to copy into image"
-  ADDITIONAL_PIP_FILE:        docker/additional-pip-requirements.txt  # Relative filepath to file containing additional pip packages to install
-  ENABLE_RECURSIVE_ADDITIONAL_PIP:   'false'                          # Enable recursive discovery of files named `additional-pip-file`
-  BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
-  ENABLE_RECURSIVE_BLACKLISTED_PACKAGES:  'false'                     # Enable recursive discovery of files named `blacklisted-packages-file`
-  CUSTOM_SCRIPT_FILE:         docker/custom.sh                        # Relative filepath to script containing custom installation commands
-  ENABLE_RECURSIVE_CUSTOM_SCRIPT:    'false'                          # Enable recursive discovery of files named `custom-script-file`
-  VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
-  ENABLE_RECURSIVE_VCS_IMPORT:       'true'                           # Enable recursive discovery of files named `*.repos`
-  # -----
-  DOCKER_ROS_GIT_REF:     main
+
+  # --------------------
 
   _RUN_IMAGE:             ${IMAGE_NAME}:${IMAGE_TAG}
   _DEV_IMAGE:             ${DEV_IMAGE_NAME}:${DEV_IMAGE_TAG}

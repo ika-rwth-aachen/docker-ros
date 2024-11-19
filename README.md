@@ -392,7 +392,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *e.g., if ROS is already installed in `base-image` and package is not available for the OS*  
   *default:* `false`
 - **`-` | `DOCKER_ROS_GIT_REF`**  
-  Git reference of *docker-ros* to run in CI  
+  Git ref of *docker-ros* to run in CI  
   *default:* `main` 
 - **`enable-checkout` | `-`**  
   Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
