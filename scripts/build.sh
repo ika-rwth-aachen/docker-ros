@@ -18,6 +18,7 @@ build_image() {
         --build-arg BASE_IMAGE="${BASE_IMAGE}" \
         --build-arg COMMAND="${COMMAND}" \
         $(if [[ -n "${RMW_IMPLEMENTATION}" ]]; then echo "--build-arg RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}"; fi) \
+        $(if [[ -n "${RMW_ZENOH_GIT_REF}" ]]; then echo "--build-arg RMW_ZENOH_GIT_REF=${RMW_ZENOH_GIT_REF}"; fi) \
         $(if [[ -n "${ROS_DISTRO}" ]]; then echo "--build-arg ROS_DISTRO=${ROS_DISTRO}"; fi) \
         $(if [[ -n "${DISABLE_ROS_INSTALLATION}" ]]; then echo "--build-arg DISABLE_ROS_INSTALLATION=${DISABLE_ROS_INSTALLATION}"; fi) \
         $(if [[ -n "${GIT_HTTPS_SERVER}" ]]; then echo "--build-arg GIT_HTTPS_SERVER=${GIT_HTTPS_SERVER}"; fi) \

@@ -222,12 +222,19 @@ RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 # install desired ROS 2 middleware
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
+ARG RMW_ZENOH_GIT_REF="28d917e0532fed6e9703f044662298f2b3553716"
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
         mkdir -p /opt/ws_rmw_zenoh/src && \
         git clone https://github.com/ros2/rmw_zenoh.git /opt/ws_rmw_zenoh/src/rmw_zenoh && \
+        cd /opt/ws_rmw_zenoh/src/rmw_zenoh && \
+        git checkout ${RMW_ZENOH_GIT_REF} && \
+        cd - && \
         if [[ "$(lsb_release -r | awk '{print $2}')" == "22.04" ]]; then \
-            git clone https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR ; \
+            git clone https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR && \
+            cd /opt/ws_rmw_zenoh/src/Fast-CDR && \
+            git checkout 2.2.x && \
+            cd - ; \
         fi && \
         rosdep init || true && \
         rosdep update --rosdistro $ROS_DISTRO && \
