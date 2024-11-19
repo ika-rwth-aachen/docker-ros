@@ -86,7 +86,7 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
 
 # create install script with list of rosdep dependencies
-RUN echo "set -e" >> $WORKSPACE/.install-dependencies.sh && \
+RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
     source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
     rosdep init || true && \
@@ -216,6 +216,9 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     fi \
     && rm -rf /var/lib/apt/lists/*
 
+# source ROS
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+
 # install desired ROS 2 middleware
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
@@ -242,8 +245,12 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
         rm -rf /var/lib/apt/lists/* ; \
     fi
 
-# source ROS
-RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+# move existing install space from base image to make room for new one
+RUN if [[ -d $WORKSPACE/install ]]; then \
+        mkdir -p /opt/ws_base_image && \
+        mv $WORKSPACE/install /opt/ws_base_image/ && \
+        echo "source /opt/ws_base_image/install/setup.bash" >> ~/.bashrc ; \
+    fi
 
 # set entrypoint
 ENV TINI_VERSION=v0.19.0
@@ -267,6 +274,7 @@ FROM dev AS build
 RUN if [[ -x "$(command -v colcon)" ]]; then \
         source /opt/ros/${ROS_DISTRO}/setup.bash && \
         [[ -f /opt/ws_rmw_zenoh/install/setup.bash ]] && source /opt/ws_rmw_zenoh/install/setup.bash ; \
+        [[ -f /opt/ws_base_image/install/setup.bash ]] && source /opt/ws_base_image/install/setup.bash ; \
         colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
@@ -275,6 +283,9 @@ RUN if [[ -x "$(command -v colcon)" ]]; then \
 
 ############ run ###############################################################
 FROM dependencies-install AS run
+
+# remove source code, if still existing from custom.sh modifications
+RUN rm -rf $WORKSPACE/src
 
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
