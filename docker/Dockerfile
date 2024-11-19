@@ -161,7 +161,7 @@ ENV WORKSPACE=/docker-ros/ws
 ENV COLCON_HOME=$WORKSPACE/.colcon
 WORKDIR $WORKSPACE
 
-# create new workspace if $WORKSPACE/install exists
+# create new install space and move to it if $WORKSPACE/install exists
 RUN if [[ -d $WORKSPACE/install ]]; then \
         mkdir -p /opt/ws_base_image && \
         mv $WORKSPACE/install /opt/ws_base_image/ && \
