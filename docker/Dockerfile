@@ -245,7 +245,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
         rm -rf /var/lib/apt/lists/* ; \
     fi
 
-# create new install space and move to it if $WORKSPACE/install exists
+# move existing install space from base image to make room for new one
 RUN if [[ -d $WORKSPACE/install ]]; then \
         mkdir -p /opt/ws_base_image && \
         mv $WORKSPACE/install /opt/ws_base_image/ && \
