@@ -161,13 +161,6 @@ ENV WORKSPACE=/docker-ros/ws
 ENV COLCON_HOME=$WORKSPACE/.colcon
 WORKDIR $WORKSPACE
 
-# create new install space and move to it if $WORKSPACE/install exists
-RUN if [[ -d $WORKSPACE/install ]]; then \
-        mkdir -p /opt/ws_base_image && \
-        mv $WORKSPACE/install /opt/ws_base_image/ && \
-        echo "source /opt/ws_base_image/install/setup.bash" >> ~/.bashrc ; \
-    fi
-
 # setup keys and sources.list for ROS packages
 ARG ROS_DISTRO
 ENV ROS_DISTRO=${ROS_DISTRO}
@@ -223,6 +216,9 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     fi \
     && rm -rf /var/lib/apt/lists/*
 
+# source ROS
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+
 # install desired ROS 2 middleware
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
@@ -249,8 +245,12 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
         rm -rf /var/lib/apt/lists/* ; \
     fi
 
-# source ROS
-RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+# create new install space and move to it if $WORKSPACE/install exists
+RUN if [[ -d $WORKSPACE/install ]]; then \
+        mkdir -p /opt/ws_base_image && \
+        mv $WORKSPACE/install /opt/ws_base_image/ && \
+        echo "source /opt/ws_base_image/install/setup.bash" >> ~/.bashrc ; \
+    fi
 
 # set entrypoint
 ENV TINI_VERSION=v0.19.0
