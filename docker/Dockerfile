@@ -231,10 +231,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
         git checkout ${RMW_ZENOH_GIT_REF} && \
         cd - && \
         if [[ "$(lsb_release -r | awk '{print $2}')" == "22.04" ]]; then \
-            git clone https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR && \
-            cd /opt/ws_rmw_zenoh/src/Fast-CDR && \
-            git checkout 2.2.x && \
-            cd - ; \
+            git clone -b 2.2.x https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR ; \
         fi && \
         rosdep init || true && \
         rosdep update --rosdistro $ROS_DISTRO && \
