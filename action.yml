@@ -5,159 +5,119 @@ branding:
   icon: package
 
 inputs:
-
-  target:
-    description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
-    default: run
-
-  platform:
-    description: "Target platform architecture (comma-separated list) [amd64|arm64|...]"
-
-  base-image:
-    description: "Base image name:tag"
-    required: true
-
-  command:
-    description: "Launch command of run image (required if target=run)"
-
-  image-name:
-    description: "Image name of run image"
-    default: ghcr.io/${{ github.repository }}
-
-  image-tag:
-    description: "Image tag of run image"
-    default: latest
-
-  dev-image-name:
-    description: "Image name of dev image"
-    default: ghcr.io/${{ github.repository }}
-
-  dev-image-tag:
-    description: "Image tag of dev image"
-
-  slim-image-name:
-    description: "Image name of slim run image"
-    default: ghcr.io/${{ github.repository }}
-
-  slim-image-tag:
-    description: "Image tag of slim run image"
-
-  build-context:
-    description: "Build context of Docker build process"
-    default: ${{ github.workspace }}
-
-  registry:
-    description: "Docker registry to push images to"
-    default: ghcr.io
-
-  registry-user:
-    description: "Docker registry username"
-    default: ${{ github.actor }}
-
-  registry-password:
-    description: "Docker registry password"
-    default: ${{ github.token }}
-
-  rmw-implementation:
-    description: "RMW implementation to use (only for ROS 2)"
-    default: rmw_cyclonedds_cpp
-
-  rmw-zenoh-git-ref:
-    description: "Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`"
-    default: 28d917e0532fed6e9703f044662298f2b3553716
-
-  ros-distro:
-    description: "ROS Distro (required if ROS is not installed in `base-image`)"
-
-  disable-ros-installation:
-    description: "Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS"
-    default: false
-
-  git-https-server:
-    description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
-    default: "github.com"
-
-  git-https-user:
-    description: "Username for cloning private Git repositories via HTTPS"
-    default: ${{ github.actor }}
-
-  git-https-password:
-    description: "Password for cloning private Git repositories via HTTPS"
-    default: ${{ github.token }}
-
-  git-ssh-private-key:
-    description: "SSH private key for cloning private Git repositories via SSH"
-
-  git-ssh-known-host-keys:
-    description: "Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)"
-
   additional-debs-file:
     description: "Relative filepath to file containing additional apt deb packages to install"
     default: docker/additional-debs.txt
-
-  enable-recursive-additional-debs:
-    description: "Enable recursive discovery of files named `additional-debs-file`"
-    default: false
-
   additional-files-dir:
     description: "Relative path to directory containing additional files to copy into image"
     default: docker/additional-files
-
   additional-pip-file:
     description: "Relative filepath to file containing additional pip packages to install"
     default: docker/additional-pip-requirements.txt
-
-  enable-recursive-additional-pip:
-    description: "Enable recursive discovery of files named `additional-pip-file`"
-    default: false
-
+  base-image:
+    description: "Base image name:tag"
+    required: true
   blacklisted-packages-file:
     description: "Relative filepath to file containing blacklisted packages to remove from workspace"
     default: docker/blacklisted-packages.txt
-
-  enable-recursive-blacklisted-packages:
-    description: "Enable recursive discovery of files named `blacklisted-packages-file`"
-    default: false
-
+  build-context:
+    description: "Build context of Docker build process"
+    default: ${{ github.workspace }}
+  command:
+    description: "Launch command of run image (required if target=run)"
   custom-script-file:
     description: "Relative filepath to script containing custom installation commands"
     default: docker/custom.sh
-
-  enable-recursive-custom-script:
-    description: "Enable recursive discovery of files named `custom-script-file`"
+  dev-image-name:
+    description: "Image name of dev image"
+    default: ghcr.io/${{ github.repository }}
+  dev-image-tag:
+    description: "Image tag of dev image"
+  disable-ros-installation:
+    description: "Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS"
     default: false
-
-  enable-industrial-ci:
-    description: "Enable industrial_ci"
-    default: false
-
-  enable-slim:
-    description: "Enable an extra slimmed run image via slim (only if run stage is targeted)"
-    default: true
-
-  slim-build-args:
-    description: "Arguments to `slim build` (except for `--target` and `--tag`)"
-    default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
-
-  enable-singlearch-push:
-    description: "Enable push of single arch images with [-amd64|-arm64] postfix"
-    default: false
-
-  enable-push-as-latest:
-    description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
-    default: false
-
   enable-checkout:
     description: "Enable checkout action to (re-)download your repository prior to running the pipeline"
     default: true
-
-  enable-checkout-submodules:
-    description: "Enable submodules for the checkout action (false|true|recursive)"
-    default: recursive
-
   enable-checkout-lfs:
     description: "Enable Git LFS support for the checkout action"
     default: true
+  enable-checkout-submodules:
+    description: "Enable submodules for the checkout action (false|true|recursive)"
+    default: recursive
+  enable-industrial-ci:
+    description: "Enable industrial_ci"
+    default: false
+  enable-push-as-latest:
+    description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
+    default: false
+  enable-recursive-additional-debs:
+    description: "Enable recursive discovery of files named `additional-debs-file`"
+    default: false
+  enable-recursive-additional-pip:
+    description: "Enable recursive discovery of files named `additional-pip-file`"
+    default: false
+  enable-recursive-blacklisted-packages:
+    description: "Enable recursive discovery of files named `blacklisted-packages-file`"
+    default: false
+  enable-recursive-custom-script:
+    description: "Enable recursive discovery of files named `custom-script-file`"
+    default: false
+  enable-singlearch-push:
+    description: "Enable push of single arch images with [-amd64|-arm64] postfix"
+    default: false
+  enable-slim:
+    description: "Enable an extra slimmed run image via slim (only if run stage is targeted)"
+    default: true
+  git-https-password:
+    description: "Password for cloning private Git repositories via HTTPS"
+    default: ${{ github.token }}
+  git-https-server:
+    description: "Server URL (without protocol) for cloning private Git repositories via HTTPS"
+    default: "github.com"
+  git-https-user:
+    description: "Username for cloning private Git repositories via HTTPS"
+    default: ${{ github.actor }}
+  git-ssh-known-host-keys:
+    description: "Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)"
+  git-ssh-private-key:
+    description: "SSH private key for cloning private Git repositories via SSH"
+  image-name:
+    description: "Image name of run image"
+    default: ghcr.io/${{ github.repository }}
+  image-tag:
+    description: "Image tag of run image"
+    default: latest
+  platform:
+    description: "Target platform architecture (comma-separated list) [amd64|arm64|...]"
+  registry:
+    description: "Docker registry to push images to"
+    default: ghcr.io
+  registry-password:
+    description: "Docker registry password"
+    default: ${{ github.token }}
+  registry-user:
+    description: "Docker registry username"
+    default: ${{ github.actor }}
+  ros-distro:
+    description: "ROS Distro (required if ROS is not installed in `base-image`)"
+  rmw-implementation:
+    description: "RMW implementation to use (only for ROS 2)"
+    default: rmw_cyclonedds_cpp
+  rmw-zenoh-git-ref:
+    description: "Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`"
+    default: 28d917e0532fed6e9703f044662298f2b3553716
+  slim-build-args:
+    description: "Arguments to `slim build` (except for `--target` and `--tag`)"
+    default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
+  slim-image-name:
+    description: "Image name of slim run image"
+    default: ghcr.io/${{ github.repository }}
+  slim-image-tag:
+    description: "Image tag of slim run image"
+  target:
+    description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
+    default: run
 
 
 runs:
@@ -223,38 +183,38 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
-        PLATFORM: ${{ inputs.platform }}
-        TARGET: ${{ inputs.target }}
+        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
+        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
+        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         BASE_IMAGE: ${{ inputs.base-image }}
+        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
-        IMAGE_TAG: ${{ inputs.image-tag }}
+        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
-        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
-        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_SLIM: ${{ inputs.enable-slim }}
-        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         RMW_ZENOH_GIT_REF: ${{ inputs.rmw-zenoh-git-ref }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
-        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
-        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
-        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
-        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
-        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
-        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
-        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
-        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
-        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
-        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
+        TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
 
     - name: Set up industrial_ci
       if: ${{ inputs.enable-industrial-ci == 'true' }}
@@ -265,15 +225,15 @@ runs:
       if: ${{ inputs.enable-industrial-ci == 'true' }}
       uses: ros-industrial/industrial_ci@master
       env:
-        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
-        TARGET_WORKSPACE: ${{ inputs.build-context }}
         ADDITIONAL_DEBS: git
         AFTER_INIT_EMBED: '[[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]] && export UNDERLAY="/opt/ws_rmw_zenoh/install" ; [[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
-        SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
-        DOCKER_RUN_OPTS: -u root:root
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
+        DOCKER_RUN_OPTS: -u root:root
+        SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
+        TARGET_WORKSPACE: ${{ inputs.build-context }}
+        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
 
     - name: Slugify ref name
       id: slugify-ref-name
@@ -286,39 +246,39 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
-        PLATFORM: ${{ inputs.platform }}
-        TARGET: ${{ inputs.target }}
+        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
+        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
+        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         BASE_IMAGE: ${{ inputs.base-image }}
+        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
-        IMAGE_TAG: ${{ inputs.image-tag }}
+        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
-        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
-        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
-        ENABLE_SLIM: ${{ inputs.enable-slim }}
-        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
+        IMAGE_TAG: ${{ inputs.image-tag }}
+        PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         RMW_ZENOH_GIT_REF: ${{ inputs.rmw-zenoh-git-ref }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
-        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
-        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
-        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
-        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
-        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
-        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
-        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
-        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
-        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
-        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: ${{ inputs.slim-image-tag }}
+        TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
 
@@ -328,38 +288,38 @@ runs:
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
       env:
-        PLATFORM: ${{ inputs.platform }}
-        TARGET: ${{ inputs.target }}
+        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
+        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
+        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
         BASE_IMAGE: ${{ inputs.base-image }}
+        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
-        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
-        IMAGE_TAG: latest
+        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: latest-dev
-        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
-        SLIM_IMAGE_TAG: latest-slim
-        ENABLE_SLIM: ${{ inputs.enable-slim }}
-        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
+        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
+        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
+        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
+        ENABLE_SLIM: ${{ inputs.enable-slim }}
+        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
+        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
+        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
+        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
+        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
+        IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
+        IMAGE_TAG: latest
+        PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         RMW_ZENOH_GIT_REF: ${{ inputs.rmw-zenoh-git-ref }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
-        DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
-        GIT_HTTPS_SERVER: ${{ inputs.git-https-server }}
-        GIT_HTTPS_USER: ${{ inputs.git-https-user }}
-        GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
-        GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
-        GIT_SSH_KNOWN_HOST_KEYS: ${{ inputs.git-ssh-known-host-keys }}
-        ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
-        ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
-        ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
-        BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
-        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
+        SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
+        SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
+        SLIM_IMAGE_TAG: latest-slim
+        TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
-        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         _ENABLE_IMAGE_PUSH: true
         _IMAGE_POSTFIX: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) && format('_{0}_ci', steps.slugify-ref-name.outputs.slug) || '' }}
