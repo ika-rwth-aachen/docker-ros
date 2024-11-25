@@ -112,7 +112,7 @@ default:
       fi
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker context create buildx-context
-    - docker buildx create --use buildx-context
+    - docker buildx create --use --driver docker-container --driver-opt image=public.ecr.aws/vend/moby/buildkit:buildx-stable-1
     - echo -e "section_end:`date +%s`:setup_section\r\e[0K"
 
 .build:
