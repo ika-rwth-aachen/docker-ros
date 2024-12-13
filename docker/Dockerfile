@@ -89,7 +89,7 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
 RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
     source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
-    rosdep init || true && \
+    (rosdep init || true) && \
     rosdep update --rosdistro ${ROS_DISTRO} && \
     export OS="ubuntu:$(lsb_release -c | awk '{print $2}')" && \
     if [[ "$ROS_DISTRO" = "rolling" && "$OS" = "ubuntu:focal" ]]; then export OS="ubuntu:jammy"; fi && \
@@ -233,7 +233,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
         if [[ "$(lsb_release -r | awk '{print $2}')" == "22.04" ]]; then \
             git clone -b 2.2.x https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR ; \
         fi && \
-        rosdep init || true && \
+        (rosdep init || true) && \
         rosdep update --rosdistro $ROS_DISTRO && \
         apt-get update && \
         cd /opt/ws_rmw_zenoh && \
