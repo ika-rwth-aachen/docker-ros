@@ -222,7 +222,7 @@ RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 # install desired ROS 2 middleware
 ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
-ARG RMW_ZENOH_GIT_REF="28d917e0532fed6e9703f044662298f2b3553716"
+ARG RMW_ZENOH_GIT_REF="a7187eb42fd6a6a6bdfacf4308add39e5d8a27c7"
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
         mkdir -p /opt/ws_rmw_zenoh/src && \

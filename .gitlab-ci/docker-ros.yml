@@ -40,7 +40,7 @@ variables:
   REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
   RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
-  RMW_ZENOH_GIT_REF:          '28d917e0532fed6e9703f044662298f2b3553716'  # Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`
+  RMW_ZENOH_GIT_REF:          'a7187eb42fd6a6a6bdfacf4308add39e5d8a27c7'  # Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
   SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'  # Arguments to `slim build` (except for `--target` and `--tag`)
   TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
