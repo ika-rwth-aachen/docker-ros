@@ -21,6 +21,7 @@ build_image() {
         $(if [[ -n "${ADDITIONAL_FILES_DIR}" ]]; then echo "--build-arg ADDITIONAL_FILES_DIR=${ADDITIONAL_FILES_DIR}"; fi) \
         $(if [[ -n "${ADDITIONAL_PIP_FILE}" ]]; then echo "--build-arg ADDITIONAL_PIP_FILE=${ADDITIONAL_PIP_FILE}"; fi) \
         $(if [[ -n "${BLACKLISTED_PACKAGES_FILE}" ]]; then echo "--build-arg BLACKLISTED_PACKAGES_FILE=${BLACKLISTED_PACKAGES_FILE}"; fi) \
+        $(if [[ -n "${CUSTOM_CMAKE_ARGS}" ]]; then echo "--build-arg CUSTOM_CMAKE_ARGS=${CUSTOM_CMAKE_ARGS}"; fi) \
         $(if [[ -n "${CUSTOM_SCRIPT_FILE}" ]]; then echo "--build-arg CUSTOM_SCRIPT_FILE=${CUSTOM_SCRIPT_FILE}"; fi) \
         $(if [[ -n "${DISABLE_ROS_INSTALLATION}" ]]; then echo "--build-arg DISABLE_ROS_INSTALLATION=${DISABLE_ROS_INSTALLATION}"; fi) \
         $(if [[ -n "${ENABLE_RECURSIVE_ADDITIONAL_DEBS}" ]]; then echo "--build-arg ENABLE_RECURSIVE_ADDITIONAL_DEBS=${ENABLE_RECURSIVE_ADDITIONAL_DEBS}"; fi) \

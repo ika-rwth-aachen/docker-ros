@@ -378,6 +378,9 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`command` | `COMMAND`**  
   Launch command of run image  
   *required if `target=run`*  
+- **`custom-cmake-args` | `CUSTOM_CMAKE_ARGS`**  
+  Custom CMake arguments to pass to `colcon build`  
+  *default:* `"-DCMAKE_BUILD_TYPE=Release"`  
 - **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
   Relative filepath to script containing custom installation commands  
   *default:* `docker/custom.sh`  

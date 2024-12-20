@@ -25,6 +25,9 @@ inputs:
     default: ${{ github.workspace }}
   command:
     description: "Launch command of run image (required if target=run)"
+  custom-cmake-args:
+    description: "Custom CMake arguments to pass to `colcon build`"
+    default: "-DCMAKE_BUILD_TYPE=Release"
   custom-script-file:
     description: "Relative filepath to script containing custom installation commands"
     default: docker/custom.sh
@@ -189,6 +192,7 @@ runs:
         BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
+        CUSTOM_CMAKE_ARGS: ${{ inputs.custom-cmake-args }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
@@ -252,6 +256,7 @@ runs:
         BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
+        CUSTOM_CMAKE_ARGS: ${{ inputs.custom-cmake-args }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
@@ -294,6 +299,7 @@ runs:
         BASE_IMAGE: ${{ inputs.base-image }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
+        CUSTOM_CMAKE_ARGS: ${{ inputs.custom-cmake-args }}
         CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: latest-dev
