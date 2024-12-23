@@ -12,6 +12,8 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     if ! getent group $DOCKER_GID > /dev/null 2>&1; then
         groupadd -g $DOCKER_GID $DOCKER_USER
+    else
+        echo -e "\e[33mWARNING | Cannot create group '$DOCKER_USER' with GID $DOCKER_GID, another group '$(getent group $DOCKER_GID | cut -d: -f1)' with same GID is already existing\e[0m"
     fi
     if ! getent passwd $DOCKER_UID > /dev/null 2>&1; then
         useradd -s /bin/bash \
@@ -29,6 +31,8 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
         if [[ -d $WORKSPACE/src ]]; then
             chown -R $DOCKER_UID:$DOCKER_GID $WORKSPACE/src
         fi
+    else
+        echo -e "\e[33mWARNING | Cannot create user '$DOCKER_USER' with UID $DOCKER_UID, another user '$(getent passwd $DOCKER_UID | cut -d: -f1)' with same UID is already existing\e[0m"
     fi
     [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
     exec gosu $DOCKER_USER "$@"
