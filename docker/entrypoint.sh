@@ -27,7 +27,7 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
         ln -s $WORKSPACE /home/$DOCKER_USER/ws
         chown -h $DOCKER_UID:$DOCKER_GID $WORKSPACE /home/$DOCKER_USER/ws /home/$DOCKER_USER/.sudo_as_admin_successful
         if [[ -d $WORKSPACE/src ]]; then
-            chown -R $DOCKER_USER:$DOCKER_USER $WORKSPACE/src
+            chown -R $DOCKER_UID:$DOCKER_GID $WORKSPACE/src
         fi
     fi
     [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
