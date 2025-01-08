@@ -468,7 +468,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *supported values:* `rmw_zenoh_cpp`, `rmw_fastrtps_cpp`, `rmw_cyclonedds_cpp`, `rmw_gurumdds_cpp`, ...  
 - **`rmw-zenoh-git-ref` | `RMW_ZENOH_GIT_REF`**  
   Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`  
-  *default:* `a7187eb42fd6a6a6bdfacf4308add39e5d8a27c7`  
+  *default:* `` (latest distro branch)  
 - **`ros-distro` | `ROS_DISTRO`**  
   ROS Distro  
   *required if ROS is not installed in `base-image`*  
