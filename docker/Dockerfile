@@ -220,28 +220,30 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # install desired ROS 2 middleware
-ARG RMW_IMPLEMENTATION="rmw_cyclonedds_cpp"
-ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}
+ARG RMW_IMPLEMENTATION
+ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
 ARG RMW_ZENOH_GIT_REF="a7187eb42fd6a6a6bdfacf4308add39e5d8a27c7"
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]]; then \
-        mkdir -p /opt/ws_rmw_zenoh/src && \
-        git clone https://github.com/ros2/rmw_zenoh.git /opt/ws_rmw_zenoh/src/rmw_zenoh && \
-        cd /opt/ws_rmw_zenoh/src/rmw_zenoh && \
-        git checkout ${RMW_ZENOH_GIT_REF} && \
-        cd - && \
-        if [[ "$(lsb_release -r | awk '{print $2}')" == "22.04" ]]; then \
-            git clone -b 2.2.x https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR ; \
-        fi && \
-        (rosdep init || true) && \
-        rosdep update --rosdistro $ROS_DISTRO && \
-        apt-get update && \
-        cd /opt/ws_rmw_zenoh && \
-        rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO && \
-        rm -rf /var/lib/apt/lists/* && \
-        source /opt/ros/${ROS_DISTRO}/setup.bash && \
-        colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release && \
-        echo "source /opt/ws_rmw_zenoh/install/setup.bash" >> ~/.bashrc ; \
+        if [[ ! -d /opt/ws_rmw_zenoh/src ]]; then \
+            mkdir -p /opt/ws_rmw_zenoh/src && \
+            git clone https://github.com/ros2/rmw_zenoh.git /opt/ws_rmw_zenoh/src/rmw_zenoh && \
+            cd /opt/ws_rmw_zenoh/src/rmw_zenoh && \
+            git checkout ${RMW_ZENOH_GIT_REF} && \
+            cd - && \
+            if [[ "$(lsb_release -r | awk '{print $2}')" == "22.04" ]]; then \
+                git clone -b 2.2.x https://github.com/eProsima/Fast-CDR.git /opt/ws_rmw_zenoh/src/Fast-CDR ; \
+            fi && \
+            (rosdep init || true) && \
+            rosdep update --rosdistro $ROS_DISTRO && \
+            apt-get update && \
+            cd /opt/ws_rmw_zenoh && \
+            rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO && \
+            rm -rf /var/lib/apt/lists/* && \
+            source /opt/ros/${ROS_DISTRO}/setup.bash && \
+            colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release && \
+            echo "source /opt/ws_rmw_zenoh/install/setup.bash" >> ~/.bashrc ; \
+        fi ; \
     elif [[ "$ROS_VERSION" == "2" ]]; then \
         apt-get update && \
         RMW_PACKAGE=ros-$ROS_DISTRO-$(echo $RMW_IMPLEMENTATION | tr '_' '-') && \
