@@ -106,7 +106,6 @@ inputs:
     default: rmw_cyclonedds_cpp
   rmw-zenoh-git-ref:
     description: "Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`"
-    default: a7187eb42fd6a6a6bdfacf4308add39e5d8a27c7
   slim-build-args:
     description: "Arguments to `slim build` (except for `--target` and `--tag`)"
     default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
