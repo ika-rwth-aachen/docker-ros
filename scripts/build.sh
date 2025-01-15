@@ -7,38 +7,60 @@ source "${ROOT_PATH}/scripts/utils.sh"
 
 
 build_image() {
-
     echo "Building stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}' ..."
-    docker buildx build \
-        --file $(dirname $0)/../docker/Dockerfile \
-        --target "${TARGET}" \
-        --platform "${PLATFORM}" \
-        --tag "${IMAGE}" \
-        $(if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then echo "--push"; else echo "--load"; fi) \
-        --build-arg BASE_IMAGE="${BASE_IMAGE}" \
-        --build-arg COMMAND="${COMMAND}" \
-        $(if [[ -n "${ADDITIONAL_DEBS_FILE}" ]]; then echo "--build-arg ADDITIONAL_DEBS_FILE=${ADDITIONAL_DEBS_FILE}"; fi) \
-        $(if [[ -n "${ADDITIONAL_FILES_DIR}" ]]; then echo "--build-arg ADDITIONAL_FILES_DIR=${ADDITIONAL_FILES_DIR}"; fi) \
-        $(if [[ -n "${ADDITIONAL_PIP_FILE}" ]]; then echo "--build-arg ADDITIONAL_PIP_FILE=${ADDITIONAL_PIP_FILE}"; fi) \
-        $(if [[ -n "${BLACKLISTED_PACKAGES_FILE}" ]]; then echo "--build-arg BLACKLISTED_PACKAGES_FILE=${BLACKLISTED_PACKAGES_FILE}"; fi) \
-        $(if [[ -n "${CUSTOM_CMAKE_ARGS}" ]]; then echo "--build-arg CUSTOM_CMAKE_ARGS=\"${CUSTOM_CMAKE_ARGS}\""; fi) \
-        $(if [[ -n "${CUSTOM_SCRIPT_FILE}" ]]; then echo "--build-arg CUSTOM_SCRIPT_FILE=${CUSTOM_SCRIPT_FILE}"; fi) \
-        $(if [[ -n "${DISABLE_ROS_INSTALLATION}" ]]; then echo "--build-arg DISABLE_ROS_INSTALLATION=${DISABLE_ROS_INSTALLATION}"; fi) \
-        $(if [[ -n "${ENABLE_RECURSIVE_ADDITIONAL_DEBS}" ]]; then echo "--build-arg ENABLE_RECURSIVE_ADDITIONAL_DEBS=${ENABLE_RECURSIVE_ADDITIONAL_DEBS}"; fi) \
-        $(if [[ -n "${ENABLE_RECURSIVE_ADDITIONAL_PIP}" ]]; then echo "--build-arg ENABLE_RECURSIVE_ADDITIONAL_PIP=${ENABLE_RECURSIVE_ADDITIONAL_PIP}"; fi) \
-        $(if [[ -n "${ENABLE_RECURSIVE_BLACKLISTED_PACKAGES}" ]]; then echo "--build-arg ENABLE_RECURSIVE_BLACKLISTED_PACKAGES=${ENABLE_RECURSIVE_BLACKLISTED_PACKAGES}"; fi) \
-        $(if [[ -n "${ENABLE_RECURSIVE_CUSTOM_SCRIPT}" ]]; then echo "--build-arg ENABLE_RECURSIVE_CUSTOM_SCRIPT=${ENABLE_RECURSIVE_CUSTOM_SCRIPT}"; fi) \
-        $(if [[ -n "${ENABLE_RECURSIVE_VCS_IMPORT}" ]]; then echo "--build-arg ENABLE_RECURSIVE_VCS_IMPORT=${ENABLE_RECURSIVE_VCS_IMPORT}"; fi) \
-        $(if [[ -n "${GIT_HTTPS_PASSWORD}" ]]; then echo "--build-arg GIT_HTTPS_PASSWORD=${GIT_HTTPS_PASSWORD}"; fi) \
-        $(if [[ -n "${GIT_HTTPS_SERVER}" ]]; then echo "--build-arg GIT_HTTPS_SERVER=${GIT_HTTPS_SERVER}"; fi) \
-        $(if [[ -n "${GIT_HTTPS_USER}" ]]; then echo "--build-arg GIT_HTTPS_USER=${GIT_HTTPS_USER}"; fi) \
-        $(if [[ -n "${GIT_SSH_KNOWN_HOST_KEYS}" ]]; then echo "--build-arg GIT_SSH_KNOWN_HOST_KEYS=${GIT_SSH_KNOWN_HOST_KEYS}"; fi) \
-        $(if [[ -n "${GIT_SSH_PRIVATE_KEY}" ]]; then echo "--build-arg GIT_SSH_PRIVATE_KEY=${GIT_SSH_PRIVATE_KEY}"; fi) \
-        $(if [[ -n "${RMW_IMPLEMENTATION}" ]]; then echo "--build-arg RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}"; fi) \
-        $(if [[ -n "${RMW_ZENOH_GIT_REF}" ]]; then echo "--build-arg RMW_ZENOH_GIT_REF=${RMW_ZENOH_GIT_REF}"; fi) \
-        $(if [[ -n "${ROS_DISTRO}" ]]; then echo "--build-arg ROS_DISTRO=${ROS_DISTRO}"; fi) \
-        $(if [[ -n "${VCS_IMPORT_FILE}" ]]; then echo "--build-arg VCS_IMPORT_FILE=${VCS_IMPORT_FILE}"; fi) \
-        .
+
+    DOCKER_ARGS=(
+      --file "$(dirname "$0")/../docker/Dockerfile"
+      --target "${TARGET}"
+      --platform "${PLATFORM}"
+      --tag "${IMAGE}"
+    )
+
+    if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then
+      DOCKER_ARGS+=( "--push" )
+    else
+      DOCKER_ARGS+=( "--load" )
+    fi
+
+    # required build args
+    DOCKER_ARGS+=( --build-arg "BASE_IMAGE=${BASE_IMAGE}" )
+    DOCKER_ARGS+=( --build-arg "COMMAND=${COMMAND}" )
+
+    # function to add "--build-arg NAME=VALUE" only if VALUE is non-empty
+    add_arg_if_set() {
+      local var_name="$1"
+      local var_value="${!var_name}"
+      if [[ -n "${var_value}" ]]; then
+        DOCKER_ARGS+=( "--build-arg" "${var_name}=${var_value}" )
+      fi
+    }
+
+    # optional build args
+    add_arg_if_set "ADDITIONAL_DEBS_FILE"
+    add_arg_if_set "ADDITIONAL_FILES_DIR"
+    add_arg_if_set "ADDITIONAL_PIP_FILE"
+    add_arg_if_set "BLACKLISTED_PACKAGES_FILE"
+    add_arg_if_set "CUSTOM_CMAKE_ARGS"
+    add_arg_if_set "CUSTOM_SCRIPT_FILE"
+    add_arg_if_set "DISABLE_ROS_INSTALLATION"
+    add_arg_if_set "ENABLE_RECURSIVE_ADDITIONAL_DEBS"
+    add_arg_if_set "ENABLE_RECURSIVE_ADDITIONAL_PIP"
+    add_arg_if_set "ENABLE_RECURSIVE_BLACKLISTED_PACKAGES"
+    add_arg_if_set "ENABLE_RECURSIVE_CUSTOM_SCRIPT"
+    add_arg_if_set "ENABLE_RECURSIVE_VCS_IMPORT"
+    add_arg_if_set "GIT_HTTPS_PASSWORD"
+    add_arg_if_set "GIT_HTTPS_SERVER"
+    add_arg_if_set "GIT_HTTPS_USER"
+    add_arg_if_set "GIT_SSH_KNOWN_HOST_KEYS"
+    add_arg_if_set "GIT_SSH_PRIVATE_KEY"
+    add_arg_if_set "RMW_IMPLEMENTATION"
+    add_arg_if_set "RMW_ZENOH_GIT_REF"
+    add_arg_if_set "ROS_DISTRO"
+    add_arg_if_set "VCS_IMPORT_FILE"
+
+    DOCKER_ARGS+=( "." )
+
+    docker buildx build "${DOCKER_ARGS[@]}"
     echo "Successfully built stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}'"
 }
 
