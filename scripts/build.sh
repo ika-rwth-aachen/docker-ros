@@ -34,7 +34,6 @@ build_image() {
         $(if [[ -n "${GIT_SSH_KNOWN_HOST_KEYS}" ]]; then echo "--build-arg GIT_SSH_KNOWN_HOST_KEYS=${GIT_SSH_KNOWN_HOST_KEYS}"; fi) \
         $(if [[ -n "${GIT_SSH_PRIVATE_KEY}" ]]; then echo "--build-arg GIT_SSH_PRIVATE_KEY=${GIT_SSH_PRIVATE_KEY}"; fi) \
         $(if [[ -n "${RMW_IMPLEMENTATION}" ]]; then echo "--build-arg RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION}"; fi) \
-        $(if [[ -n "${RMW_ZENOH_GIT_REF}" ]]; then echo "--build-arg RMW_ZENOH_GIT_REF=${RMW_ZENOH_GIT_REF}"; fi) \
         $(if [[ -n "${ROS_DISTRO}" ]]; then echo "--build-arg ROS_DISTRO=${ROS_DISTRO}"; fi) \
         $(if [[ -n "${VCS_IMPORT_FILE}" ]]; then echo "--build-arg VCS_IMPORT_FILE=${VCS_IMPORT_FILE}"; fi) \
         .
