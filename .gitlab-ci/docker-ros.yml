@@ -16,6 +16,7 @@ variables:
   BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
   COMMAND:                    ''                                      # Launch command of run image (required if target=run)
+  CMAKE_ARGS:                 '-DCMAKE_BUILD_TYPE=Release'            # CMake arguments to pass to `colcon build`
   CUSTOM_SCRIPT_FILE:         docker/custom.sh                        # Relative filepath to script containing custom installation commands
   DISABLE_ROS_INSTALLATION:   'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
   DOCKER_ROS_GIT_REF:         main                                    # Git ref of *docker-ros* to run in CI
