@@ -274,13 +274,13 @@ CMD ["bash"]
 ############ build #############################################################
 FROM dev AS build
 
-ARG CUSTOM_CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release"
+ARG CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release"
 # build ROS workspace
 RUN if [[ -x "$(command -v colcon)" ]]; then \
         source /opt/ros/${ROS_DISTRO}/setup.bash && \
         [[ -f /opt/ws_rmw_zenoh/install/setup.bash ]] && source /opt/ws_rmw_zenoh/install/setup.bash ; \
         [[ -f /opt/ws_base_image/install/setup.bash ]] && source /opt/ws_base_image/install/setup.bash ; \
-        colcon build --cmake-args ${CUSTOM_CMAKE_ARGS} ; \
+        colcon build --cmake-args ${CMAKE_ARGS} ; \
     elif [[ -x "$(command -v catkin)" ]]; then \
         catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
         catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \

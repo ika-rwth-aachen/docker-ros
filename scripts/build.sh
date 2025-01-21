@@ -40,7 +40,7 @@ build_image() {
     add_arg_if_set "ADDITIONAL_FILES_DIR"
     add_arg_if_set "ADDITIONAL_PIP_FILE"
     add_arg_if_set "BLACKLISTED_PACKAGES_FILE"
-    add_arg_if_set "CUSTOM_CMAKE_ARGS"
+    add_arg_if_set "CMAKE_ARGS"
     add_arg_if_set "CUSTOM_SCRIPT_FILE"
     add_arg_if_set "DISABLE_ROS_INSTALLATION"
     add_arg_if_set "ENABLE_RECURSIVE_ADDITIONAL_DEBS"
