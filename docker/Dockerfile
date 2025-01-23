@@ -45,6 +45,7 @@ COPY . src/target
 # run custom script before dependency identification
 ARG BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/before_dependency_identification.sh"
 RUN if [[ -f src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
+        chmod +x src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} && \
         src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
     fi
 
@@ -92,7 +93,8 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
 
 # create install script to run in dependencies-install stage
-RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh
+RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
+    chmod +x $WORKSPACE/.install-dependencies.sh
 
 # add custom script to run before dependency installation to install script
 ARG BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="docker/before_dependency_installation.sh"
@@ -111,7 +113,6 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src \
     | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" \
     | tee -a $WORKSPACE/.install-dependencies.sh && \
-    chmod +x $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # add additionally specified apt dependencies to install script
@@ -154,6 +155,7 @@ RUN rm -rf src/target/${ADDITIONAL_FILES_DIR}
 # run custom script after dependency identification
 ARG AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/after_dependency_identification.sh"
 RUN if [[ -f src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
+        chmod +x src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} && \
         src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
     fi
 
