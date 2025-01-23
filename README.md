@@ -33,7 +33,7 @@
   - [Package Blacklist](#package-blacklist)
   - [Extra System Dependencies (*apt*)](#extra-system-dependencies-apt)
   - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
-  - [Custom Installation Script](#custom-installation-script)
+  - [Custom Installation Scripts](#custom-installation-scripts)
   - [Extra Image Files](#extra-image-files)
 - [Additional Information](#additional-information)
   - [User Setup](#user-setup)
@@ -52,13 +52,14 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 The Dockerfile performs the following steps to build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
 2. *(optional)* Packages blacklisted in a special file `blacklisted-packages.txt` are removed from the workspace (see [*Advanced Dependencies*](#package-blacklist)).
-3. The ROS dependencies listed in each package's `package.xml` are installed by [*rosdep*](https://docs.ros.org/en/independent/api/rosdep/html/).
-4. *(optional)* Additional apt dependencies from a special file `additional-debs.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
-5. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
-6. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
-7. *(optional)* A special script `custom.sh` is executed to perform further arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-script)).
-8. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
-9. *(deployment)* A custom launch command is configured to run on container start.
+3. *(optional)* A special script `before_dependency_installation.sh` is executed to perform arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-scripts)).
+4. The ROS dependencies listed in each package's `package.xml` are installed by [*rosdep*](https://docs.ros.org/en/independent/api/rosdep/html/).
+5. *(optional)* Additional apt dependencies from a special file `additional-debs.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
+6. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
+7. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
+8. *(optional)* A special script `after_dependency_installation.sh` is executed to perform arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-scripts)).
+9. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
+10. *(deployment)* A custom launch command is configured to run on container start.
 
 ### Prerequisites
 
@@ -322,11 +323,15 @@ If your ROS-based repository requires Python dependencies that cannot be install
 
 Create a file `additional-pip-requirements.txt` in your `docker` folder (or configure a different `ADDITIONAL_PIP_FILE`) and list any other Python dependencies that need to be installed via *pip*.
 
-### Custom Installation Script
+### Custom Installation Scripts
 
-If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can use a special `custom.sh` script.
+If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can specify multiple custom scripts that are executed during the image building process. See the [configuration variable documentation](#configuration-variables) for the following variables.
+- `BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT`
+- `AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT`
+- `BEFORE_DEPENDENCY_INSTALLATION_SCRIPT`
+- `AFTER_DEPENDENCY_INSTALLATION_SCRIPT`
 
-Create a script `custom.sh` in your `docker` folder (or configure a different `CUSTOM_SCRIPT_FILE`) that executes arbitrary commands as part of the image building process.
+Create those scripts in your `docker` folder (or configure different filepaths via the specified environment variables).
 
 ### Extra Image Files
 
@@ -366,9 +371,21 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
+- **`after-dependency-identification-script` | `AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT`**  
+  Relative filepath to script containing commands to run after dependency identification  
+  *default:* `docker/after_dependency_identification.sh`
+- **`after-dependency-installation-script` | `AFTER_DEPENDENCY_INSTALLATION_SCRIPT`**  
+  Relative filepath to script containing commands to run after dependency installation  
+  *default:* `docker/after_dependency_installation.sh`
 - **`base-image` | `BASE_IMAGE`**  
   Base image `name:tag`  
-  *required*  
+  *required*
+- **`before-dependency-identification-script` | `BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT`**  
+  Relative filepath to script containing commands to run before dependency identification  
+  *default:* `docker/before_dependency_identification.sh`
+- **`before-dependency-installation-script` | `BEFORE_DEPENDENCY_INSTALLATION_SCRIPT`**  
+  Relative filepath to script containing commands to run before dependency installation  
+  *default:* `docker/before_dependency_installation.sh`
 - **`blacklisted-packages-file` | `BLACKLISTED_PACKAGES_FILE`**  
   Relative filepath to file containing blacklisted packages  
   *default:* `docker/blacklisted-packages.txt`
@@ -381,9 +398,6 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`cmake-args` | `CMAKE_ARGS`**  
   CMake arguments to pass to `colcon build`  
   *default:* `"-DCMAKE_BUILD_TYPE=Release"`  
-- **`custom-script-file` | `CUSTOM_SCRIPT_FILE`**  
-  Relative filepath to script containing custom installation commands  
-  *default:* `docker/custom.sh`  
 - **`dev-image-name` | `DEV_IMAGE_NAME`**  
   Image name of dev image  
   *default:* `<IMAGE_NAME>`  
@@ -421,11 +435,11 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-recursive-additional-pip` | `ENABLE_RECURSIVE_ADDITIONAL_PIP`**  
   Enable recursive discovery of files named `additional-pip-file`  
   *default:* `false`
+- **`enable-recursive-after-dependency-installation-script` | `ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT`**  
+  Enable recursive discovery of files named `after-dependency-installation-script`  
+  *default:* `false`
 - **`enable-recursive-blacklisted-packages` | `ENABLE_RECURSIVE_BLACKLISTED_PACKAGES`**  
   Enable recursive discovery of files named `blacklisted-packages-file`  
-  *default:* `false`
-- **`enable-recursive-custom-script` | `ENABLE_RECURSIVE_CUSTOM_SCRIPT`**  
-  Enable recursive discovery of files named `custom-script-file`  
   *default:* `false`
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
   Enable recursive discovery of files named `*.repos`  

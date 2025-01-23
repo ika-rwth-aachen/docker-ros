@@ -14,9 +14,21 @@ inputs:
   additional-pip-file:
     description: "Relative filepath to file containing additional pip packages to install"
     default: docker/additional-pip-requirements.txt
+  after-dependency-identification-script:
+    description: "Relative filepath to script containing commands to run after dependency identification"
+    default: docker/after_dependency_identification.sh
+  after-dependency-installation-script:
+    description: "Relative filepath to script containing commands to run after dependency installation"
+    default: docker/after_dependency_installation.sh
   base-image:
     description: "Base image name:tag"
     required: true
+  before-dependency-identification-script:
+    description: "Relative filepath to script containing commands to run before dependency identification"
+    default: docker/before_dependency_identification.sh
+  before-dependency-installation-script:
+    description: "Relative filepath to script containing commands to run before dependency installation"
+    default: docker/before_dependency_installation.sh
   blacklisted-packages-file:
     description: "Relative filepath to file containing blacklisted packages to remove from workspace"
     default: docker/blacklisted-packages.txt
@@ -28,9 +40,6 @@ inputs:
   cmake-args:
     description: "CMake arguments to pass to `colcon build`"
     default: "-DCMAKE_BUILD_TYPE=Release"
-  custom-script-file:
-    description: "Relative filepath to script containing custom installation commands"
-    default: docker/custom.sh
   dev-image-name:
     description: "Image name of dev image"
     default: ghcr.io/${{ github.repository }}
@@ -60,11 +69,11 @@ inputs:
   enable-recursive-additional-pip:
     description: "Enable recursive discovery of files named `additional-pip-file`"
     default: false
+  enable-recursive-after-dependency-installation-script:
+    description: "Enable recursive discovery of files named `after-dependency-installation-script`"
+    default: false
   enable-recursive-blacklisted-packages:
     description: "Enable recursive discovery of files named `blacklisted-packages-file`"
-    default: false
-  enable-recursive-custom-script:
-    description: "Enable recursive discovery of files named `custom-script-file`"
     default: false
   enable-singlearch-push:
     description: "Enable push of single arch images with [-amd64|-arm64] postfix"
@@ -188,18 +197,21 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.after-dependency-identification-script }}
+        AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
+        BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
+        BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
-        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.enable-recursive-after-dependency-installation-script }}
         ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_SLIM: ${{ inputs.enable-slim }}
         GIT_HTTPS_PASSWORD: ${{ inputs.git-https-password }}
@@ -252,18 +264,21 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.after-dependency-identification-script }}
+        AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
+        BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
+        BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
-        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: ${{ inputs.dev-image-tag }}
         DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.enable-recursive-after-dependency-installation-script }}
         ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         ENABLE_SLIM: ${{ inputs.enable-slim }}
@@ -295,18 +310,21 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.after-dependency-identification-script }}
+        AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
+        BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
+        BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
-        CUSTOM_SCRIPT_FILE: ${{ inputs.custom-script-file }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
         DEV_IMAGE_TAG: latest-dev
         DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
+        ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.enable-recursive-after-dependency-installation-script }}
         ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: ${{ inputs.enable-recursive-blacklisted-packages }}
-        ENABLE_RECURSIVE_CUSTOM_SCRIPT: ${{ inputs.enable-recursive-custom-script }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         ENABLE_SINGLEARCH_PUSH: ${{ inputs.enable-singlearch-push }}
         ENABLE_SLIM: ${{ inputs.enable-slim }}
