@@ -99,7 +99,8 @@ RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
 # add custom script to run before dependency installation to install script
 ARG BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="docker/before_dependency_installation.sh"
 RUN if [[ -f src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
-        cat src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh ; \
+        cat src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh && \
+        echo "" >> $WORKSPACE/.install-dependencies.sh ; \
     fi
 
 # add list of rosdep dependencies to install script
@@ -147,6 +148,9 @@ RUN if [[ $ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT == 'true' ]]; t
     elif [[ -f src/target/${AFTER_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
         cat src/target/${AFTER_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh ; \
     fi
+
+# log install script
+RUN cat $WORKSPACE/.install-dependencies.sh
 
 # remove additional-files folder from copied repository content to avoid redundancies
 ARG ADDITIONAL_FILES_DIR="docker/additional-files"
