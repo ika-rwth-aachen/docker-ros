@@ -42,6 +42,12 @@ RUN apt-get update && \
 # copy contents of repository
 COPY . src/target
 
+# run custom script before dependency identification
+ARG BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/before_dependency_identification.sh"
+RUN if [[ -f src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
+        /bin/bash src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
+    fi
+
 # clone .repos upstream dependencies
 ARG GIT_HTTPS_SERVER=
 ARG GIT_HTTPS_USER=
@@ -125,6 +131,7 @@ RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom installation commands to install script
+# TODO: rename custom.sh to after_dependency_installation.sh
 ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
 ARG ENABLE_RECURSIVE_CUSTOM_SCRIPT="false"
 RUN if [[ $ENABLE_RECURSIVE_CUSTOM_SCRIPT == 'true' ]]; then \
@@ -136,6 +143,12 @@ RUN if [[ $ENABLE_RECURSIVE_CUSTOM_SCRIPT == 'true' ]]; then \
 # remove additional-files folder from copied repository content to avoid redundancies
 ARG ADDITIONAL_FILES_DIR="docker/additional-files"
 RUN rm -rf src/target/${ADDITIONAL_FILES_DIR}
+
+# run custom script after dependency identification
+ARG AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/after_dependency_identification.sh"
+RUN if [[ -f src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
+        /bin/bash src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
+    fi
 
 ############ dependencies-install ##############################################
 FROM ${BASE_IMAGE} AS dependencies-install
