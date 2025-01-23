@@ -45,7 +45,7 @@ COPY . src/target
 # run custom script before dependency identification
 ARG BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/before_dependency_identification.sh"
 RUN if [[ -f src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
-        /bin/bash src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
+        src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
     fi
 
 # clone .repos upstream dependencies
@@ -91,9 +91,17 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     chmod +x $WORKSPACE/.remove-packages.sh && \
     $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
 
-# create install script with list of rosdep dependencies
-RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
-    source /opt/ros/$ROS_DISTRO/setup.bash && \
+# create install script to run in dependencies-install stage
+RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh
+
+# add custom script to run before dependency installation to install script
+ARG BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="docker/before_dependency_installation.sh"
+RUN if [[ -f src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
+        cat src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh ; \
+    fi
+
+# add list of rosdep dependencies to install script
+RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
     (rosdep init || true) && \
     rosdep update --rosdistro ${ROS_DISTRO} && \
@@ -130,14 +138,13 @@ RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
-# add custom installation commands to install script
-# TODO: rename custom.sh to after_dependency_installation.sh
-ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
-ARG ENABLE_RECURSIVE_CUSTOM_SCRIPT="false"
-RUN if [[ $ENABLE_RECURSIVE_CUSTOM_SCRIPT == 'true' ]]; then \
-        find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
-    elif [[ -f src/target/${CUSTOM_SCRIPT_FILE} ]]; then \
-        cat src/target/${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh ; \
+# add custom script to run after dependency installation to install script
+ARG AFTER_DEPENDENCY_INSTALLATION_SCRIPT="docker/after_dependency_installation.sh"
+ARG ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT="false"
+RUN if [[ $ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT == 'true' ]]; then \
+        find . -type f -name $(basename ${AFTER_DEPENDENCY_INSTALLATION_SCRIPT}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
+    elif [[ -f src/target/${AFTER_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
+        cat src/target/${AFTER_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh ; \
     fi
 
 # remove additional-files folder from copied repository content to avoid redundancies
@@ -147,7 +154,7 @@ RUN rm -rf src/target/${ADDITIONAL_FILES_DIR}
 # run custom script after dependency identification
 ARG AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/after_dependency_identification.sh"
 RUN if [[ -f src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
-        /bin/bash src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
+        src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
     fi
 
 ############ dependencies-install ##############################################
