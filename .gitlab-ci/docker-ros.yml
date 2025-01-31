@@ -27,6 +27,7 @@ variables:
   ENABLE_RECURSIVE_ADDITIONAL_DEBS: 'false'                           # Enable recursive discovery of files named `additional-debs-file`
   ENABLE_RECURSIVE_ADDITIONAL_PIP: 'false'                            # Enable recursive discovery of files named `additional-pip-file`
   ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT: 'false'      # Enable recursive discovery of files named `after-dependency-installation-script`
+  ENABLE_RECURSIVE_BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: 'false'     # Enable recursive discovery of files named `before-dependency-installation-script`
   ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: 'false'                      # Enable recursive discovery of files named `blacklisted-packages-file`
   ENABLE_RECURSIVE_VCS_IMPORT: 'true'                                 # Enable recursive discovery of files named `*.repos`
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix

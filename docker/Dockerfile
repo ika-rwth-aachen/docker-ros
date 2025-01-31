@@ -98,7 +98,10 @@ RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
 
 # add custom script to run before dependency installation to install script
 ARG BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="docker/before_dependency_installation.sh"
-RUN if [[ -f src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
+ARG ENABLE_RECURSIVE_BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="false"
+RUN if [[ $ENABLE_RECURSIVE_BEFORE_DEPENDENCY_INSTALLATION_SCRIPT == 'true' ]]; then \
+        find . -type f -name $(basename ${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
+    elif [[ -f src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
         cat src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh && \
         echo "" >> $WORKSPACE/.install-dependencies.sh ; \
     fi

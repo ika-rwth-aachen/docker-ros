@@ -434,6 +434,9 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-recursive-after-dependency-installation-script` | `ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT`**  
   Enable recursive discovery of files named `after-dependency-installation-script`  
   *default:* `false`
+- **`enable-recursive-before-dependency-installation-script` | `ENABLE_RECURSIVE_BEFORE_DEPENDENCY_INSTALLATION_SCRIPT`**  
+  Enable recursive discovery of files named `before-dependency-installation-script`  
+  *default:* `false`
 - **`enable-recursive-blacklisted-packages` | `ENABLE_RECURSIVE_BLACKLISTED_PACKAGES`**  
   Enable recursive discovery of files named `blacklisted-packages-file`  
   *default:* `false`
