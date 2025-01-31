@@ -16,7 +16,7 @@ inputs:
     default: docker/additional-pip-requirements.txt
   after-dependency-installation-script:
     description: "Relative filepath to script containing commands to run after dependency installation"
-    default: docker/after_dependency_installation.sh
+    default: docker/custom.sh
   base-image:
     description: "Base image name:tag"
     required: true

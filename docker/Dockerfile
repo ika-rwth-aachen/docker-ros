@@ -141,7 +141,7 @@ RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
 # add custom script to run after dependency installation to install script
-ARG AFTER_DEPENDENCY_INSTALLATION_SCRIPT="docker/after_dependency_installation.sh"
+ARG AFTER_DEPENDENCY_INSTALLATION_SCRIPT="docker/custom.sh"
 ARG ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT="false"
 RUN if [[ $ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT == 'true' ]]; then \
         find . -type f -name $(basename ${AFTER_DEPENDENCY_INSTALLATION_SCRIPT}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \

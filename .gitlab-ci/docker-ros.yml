@@ -12,7 +12,7 @@ variables:
   ADDITIONAL_DEBS_FILE:       docker/additional-debs.txt              # Relative filepath to file containing additional apt deb packages to install
   ADDITIONAL_FILES_DIR:       docker/additional-files                 # Relative path to directory containing additional files to copy into image"
   ADDITIONAL_PIP_FILE:        docker/additional-pip-requirements.txt  # Relative filepath to file containing additional pip packages to install
-  AFTER_DEPENDENCY_INSTALLATION_SCRIPT: docker/after_dependency_installation.sh       # Relative filepath to script containing commands to run after dependency installation
+  AFTER_DEPENDENCY_INSTALLATION_SCRIPT: docker/custom.sh              # Relative filepath to script containing commands to run after dependency installation
   BASE_IMAGE:                 ''                                      # Base image name:tag (required)
   BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: docker/before_dependency_identification.sh # Relative filepath to script containing commands to run before dependency identification
   BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: docker/before_dependency_installation.sh     # Relative filepath to script containing commands to run before dependency installation

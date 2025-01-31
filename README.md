@@ -57,7 +57,7 @@ The Dockerfile performs the following steps to build these images:
 5. *(optional)* Additional apt dependencies from a special file `additional-debs.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-apt)).
 6. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
 7. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
-8. *(optional)* A special script `after_dependency_installation.sh` is executed to perform arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-scripts)).
+8. *(optional)* A special script `custom.sh` is executed to perform arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-scripts)).
 9. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
 10. *(deployment)* A custom launch command is configured to run on container start.
 
@@ -372,7 +372,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *default:* `docker/additional-pip-requirements.txt`
 - **`after-dependency-installation-script` | `AFTER_DEPENDENCY_INSTALLATION_SCRIPT`**  
   Relative filepath to script containing commands to run after dependency installation  
-  *default:* `docker/after_dependency_installation.sh`
+  *default:* `docker/custom.sh`
 - **`base-image` | `BASE_IMAGE`**  
   Base image `name:tag`  
   *required*
