@@ -44,7 +44,6 @@ variables:
   REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
   RMW_IMPLEMENTATION:         'rmw_cyclonedds_cpp'                    # RMW implementation to use (only for ROS 2)
-  RMW_ZENOH_GIT_REF:          ''                                      # Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
   SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'  # Arguments to `slim build` (except for `--target` and `--tag`)
   TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
@@ -208,10 +207,6 @@ run-arm64:
       fi
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
     - test -f ${BUILD_CONTEXT}/.repos || echo "repositories:" > ${BUILD_CONTEXT}/.repos
-    - |-
-      if [ "$RMW_IMPLEMENTATION" = "rmw_zenoh_cpp" ]; then
-        export UNDERLAY="/opt/ws_rmw_zenoh/install"
-      fi
   script: .industrial_ci/gitlab.sh
 
 Test dev-amd64:
