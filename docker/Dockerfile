@@ -156,13 +156,6 @@ RUN cat $WORKSPACE/.install-dependencies.sh
 ARG ADDITIONAL_FILES_DIR="docker/additional-files"
 RUN rm -rf src/target/${ADDITIONAL_FILES_DIR}
 
-# run custom script after dependency identification
-ARG AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/after_dependency_identification.sh"
-RUN if [[ -f src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
-        chmod +x src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} && \
-        src/target/${AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
-    fi
-
 ############ dependencies-install ##############################################
 FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH

@@ -327,7 +327,6 @@ Create a file `additional-pip-requirements.txt` in your `docker` folder (or conf
 
 If your ROS-based repository requires to execute any other installation or pre-/post-installation steps, you can specify multiple custom scripts that are executed during the image building process. See the [configuration variable documentation](#configuration-variables) for the following variables.
 - `BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT`
-- `AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT`
 - `BEFORE_DEPENDENCY_INSTALLATION_SCRIPT`
 - `AFTER_DEPENDENCY_INSTALLATION_SCRIPT`
 
@@ -371,9 +370,6 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
-- **`after-dependency-identification-script` | `AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT`**  
-  Relative filepath to script containing commands to run after dependency identification  
-  *default:* `docker/after_dependency_identification.sh`
 - **`after-dependency-installation-script` | `AFTER_DEPENDENCY_INSTALLATION_SCRIPT`**  
   Relative filepath to script containing commands to run after dependency installation  
   *default:* `docker/after_dependency_installation.sh`

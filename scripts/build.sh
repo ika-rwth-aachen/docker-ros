@@ -39,7 +39,6 @@ build_image() {
     add_arg_if_set "ADDITIONAL_DEBS_FILE"
     add_arg_if_set "ADDITIONAL_FILES_DIR"
     add_arg_if_set "ADDITIONAL_PIP_FILE"
-    add_arg_if_set "AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT"
     add_arg_if_set "AFTER_DEPENDENCY_INSTALLATION_SCRIPT"
     add_arg_if_set "BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT"
     add_arg_if_set "BEFORE_DEPENDENCY_INSTALLATION_SCRIPT"

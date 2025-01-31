@@ -14,9 +14,6 @@ inputs:
   additional-pip-file:
     description: "Relative filepath to file containing additional pip packages to install"
     default: docker/additional-pip-requirements.txt
-  after-dependency-identification-script:
-    description: "Relative filepath to script containing commands to run after dependency identification"
-    default: docker/after_dependency_identification.sh
   after-dependency-installation-script:
     description: "Relative filepath to script containing commands to run after dependency installation"
     default: docker/after_dependency_installation.sh
@@ -197,7 +194,6 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.after-dependency-identification-script }}
         AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
@@ -264,7 +260,6 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.after-dependency-identification-script }}
         AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
@@ -310,7 +305,6 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
-        AFTER_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.after-dependency-identification-script }}
         AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
