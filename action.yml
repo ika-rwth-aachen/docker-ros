@@ -107,8 +107,6 @@ inputs:
   rmw-implementation:
     description: "RMW implementation to use (only for ROS 2)"
     default: rmw_cyclonedds_cpp
-  rmw-zenoh-git-ref:
-    description: "Git ref of rmw_zenoh repo to build if `RMW_IMPLEMENTATION=rmw_zenoh_cpp`"
   slim-build-args:
     description: "Arguments to `slim build` (except for `--target` and `--tag`)"
     default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
@@ -211,7 +209,6 @@ runs:
         IMAGE_TAG: ${{ inputs.image-tag }}
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
-        RMW_ZENOH_GIT_REF: ${{ inputs.rmw-zenoh-git-ref }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
@@ -229,7 +226,7 @@ runs:
       uses: ros-industrial/industrial_ci@master
       env:
         ADDITIONAL_DEBS: git
-        AFTER_INIT_EMBED: '[[ "$RMW_IMPLEMENTATION" == "rmw_zenoh_cpp" ]] && export UNDERLAY="/opt/ws_rmw_zenoh/install" ; [[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
+        AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
         DOCKER_RUN_OPTS: -u root:root
@@ -276,7 +273,6 @@ runs:
         IMAGE_TAG: ${{ inputs.image-tag }}
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
-        RMW_ZENOH_GIT_REF: ${{ inputs.rmw-zenoh-git-ref }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
@@ -319,7 +315,6 @@ runs:
         IMAGE_TAG: latest
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
-        RMW_ZENOH_GIT_REF: ${{ inputs.rmw-zenoh-git-ref }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
         SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
