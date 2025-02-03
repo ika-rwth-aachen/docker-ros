@@ -2,6 +2,8 @@ ARG BASE_IMAGE
 
 ############ dependencies ######################################################
 FROM ${BASE_IMAGE} AS dependencies
+ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH}
 
 USER root
 SHELL ["/bin/bash", "-c"]
