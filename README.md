@@ -467,7 +467,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *default:* `${{ github.actor }}` | `$CI_REGISTRY_USER`  
 - **`rmw-implementation` | `RMW_IMPLEMENTATION`**  
   ROS 2 middleware implementation  
-  *default:* `rmw_cyclonedds_cpp`  
+  *default:* `rmw_fastrtps_cpp`  
   *supported values:* `rmw_zenoh_cpp`, `rmw_fastrtps_cpp`, `rmw_cyclonedds_cpp`, `rmw_gurumdds_cpp`, ...  
 - **`ros-distro` | `ROS_DISTRO`**  
   ROS Distro  
