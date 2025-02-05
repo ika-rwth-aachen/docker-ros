@@ -2,6 +2,8 @@ ARG BASE_IMAGE
 
 ############ dependencies ######################################################
 FROM ${BASE_IMAGE} AS dependencies
+ARG TARGETARCH
+ENV TARGETARCH=${TARGETARCH}
 
 USER root
 SHELL ["/bin/bash", "-c"]
@@ -41,6 +43,13 @@ RUN apt-get update && \
 
 # copy contents of repository
 COPY . src/target
+
+# run custom script before dependency identification
+ARG BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT="docker/before_dependency_identification.sh"
+RUN if [[ -f src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ]]; then \
+        chmod +x src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} && \
+        src/target/${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT} ; \
+    fi
 
 # clone .repos upstream dependencies
 ARG GIT_HTTPS_SERVER=
@@ -85,9 +94,22 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     chmod +x $WORKSPACE/.remove-packages.sh && \
     $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
 
-# create install script with list of rosdep dependencies
+# create install script to run in dependencies-install stage
 RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
-    source /opt/ros/$ROS_DISTRO/setup.bash && \
+    chmod +x $WORKSPACE/.install-dependencies.sh
+
+# add custom script to run before dependency installation to install script
+ARG BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="docker/before_dependency_installation.sh"
+ARG ENABLE_RECURSIVE_BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="false"
+RUN if [[ $ENABLE_RECURSIVE_BEFORE_DEPENDENCY_INSTALLATION_SCRIPT == 'true' ]]; then \
+        find . -type f -name $(basename ${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
+    elif [[ -f src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
+        cat src/target/${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh && \
+        echo "" >> $WORKSPACE/.install-dependencies.sh ; \
+    fi
+
+# add list of rosdep dependencies to install script
+RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
     (rosdep init || true) && \
     rosdep update --rosdistro ${ROS_DISTRO} && \
@@ -97,7 +119,6 @@ RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
     ROS_PACKAGE_PATH=$(pwd):$ROS_PACKAGE_PATH rosdep install --os $OS -y --simulate --from-paths src --ignore-src \
     | sed -E "s/'apt-get install -y ([^']+)' \(alternative 1\/1\)/apt-get install -y \1/" \
     | tee -a $WORKSPACE/.install-dependencies.sh && \
-    chmod +x $WORKSPACE/.install-dependencies.sh && \
     rm -rf /var/lib/apt/lists/*
 
 # add additionally specified apt dependencies to install script
@@ -124,14 +145,17 @@ RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
-# add custom installation commands to install script
-ARG CUSTOM_SCRIPT_FILE="docker/custom.sh"
-ARG ENABLE_RECURSIVE_CUSTOM_SCRIPT="false"
-RUN if [[ $ENABLE_RECURSIVE_CUSTOM_SCRIPT == 'true' ]]; then \
-        find . -type f -name $(basename ${CUSTOM_SCRIPT_FILE}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
-    elif [[ -f src/target/${CUSTOM_SCRIPT_FILE} ]]; then \
-        cat src/target/${CUSTOM_SCRIPT_FILE} >> $WORKSPACE/.install-dependencies.sh ; \
+# add custom script to run after dependency installation to install script
+ARG AFTER_DEPENDENCY_INSTALLATION_SCRIPT="docker/custom.sh"
+ARG ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT="false"
+RUN if [[ $ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT == 'true' ]]; then \
+        find . -type f -name $(basename ${AFTER_DEPENDENCY_INSTALLATION_SCRIPT}) -exec sed '$a\' {} >> $WORKSPACE/.install-dependencies.sh \; ; \
+    elif [[ -f src/target/${AFTER_DEPENDENCY_INSTALLATION_SCRIPT} ]]; then \
+        cat src/target/${AFTER_DEPENDENCY_INSTALLATION_SCRIPT} >> $WORKSPACE/.install-dependencies.sh ; \
     fi
+
+# log install script
+RUN cat $WORKSPACE/.install-dependencies.sh
 
 # remove additional-files folder from copied repository content to avoid redundancies
 ARG ADDITIONAL_FILES_DIR="docker/additional-files"
