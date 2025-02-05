@@ -245,7 +245,7 @@ RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 
 # install desired ROS 2 middleware
 ARG RMW_IMPLEMENTATION
-ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_cyclonedds_cpp}
+ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     if [[ "$ROS_VERSION" == "2" && "$DISABLE_ROS_INSTALLATION" != "true" ]]; then \
         apt-get update && \

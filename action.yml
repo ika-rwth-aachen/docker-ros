@@ -115,7 +115,7 @@ inputs:
     description: "ROS Distro (required if ROS is not installed in `base-image`)"
   rmw-implementation:
     description: "RMW implementation to use (only for ROS 2)"
-    default: rmw_cyclonedds_cpp
+    default: rmw_fastrtps_cpp
   slim-build-args:
     description: "Arguments to `slim build` (except for `--target` and `--tag`)"
     default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
