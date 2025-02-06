@@ -13,7 +13,7 @@ jobs:
   trigger-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: convictional/trigger-workflow-and-wait@v1.6.5
+      - uses: convictional/trigger-workflow-and-wait@v1.7.0
         with:
           owner: ika-rwth-aachen
           repo: docker-ros-ci
@@ -25,7 +25,7 @@ jobs:
   trigger-ros2:
     runs-on: ubuntu-latest
     steps:
-      - uses: convictional/trigger-workflow-and-wait@v1.6.5
+      - uses: convictional/trigger-workflow-and-wait@v1.7.0
         with:
           owner: ika-rwth-aachen
           repo: docker-ros-ci
