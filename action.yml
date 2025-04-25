@@ -118,7 +118,7 @@ inputs:
     default: rmw_fastrtps_cpp
   slim-build-args:
     description: "Arguments to `slim build` (except for `--target` and `--tag`)"
-    default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false'
+    default: '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --include-path /opt/ros --include-path /docker-ros/ws/install'
   slim-image-name:
     description: "Image name of slim run image"
     default: ghcr.io/${{ github.repository }}
