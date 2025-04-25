@@ -353,7 +353,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 
 ### Slim Deployment Image
 
-*docker-ros* integrates the [*slim*](https://github.com/slimtoolkit/slim) toolkit for minifying container images. *slim* is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that the slimmed deployment image is stripped of every single thing not needed for executing the default launch command. The slimming process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
+*docker-ros* integrates the [*slim*](https://github.com/slimtoolkit/slim) toolkit for minifying container images. *slim* is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that *slim* removes every single thing not needed for executing the default launch command. To balance image size and out-of-the-box functionality, the `/opt/ros` and `/docker-ros/ws/install` directories are preserved by default. The slimming process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
 
 
 ## Configuration Variables
@@ -488,7 +488,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *supported values:* `rolling`, ..., `noetic`, ...
 - **`slim-build-args` | `SLIM_BUILD_ARGS`**  
   [Arguments to `slim build`](https://github.com/slimtoolkit/slim?tab=readme-ov-file#build-command-options) (except for `--target` and `--tag`)  
-  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false`  
+  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --include-path /opt/ros --include-path /docker-ros/ws/install`  
 - **`slim-image-name` | `SLIM_IMAGE_NAME`**  
   Image name of slim run image  
   *default:* `<IMAGE_NAME>`  
