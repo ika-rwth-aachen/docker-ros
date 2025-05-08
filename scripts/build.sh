@@ -60,6 +60,8 @@ build_image() {
     add_arg_if_set "RMW_IMPLEMENTATION"
     add_arg_if_set "ROS_DISTRO"
     add_arg_if_set "VCS_IMPORT_FILE"
+    add_arg_if_set "ENABLE_SSH"
+    add_arg_if_set "ENABLE_SSH_PORT"
 
     DOCKER_ARGS+=( "." )
 

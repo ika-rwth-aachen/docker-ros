@@ -446,6 +446,12 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-slim` | `ENABLE_SLIM`**  
   Enable an extra slimmed run image via [slim](https://github.com/slimtoolkit/slim) (only if `run` stage is targeted)  
   *default:* `true`
+- **`enable-ssh` | `ENABLE_SSH`**
+  Enable automatically running SSH server in the container
+  *default:* `false`
+- **`enable-ssh-port` | `ENABLE_SSH_PORT`**
+  Port to be used for SSH server in the container (only relevant if `enable-ssh=true`)
+  *default:* `2222`
 - **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
   Password for cloning private Git repositories via HTTPS  
   *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
