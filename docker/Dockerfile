@@ -1,4 +1,6 @@
 ARG BASE_IMAGE
+ARG ENABLE_SSH=false
+ARG ENABLE_SSH_PORT=2222
 
 ############ dependencies ######################################################
 FROM ${BASE_IMAGE} AS dependencies
@@ -272,8 +274,8 @@ ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 FROM dependencies-install AS dev
 
 # Optionally install and configure SSH server on custom port (to account for net=host)
-ARG ENABLE_SSH=false
-ARG ENABLE_SSH_PORT=2222
+ARG ENABLE_SSH
+ARG ENABLE_SSH_PORT
 RUN if [ "$ENABLE_SSH" = "true" ]; then \
     apt-get update && \
     apt-get install -y openssh-server && \
@@ -307,8 +309,8 @@ FROM dependencies-install AS run
 RUN rm -rf $WORKSPACE/src
 
 # Optionally install and configure SSH server on custom port (to account for net=host)
-ARG ENABLE_SSH=
-ARG ENABLE_SSH_PORT=
+ARG ENABLE_SSH
+ARG ENABLE_SSH_PORT
 RUN if [ "$ENABLE_SSH" = "true" ]; then \
     apt-get update && \
     apt-get install -y openssh-server && \
