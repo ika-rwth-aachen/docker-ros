@@ -11,7 +11,6 @@ if [ "$ENABLE_SSH" = "true" ]; then
     service ssh start
 fi
 
-
 # exec as dockeruser with configured UID/GID
 if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     if ! getent group $DOCKER_GID > /dev/null 2>&1; then

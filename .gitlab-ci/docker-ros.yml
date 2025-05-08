@@ -32,6 +32,8 @@ variables:
   ENABLE_RECURSIVE_VCS_IMPORT: 'true'                                 # Enable recursive discovery of files named `*.repos`
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
   ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
+  ENABLE_SSH:                 'false'                                 # Enable automatically running SSH server in the container
+  ENABLE_SSH_PORT:            2222                                    # Port to be used for SSH server in the container (only relevant if ENABLE_SSH=true)
   GIT_HTTPS_PASSWORD:         ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
   GIT_HTTPS_SERVER:           ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
   GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS

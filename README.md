@@ -19,26 +19,27 @@
 > If you would like to learn more about how we can support your advanced driver assistance and automated driving efforts, feel free to reach out to us!  
 > :email: ***opensource@ika.rwth-aachen.de***
 
-- [About](#about)
-  - [Prerequisites](#prerequisites)
-- [Usage](#usage)
-  - [Build a minimal image for deployment](#build-a-minimal-image-for-deployment)
-  - [Build development and deployment images](#build-development-and-deployment-images)
-  - [Build multi-arch images](#build-multi-arch-images)
-  - [Build deployment image with additional industrial\_ci check](#build-deployment-image-with-additional-industrial_ci-check)
-  - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
-  - [Build images locally](#build-images-locally)
-- [Advanced Dependencies](#advanced-dependencies)
-  - [Recursion](#recursion)
-  - [Package Blacklist](#package-blacklist)
-  - [Extra System Dependencies (*apt*)](#extra-system-dependencies-apt)
-  - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
-  - [Custom Installation Scripts](#custom-installation-scripts)
-  - [Extra Image Files](#extra-image-files)
-- [Additional Information](#additional-information)
-  - [User Setup](#user-setup)
-  - [Slim Deployment Image](#slim-deployment-image)
-- [Configuration Variables](#configuration-variables)
+- [*docker-ros* – Automated Containerization of ROS Apps](#docker-ros--automated-containerization-of-ros-apps)
+  - [About](#about)
+    - [Prerequisites](#prerequisites)
+  - [Usage](#usage)
+    - [Build a minimal image for deployment](#build-a-minimal-image-for-deployment)
+    - [Build development and deployment images](#build-development-and-deployment-images)
+    - [Build multi-arch images](#build-multi-arch-images)
+    - [Build deployment image with additional industrial\_ci check](#build-deployment-image-with-additional-industrial_ci-check)
+    - [Build multi-arch images on arch-specific self-hosted runners in parallel](#build-multi-arch-images-on-arch-specific-self-hosted-runners-in-parallel)
+    - [Build images locally](#build-images-locally)
+  - [Advanced Dependencies](#advanced-dependencies)
+    - [Recursion](#recursion)
+    - [Package Blacklist](#package-blacklist)
+    - [Extra System Dependencies (*apt*)](#extra-system-dependencies-apt)
+    - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
+    - [Custom Installation Scripts](#custom-installation-scripts)
+    - [Extra Image Files](#extra-image-files)
+  - [Additional Information](#additional-information)
+    - [User Setup](#user-setup)
+    - [Slim Deployment Image](#slim-deployment-image)
+  - [Configuration Variables](#configuration-variables)
 
 We recommend to use *docker-ros* in combination with our other tools for Docker and ROS.
 - [*docker-ros-ml-images*](https://github.com/ika-rwth-aachen/docker-ros-ml-images) provides machine learning-enabled ROS Docker images <a href="https://github.com/ika-rwth-aachen/docker-ros-ml-images"><img src="https://img.shields.io/github/stars/ika-rwth-aachen/docker-ros-ml-images?style=social"/></a>
@@ -446,6 +447,12 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`enable-slim` | `ENABLE_SLIM`**  
   Enable an extra slimmed run image via [slim](https://github.com/slimtoolkit/slim) (only if `run` stage is targeted)  
   *default:* `true`
+- **`enable-ssh` | `ENABLE_SSH`**
+  Enable automatically running SSH server in the container
+  *default:* `false`
+- **`enable-ssh-port` | `ENABLE_SSH_PORT`**
+  Port to be used for SSH server in the container (only relevant if `enable-ssh=true`)
+  *default:* `false`
 - **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
   Password for cloning private Git repositories via HTTPS  
   *default:* `${{ github.token }}` | `$CI_JOB_TOKEN` 
