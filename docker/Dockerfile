@@ -306,13 +306,14 @@ FROM dependencies-install AS run
 # remove source code, if still existing from custom.sh modifications
 RUN rm -rf $WORKSPACE/src
 
-# Optionally install and configure SSH server on port 2222
-ARG ENABLE_SSH=false
+# Optionally install and configure SSH server on custom port (to account for net=host)
+ARG ENABLE_SSH=
+ARG ENABLE_SSH_PORT=
 RUN if [ "${ENABLE_SSH}" = "true" ]; then \
     apt-get update && \
     apt-get install -y openssh-server && \
     rm -rf /var/lib/apt/lists/* && \
-    sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config; \ 
+    sed -i 's/#Port 22/Port ${ENABLE_SSH_PORT}/' /etc/ssh/sshd_config; \ 
     fi
 
 # copy ROS install space from build stage
