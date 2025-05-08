@@ -274,11 +274,11 @@ FROM dependencies-install AS dev
 # Optionally install and configure SSH server on custom port (to account for net=host)
 ARG ENABLE_SSH=false
 ARG ENABLE_SSH_PORT=2222
-RUN if [ "${ENABLE_SSH}" = "true" ]; then \
+RUN if [ "$ENABLE_SSH" = "true" ]; then \
     apt-get update && \
     apt-get install -y openssh-server && \
     rm -rf /var/lib/apt/lists/* && \
-    sed -i 's/#Port 22/Port ${ENABLE_SSH_PORT}/' /etc/ssh/sshd_config; \ 
+    sed -i 's/#Port 22/Port $ENABLE_SSH_PORT/' /etc/ssh/sshd_config; \ 
     fi
 
 # copy contents of repository from dependencies stage
@@ -309,11 +309,11 @@ RUN rm -rf $WORKSPACE/src
 # Optionally install and configure SSH server on custom port (to account for net=host)
 ARG ENABLE_SSH=
 ARG ENABLE_SSH_PORT=
-RUN if [ "${ENABLE_SSH}" = "true" ]; then \
+RUN if [ "$ENABLE_SSH" = "true" ]; then \
     apt-get update && \
     apt-get install -y openssh-server && \
     rm -rf /var/lib/apt/lists/* && \
-    sed -i 's/#Port 22/Port ${ENABLE_SSH_PORT}/' /etc/ssh/sshd_config; \ 
+    sed -i 's/#Port 22/Port $ENABLE_SSH_PORT/' /etc/ssh/sshd_config; \ 
     fi
 
 # copy ROS install space from build stage
