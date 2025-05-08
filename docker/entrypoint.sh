@@ -7,6 +7,11 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 [[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash
 [[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash
 
+if [ "$ENABLE_SSH" = "true" ]; then
+    service ssh start
+fi
+
+
 # exec as dockeruser with configured UID/GID
 if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     if ! getent group $DOCKER_GID > /dev/null 2>&1; then
