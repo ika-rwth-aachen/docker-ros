@@ -86,7 +86,7 @@ inputs:
     default: false
   enable-ssh-port:
     description: "Port to be used for SSH server in the container (only if `enable-ssh` is true)"
-    default: false
+    default: 2222
   git-https-password:
     description: "Password for cloning private Git repositories via HTTPS"
     default: ${{ github.token }}
