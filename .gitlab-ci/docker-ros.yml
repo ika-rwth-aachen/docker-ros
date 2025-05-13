@@ -109,7 +109,7 @@ default:
     - |-
       if [[ ! -d docker/docker-ros ]]; then
         mkdir -p docker
-        git clone --depth=1  https://github.com/ika-rwth-aachen/docker-ros.git docker/docker-ros
+        git clone --depth=1  https://github.com/TUDA-FSR/docker-ros.git docker/docker-ros
         cd docker/docker-ros
         git fetch origin ${DOCKER_ROS_GIT_REF}
         git checkout FETCH_HEAD
