@@ -203,7 +203,6 @@ run-arm64:
     - apk add --update bash coreutils grep tar
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
-        echo ${CI_DEPENDENCY_PROXY_PASSWORD} | docker login -u ${CI_DEPENDENCY_PROXY_USER} --password-stdin ${CI_DEPENDENCY_PROXY_SERVER}
         docker run --privileged --rm ${DEPENDENCY_PROXY_IMAGE_PREFIX}/tonistiigi/binfmt --install all
       fi
     - git clone --branch master --depth 1 https://github.com/ros-industrial/industrial_ci.git .industrial_ci
@@ -259,7 +258,6 @@ Test run-arm64:
     - curl -L -o ds.tar.gz ${SLIM_DOWNLOAD_URL}
     - tar -xvf ds.tar.gz
     - cd dist_linux*
-    - echo ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USER} --password-stdin ${REGISTRY}
     - docker pull ${FAT_IMAGE}
   script:
     - ./slim build --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS}
@@ -324,7 +322,6 @@ Slim run-arm64:
       when: never
   script:
     - |-
-      echo ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USER} --password-stdin ${REGISTRY}
       if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
           docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
