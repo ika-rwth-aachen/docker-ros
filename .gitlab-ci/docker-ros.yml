@@ -37,6 +37,7 @@ variables:
   GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
   GIT_SSH_KNOWN_HOST_KEYS:    ''                                      # Known SSH host keys for cloning private Git repositories via SSH (may be obtained using `ssh-keyscan`)
   GIT_SSH_PRIVATE_KEY:        ''                                      # SSH private key for cloning private Git repositories via SSH
+  DEPENDENCY_PROXY_IMAGE_PREFIX: ${CI_DEPENDENCY_PROXY_DIRECT_GROUP_IMAGE_PREFIX}  # Dependency proxy image prefix
   IMAGE_NAME:                 ${CI_REGISTRY_IMAGE}                    # Image name of run image
   IMAGE_TAG:                  latest                                  # Image tag of run image
   PLATFORM:                   amd64                                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
@@ -122,7 +123,7 @@ default:
   script:
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
-        docker run --privileged --rm tonistiigi/binfmt --install all
+        docker run --privileged --rm ${DEPENDENCY_PROXY_IMAGE_PREFIX}/tonistiigi/binfmt --install all
       fi
       TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
       echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"

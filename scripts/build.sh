@@ -23,7 +23,7 @@ build_image() {
     fi
 
     # required build args
-    DOCKER_ARGS+=( --build-arg "BASE_IMAGE=${BASE_IMAGE}" )
+    DOCKER_ARGS+=( --build-arg "BASE_IMAGE=${DEPENDENCY_PROXY_IMAGE_PREFIX}/${BASE_IMAGE}" )
     DOCKER_ARGS+=( --build-arg "COMMAND=${COMMAND}" )
 
     # function to add "--build-arg NAME=VALUE" only if VALUE is non-empty
