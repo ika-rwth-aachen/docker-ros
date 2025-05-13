@@ -116,7 +116,7 @@ default:
         git checkout FETCH_HEAD
         cd -
       fi
-    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - echo ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USER} --password-stdin ${REGISTRY}
     - docker context create docker-ros-context
     - docker buildx create docker-ros-context --driver docker-container --driver-opt default-load=true --name docker-ros-builder --use
     - echo -e "section_end:`date +%s`:setup_section\r\e[0K"
