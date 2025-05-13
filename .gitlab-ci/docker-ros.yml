@@ -116,7 +116,7 @@ default:
         git checkout FETCH_HEAD
         cd -
       fi
-    # - echo ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USER} --password-stdin ${REGISTRY}
+    - echo ${CI_DEPENDENCY_PROXY_PASSWORD} | docker login -u ${CI_DEPENDENCY_PROXY_USER} --password-stdin ${CI_DEPENDENCY_PROXY_SERVER}
     - echo -e "section_end:`date +%s`:setup_section\r\e[0K"
 
 .build:
@@ -200,7 +200,7 @@ run-arm64:
     AFTER_INIT_EMBED: git config --global url.https://${GIT_HTTPS_USER}:${GIT_HTTPS_PASSWORD}@${GIT_HTTPS_SERVER}.insteadOf https://${GIT_HTTPS_SERVER}
     DOCKER_RUN_OPTS: -u root:root
   before_script:
-    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - echo ${CI_DEPENDENCY_PROXY_PASSWORD} | docker login -u ${CI_DEPENDENCY_PROXY_USER} --password-stdin ${CI_DEPENDENCY_PROXY_SERVER}
     - apk add --update bash coreutils grep tar
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
@@ -259,7 +259,7 @@ Test run-arm64:
     - curl -L -o ds.tar.gz ${SLIM_DOWNLOAD_URL}
     - tar -xvf ds.tar.gz
     - cd dist_linux*
-    - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
+    - echo ${CI_DEPENDENCY_PROXY_PASSWORD} | docker login -u ${CI_DEPENDENCY_PROXY_USER} --password-stdin ${CI_DEPENDENCY_PROXY_SERVER}
     - docker pull ${FAT_IMAGE}
   script:
     - ./slim build --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS}
