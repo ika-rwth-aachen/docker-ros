@@ -116,6 +116,8 @@ default:
         git checkout FETCH_HEAD
         cd -
       fi
+    - echo ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USER} --password-stdin ${REGISTRY}
+    - echo ${CI_DEPENDENCY_PROXY_PASSWORD} | docker login -u ${CI_DEPENDENCY_PROXY_USER} --password-stdin ${CI_DEPENDENCY_PROXY_SERVER}
     - docker context create docker-ros-context
     - docker buildx create docker-ros-context --driver docker-container --driver-opt default-load=true --name docker-ros-builder --use
     - echo -e "section_end:`date +%s`:setup_section\r\e[0K"
@@ -124,17 +126,9 @@ default:
   script:
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
-        echo ${CI_DEPENDENCY_PROXY_PASSWORD} | docker login -u ${CI_DEPENDENCY_PROXY_USER} --password-stdin ${CI_DEPENDENCY_PROXY_SERVER}
         docker run --privileged --rm ${DEPENDENCY_PROXY_IMAGE_PREFIX}/tonistiigi/binfmt --install all
       fi
-      echo ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USER} --password-stdin ${REGISTRY}
-      docker pull "${IMAGE}" || true
-      echo ${CI_DEPENDENCY_PROXY_PASSWORD} | docker login -u ${CI_DEPENDENCY_PROXY_USER} --password-stdin ${CI_DEPENDENCY_PROXY_SERVER}
       TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
-      echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
-      echo ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USER} --password-stdin ${REGISTRY}
-      docker push ${IMAGE}
-      echo -e "section_end:`date +%s`:push_section\r\e[0K"
 
 dev-amd64:
   stage: Build dev Images
