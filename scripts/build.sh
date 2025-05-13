@@ -63,7 +63,6 @@ build_image() {
 
     DOCKER_ARGS+=( "." )
 
-    docker pull "${IMAGE}" || true
     docker buildx build --cache-to type=inline --cache-from type=registry,ref=${IMAGE} "${DOCKER_ARGS[@]}"
     echo "Successfully built stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}'"
 }
