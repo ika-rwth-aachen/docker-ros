@@ -80,10 +80,6 @@ variables:
   _IMAGE_RUN_TAG:         ${IMAGE_NAME}:${CI_COMMIT_TAG}
   _IMAGE_SLIM_TAG:        ${SLIM_IMAGE_NAME}:${CI_COMMIT_TAG}-slim
 
-  # This variable is shared by both the DinD service and Docker client.
-  # For the service, it will instruct DinD to create `docker.sock` here.
-  # For the client, it tells the Docker client which Docker Unix socket to connect to.
-  DOCKER_HOST: "unix:///runner/services/docker/docker.sock"
   DOCKER_BUILDKIT: 1
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -97,9 +93,6 @@ stages:
 
 
 default:
-  image: docker:28
-  services:
-    - docker:28-dind
   tags:
     - privileged
     - amd64
