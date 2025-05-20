@@ -63,7 +63,7 @@ ARG GIT_SSH_KNOWN_HOST_KEYS=
 RUN if [[ -n ${GIT_SSH_PRIVATE_KEY} ]]; then \
         echo -e ${GIT_SSH_PRIVATE_KEY} > /tmp/ssh_id && \
         chmod 400 /tmp/ssh_id && \
-        git config --global core.sshCommand "ssh -i /.ssh_key" && \
+        git config --global core.sshCommand "ssh -i /tmp/ssh_id" && \
         mkdir -p ~/.ssh && \
         touch ~/.ssh/known_hosts && \
         echo -e ${GIT_SSH_KNOWN_HOST_KEYS} >> ~/.ssh/known_hosts ; \
