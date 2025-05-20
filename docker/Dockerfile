@@ -61,12 +61,12 @@ RUN if [[ -n ${GIT_HTTPS_SERVER} ]]; then \
 ARG GIT_SSH_PRIVATE_KEY=
 ARG GIT_SSH_KNOWN_HOST_KEYS=
 RUN if [[ -n ${GIT_SSH_PRIVATE_KEY} ]]; then \
-        echo -e ${GIT_SSH_PRIVATE_KEY} > ~/.ssh/ssh_key && \
+        mkdir -p ~/.ssh && \
+        echo -e "${GIT_SSH_PRIVATE_KEY}" > ~/.ssh/ssh_key && \
         chmod 400 ~/.ssh/ssh_key && \
         git config --global core.sshCommand "ssh -i ~/.ssh/ssh_key" && \
-        mkdir -p ~/.ssh && \
         touch ~/.ssh/known_hosts && \
-        echo -e ${GIT_SSH_KNOWN_HOST_KEYS} >> ~/.ssh/known_hosts ; \
+        echo -e "${GIT_SSH_KNOWN_HOST_KEYS}" >> ~/.ssh/known_hosts ; \
     fi
 COPY docker/docker-ros/docker/recursive_vcs_import.py /usr/local/bin
 RUN apt-get update && \
