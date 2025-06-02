@@ -18,6 +18,8 @@ RUN mkdir -p src/target src/upstream src/downstream
 ARG ROS_DISTRO
 ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
+RUN rm /etc/apt/sources.list.d/ros2.list && \
+    rm /usr/share/keyrings/ros-archive-keyring.gpg
 RUN apt-get update && \
     apt-get install -y curl gnupg && \
     if [[ -n $(find /etc/apt/sources.list.d/ -name "*ros2*") ]]; then \
@@ -189,6 +191,8 @@ WORKDIR $WORKSPACE
 ARG ROS_DISTRO
 ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
+RUN rm /etc/apt/sources.list.d/ros2.list && \
+    rm /usr/share/keyrings/ros-archive-keyring.gpg
 RUN apt-get update && \
     apt-get install -y curl gnupg && \
     if [[ -n $(find /etc/apt/sources.list.d/ -name "*ros2*") ]]; then \
