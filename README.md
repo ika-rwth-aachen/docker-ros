@@ -57,7 +57,7 @@ The Dockerfile performs the following steps to build these images:
 6. *(optional)* Additional pip requirements from a special file `additional-pip-requirements.txt` are installed, if needed (see [*Advanced Dependencies*](#extra-system-dependencies-pip)).
 7. *(optional)* A special folder `additional-files/` is copied into the images, if needed (see [*Advanced Dependencies*](#extra-image-files)).
 8. *(optional)* A special script `custom.sh` is executed to perform arbitrary installation commands, if needed (see [*Advanced Dependencies*](#custom-installation-scripts)).
-9. *(deployment)* All ROS packages are built using `catkin` (ROS) or `colcon` (ROS2).
+9. *(deployment)* All ROS packages are built using `colcon` (ROS2).
 10. *(deployment)* A custom launch command is configured to run on container start.
 
 ### Prerequisites
