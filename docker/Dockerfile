@@ -20,12 +20,10 @@ ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
 RUN apt-get update && \
     apt-get install -y curl gnupg && \
-    if [[ "$ROS_DISTRO" == "noetic" ]] && ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
-        echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list ; \
-    elif ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
-    	curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null ; \
+    if ! [[ -n $(find /etc/apt/sources.list.d/ -name "*ros2*") ]]; then \
+        ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') && \
+        curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $UBUNTU_CODENAME)_all.deb" && \
+        apt-get install -y /tmp/ros2-apt-source.deb ; \
     fi && \
     rm -rf /var/lib/apt/lists/*
 
@@ -191,12 +189,10 @@ ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
 RUN apt-get update && \
     apt-get install -y curl gnupg && \
-    if [[ "$ROS_DISTRO" == "noetic" ]] && ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654 && \
-        echo "deb http://packages.ros.org/ros/ubuntu focal main" > /etc/apt/sources.list.d/ros1-latest.list ; \
-    elif ! cat /etc/apt/sources.list /etc/apt/sources.list.d/* | grep "http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main"; then \
-    	curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg && \
-    	echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | tee /etc/apt/sources.list.d/ros2.list > /dev/null ; \
+    if ! [[ -n $(find /etc/apt/sources.list.d/ -name "*ros2*") ]]; then \
+        ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') && \
+        curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $UBUNTU_CODENAME)_all.deb" && \
+        apt-get install -y /tmp/ros2-apt-source.deb ; \
     fi && \
     rm -rf /var/lib/apt/lists/*
 
@@ -231,14 +227,8 @@ RUN apt-get update && \
 # install ROS CLI tools
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     apt-get update && \
-    if [[ "$ROS_VERSION" == "1" ]]; then \
-        apt-get install -y \
-            python3-catkin-tools ; \
-    elif [[ "$ROS_VERSION" == "2" ]]; then \
-        apt-get install -y \
-            python3-colcon-common-extensions ; \
-    fi \
-    && rm -rf /var/lib/apt/lists/*
+    apt-get install -y python3-colcon-common-extensions && \
+    rm -rf /var/lib/apt/lists/*
 
 # source ROS
 RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
@@ -247,7 +237,7 @@ RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 ARG RMW_IMPLEMENTATION
 ENV RMW_IMPLEMENTATION=${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
 RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
-    if [[ "$ROS_VERSION" == "2" && "$DISABLE_ROS_INSTALLATION" != "true" ]]; then \
+    if [[ "$DISABLE_ROS_INSTALLATION" != "true" ]]; then \
         apt-get update && \
         RMW_PACKAGE=ros-$ROS_DISTRO-$(echo $RMW_IMPLEMENTATION | tr '_' '-') && \
         apt-get install -y $RMW_PACKAGE && \
@@ -281,14 +271,9 @@ FROM dev AS build
 
 ARG CMAKE_ARGS="-DCMAKE_BUILD_TYPE=Release"
 # build ROS workspace
-RUN if [[ -x "$(command -v colcon)" ]]; then \
-        source /opt/ros/${ROS_DISTRO}/setup.bash && \
-        [[ -f /opt/ws_base_image/install/setup.bash ]] && source /opt/ws_base_image/install/setup.bash ; \
-        colcon build --cmake-args ${CMAKE_ARGS} ; \
-    elif [[ -x "$(command -v catkin)" ]]; then \
-        catkin config --install --extend /opt/ros/${ROS_DISTRO} && \
-        catkin build -DCMAKE_BUILD_TYPE=Release --force-color --no-status --summarize ; \
-    fi
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash && \
+    [[ -f /opt/ws_base_image/install/setup.bash ]] && source /opt/ws_base_image/install/setup.bash ; \
+    colcon build --cmake-args ${CMAKE_ARGS}
 
 ############ run ###############################################################
 FROM dependencies-install AS run
@@ -299,8 +284,7 @@ RUN rm -rf $WORKSPACE/src
 # copy ROS install space from build stage
 COPY --from=build $WORKSPACE/install install
 RUN ldconfig
-RUN echo "[[ -f $WORKSPACE/devel/setup.bash ]] && source $WORKSPACE/devel/setup.bash" >> ~/.bashrc && \
-    echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
+RUN echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # setup command
 ARG COMMAND
