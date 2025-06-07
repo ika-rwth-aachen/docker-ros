@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/github/license/ika-rwth-aachen/docker-ros"/>
   <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/github.yml/badge.svg"/></a>
   <a href="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml"><img src="https://github.com/ika-rwth-aachen/docker-ros/actions/workflows/gitlab.yml/badge.svg"/></a>
-  <img src="https://img.shields.io/badge/ROS 2-foxy|humble|iron|jazzy-blueviolet"/>
+  <img src="https://img.shields.io/badge/ROS 2-humble|jazzy|kilted-293754"/>
 </p>
 
 *docker-ros* automatically builds minimal container images of ROS applications.
