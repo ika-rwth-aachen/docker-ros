@@ -74,12 +74,6 @@ fi
 unset TARGET
 unset PLATFORM
 
-# prepare slim
-if [[ "${ENABLE_SLIM}" == "true" ]]; then
-    curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
-    tar -xvf ds.tar.gz
-fi
-
 # loop over targets and platforms to build images
 for PLATFORM in "${PLATFORMS[@]}"; do
     for TARGET in "${TARGETS[@]}"; do
@@ -93,20 +87,21 @@ for PLATFORM in "${PLATFORMS[@]}"; do
     done
 
     # slim image
-    if [[ "${ENABLE_SLIM}" == "true" && "${TARGET}" == "run" ]]; then
+    if [[ "${ENABLE_SLIM}" == "true" && "${TARGET}" == "run" && ${_ENABLE_IMAGE_PUSH} == "true" ]]; then
         open_log_group "Slim image (${PLATFORM})"
         image="${IMAGE}"
         slim_image="${SLIM_IMAGE}"
         [[ -n "${_IMAGE_POSTFIX}" ]] && image="${image}${_IMAGE_POSTFIX}"
         [[ -n "${_IMAGE_POSTFIX}" ]] && slim_image="${slim_image}${_IMAGE_POSTFIX}"
-        [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
-        [[ "${_ENABLE_IMAGE_PUSH}" != "true" || "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
+        [[ "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
+        [[ "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
+        curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+        tar -xvf ds.tar.gz
         cd dist_linux*
         ./slim build --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
-        if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then
-            docker push "${slim_image}"
-        fi
+        docker push "${slim_image}"
         cd -
+        rm -rf dist_linux* ds.tar.gz
         close_log_group
     fi
 done
