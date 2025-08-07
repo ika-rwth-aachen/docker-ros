@@ -112,9 +112,9 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.7.0
+      - uses: ika-rwth-aachen/docker-ros@v1.8.1
         with:
-          base-image: rwthika/ros2:humble
+          base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
 ```
 
@@ -124,10 +124,10 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.7.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.8.1/.gitlab-ci/docker-ros.yml
 
 variables:
-  BASE_IMAGE: rwthika/ros2:humble
+  BASE_IMAGE: rwthika/ros2:jazzy
   COMMAND: ros2 run my_pkg my_node
 ```
 
@@ -143,9 +143,9 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.7.0
+      - uses: ika-rwth-aachen/docker-ros@v1.8.1
         with:
-          base-image: rwthika/ros2:humble
+          base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
           target: dev,run
 ```
@@ -156,10 +156,10 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.7.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.8.1/.gitlab-ci/docker-ros.yml
 
 variables:
-  BASE_IMAGE: rwthika/ros2:humble
+  BASE_IMAGE: rwthika/ros2:jazzy
   COMMAND: ros2 run my_pkg my_node
   TARGET: dev,run
 ```
@@ -176,9 +176,9 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.7.0
+      - uses: ika-rwth-aachen/docker-ros@v1.8.1
         with:
-          base-image: rwthika/ros2:humble
+          base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
           target: dev,run
           platform: amd64,arm64
@@ -190,10 +190,10 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.7.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.8.1/.gitlab-ci/docker-ros.yml
 
 variables:
-  BASE_IMAGE: rwthika/ros2:humble
+  BASE_IMAGE: rwthika/ros2:jazzy
   COMMAND: ros2 run my_pkg my_node
   TARGET: dev,run
   PLATFORM: amd64,arm64
@@ -211,9 +211,9 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.7.0
+      - uses: ika-rwth-aachen/docker-ros@v1.8.1
         with:
-          base-image: rwthika/ros2:humble
+          base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
           enable-industrial-ci: 'true'
 ```
@@ -224,10 +224,10 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.7.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.8.1/.gitlab-ci/docker-ros.yml
 
 variables:
-  BASE_IMAGE: rwthika/ros2:humble
+  BASE_IMAGE: rwthika/ros2:jazzy
   COMMAND: ros2 run my_pkg my_node
   ENABLE_INDUSTRIAL_CI: 'true'
 ```
@@ -248,9 +248,9 @@ jobs:
         platform: [amd64, arm64]
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.7.0
+      - uses: ika-rwth-aachen/docker-ros@v1.8.1
         with:
-          base-image: rwthika/ros2:humble
+          base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
           target: ${{ matrix.target }}
           platform: ${{ matrix.platform }}
@@ -281,7 +281,7 @@ jobs:
 2. Configure the build using the same [environment variables](#configuration-variables) as used for GitLab CI and run [`build.sh`](scripts/build.sh), e.g.:
     ```bash
     # ros-repository/
-      BASE_IMAGE="rwthika/ros2:humble" \
+      BASE_IMAGE="rwthika/ros2:jazzy" \
       COMMAND="ros2 run my_pkg my_node" \
       IMAGE="my-image:latest" \
     ./docker/docker-ros/scripts/build.sh
@@ -290,7 +290,7 @@ jobs:
     > You can alternatively store your environment variable configuration in a `.env` file:
     > ```bash
     > # .env
-    > BASE_IMAGE="rwthika/ros2:humble"
+    > BASE_IMAGE="rwthika/ros2:jazzy"
     > COMMAND="ros2 run my_pkg my_node"
     > IMAGE="my-image:latest"
     > ```
