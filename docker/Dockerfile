@@ -90,7 +90,7 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     fi && \
     echo ";" >> $WORKSPACE/.remove-packages.sh && \
     chmod +x $WORKSPACE/.remove-packages.sh && \
-    $WORKSPACE/.remove-packages.sh 2> /dev/null | xargs rm -rf
+    $WORKSPACE/.remove-packages.sh 2> /dev/null | tr '\n' '\0' | xargs -0 rm -rf
 
 # create install script to run in dependencies-install stage
 RUN echo "set -e" > $WORKSPACE/.install-dependencies.sh && \
