@@ -231,7 +231,7 @@ RUN source /opt/ros/$ROS_DISTRO/setup.bash && \
     rm -rf /var/lib/apt/lists/*
 
 # source ROS
-RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc &&
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc && \
     echo "[[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # install desired ROS 2 middleware
