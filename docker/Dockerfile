@@ -171,7 +171,6 @@ ENV DOCKER_ROS=1
 USER root
 SHELL ["/bin/bash", "-c"]
 ARG DEBIAN_FRONTEND=noninteractive
-RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/' ~/.bashrc
 
 # user setup
 ENV DOCKER_USER=dockeruser
