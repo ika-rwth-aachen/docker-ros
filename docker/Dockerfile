@@ -84,8 +84,8 @@ ARG BLACKLISTED_PACKAGES_FILE="docker/blacklisted-packages.txt"
 ARG ENABLE_RECURSIVE_BLACKLISTED_PACKAGES="false"
 RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.remove-packages.sh && \
     if [[ $ENABLE_RECURSIVE_BLACKLISTED_PACKAGES == 'true' ]]; then \
-        find . -type f -name $(basename ${BLACKLISTED_PACKAGES_FILE}) -exec sed "$ a\\" {} \; | awk '{print " " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
-        elif [[ -f src/target/${BLACKLISTED_PACKAGES_FILE} ]]; then \
+        find . -type f -name $(basename ${BLACKLISTED_PACKAGES_FILE}) -exec sed "$ a\\" {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.remove-packages.sh ; \
+    elif [[ -f src/target/${BLACKLISTED_PACKAGES_FILE} ]]; then \
         cat src/target/${BLACKLISTED_PACKAGES_FILE} | awk '{ gsub(/#.*/, ""); gsub(/^[ \t]+|[ \t]+$/, ""); if (NF) print "  " $0 " \\" }' >> $WORKSPACE/.remove-packages.sh ; \
     fi && \
     echo ";" >> $WORKSPACE/.remove-packages.sh && \
@@ -125,7 +125,7 @@ ARG ENABLE_RECURSIVE_ADDITIONAL_DEBS="false"
 RUN echo "apt-get install -y \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ENABLE_RECURSIVE_ADDITIONAL_DEBS == 'true' ]]; then \
-        find . -type f -name $(basename ${ADDITIONAL_DEBS_FILE}) -exec sed "$ a\\" {} \; | awk '{print " " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+        find . -type f -name $(basename ${ADDITIONAL_DEBS_FILE}) -exec sed "$ a\\" {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     elif [[ -f src/target/${ADDITIONAL_DEBS_FILE} ]]; then \
         cat src/target/${ADDITIONAL_DEBS_FILE} | awk '{ gsub(/#.*/, ""); gsub(/^[ \t]+|[ \t]+$/, ""); if (NF) print "  " $0 " \\" }' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
@@ -137,7 +137,7 @@ ARG ENABLE_RECURSIVE_ADDITIONAL_PIP="false"
 RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ENABLE_RECURSIVE_ADDITIONAL_PIP == 'true' ]]; then \
-        find . -type f -name $(basename ${ADDITIONAL_PIP_FILE}) -exec sed "$ a\\" {} \; | awk '{print " " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+        find . -type f -name $(basename ${ADDITIONAL_PIP_FILE}) -exec sed "$ a\\" {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     elif [[ -f src/target/${ADDITIONAL_PIP_FILE} ]]; then \
         cat src/target/${ADDITIONAL_PIP_FILE} | awk '{ gsub(/#.*/, ""); gsub(/^[ \t]+|[ \t]+$/, ""); if (NF) print "  " $0 " \\" }' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
