@@ -421,7 +421,7 @@ Push tag:
   extends: .push
   rules:
     - !reference [.push, rules]
-    - if: $CI_COMMIT_TAG && $ENABLE_PUSH_AS_LATEST == 'true'
+    - if: $CI_COMMIT_TAG && ($ENABLE_PUSH_AS_LATEST == 'true' || $IMAGE_TAG == 'latest')
   variables:
     IMG_DEV: ${_IMAGE_DEV_TAG}
     IMG_RUN: ${_IMAGE_RUN_TAG}
