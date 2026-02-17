@@ -46,7 +46,7 @@ variables:
   RMW_IMPLEMENTATION:         'rmw_fastrtps_cpp'                      # RMW implementation to use (only for ROS 2)
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
   SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --include-path /opt/ros --include-path /docker-ros/ws/install'  # Arguments to `slim build` (except for `--target` and `--tag`)
-  TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
+  TARGET:                     dev,run                                 # Target stage of Dockerfile (comma-separated list) [dev|run]
   VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
   
   DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image
@@ -86,8 +86,7 @@ variables:
 
 
 stages:
-  - Build dev Images
-  - Build run Images
+  - Build Images
   - Test ROS Industrial CI
   - Slim Images
   - Push Multi-Arch Images
@@ -119,74 +118,29 @@ default:
     - echo -e "section_end:`date +%s`:setup_section\r\e[0K"
 
 .build:
+  stage: Build Images
   script:
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       fi
-      TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
-      echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
-      docker push ${IMAGE}
-      echo -e "section_end:`date +%s`:push_section\r\e[0K"
+      TARGET=${TARGET} PLATFORM=${_PLATFORM} ENABLE_SINGLEARCH_PUSH=true _ENABLE_IMAGE_PUSH=true ./docker/docker-ros/scripts/ci.sh
 
-dev-amd64:
-  stage: Build dev Images
+build-amd64:
   extends: .build
   rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
+    - if: $PLATFORM =~ /.*amd64.*/
   variables:
     _PLATFORM: amd64
-    _TARGET: dev
-    IMAGE: ${_IMAGE_DEV_CI_AMD64}
-    ENABLE_SINGLEARCH_PUSH: 'true'
-    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
-dev-arm64:
-  stage: Build dev Images
+build-arm64:
   extends: .build
   tags: [privileged, arm64]
   rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
+    - if: $PLATFORM =~ /.*arm64.*/
   variables:
     _PLATFORM: arm64
-    _TARGET: dev
-    IMAGE: ${_IMAGE_DEV_CI_ARM64}
-    ENABLE_SINGLEARCH_PUSH: 'true'
-    ENABLE_SLIM: 'false'
-    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
-
-run-amd64:
-  stage: Build run Images
-  extends: .build
-  needs:
-    - job: dev-amd64
-      optional: true
-  rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
-  variables:
-    _PLATFORM: amd64
-    _TARGET: run
-    IMAGE: ${_IMAGE_RUN_CI_AMD64}
-    ENABLE_SINGLEARCH_PUSH: 'true'
-    ENABLE_SLIM: 'false'
-    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
-
-run-arm64:
-  stage: Build run Images
-  extends: .build
-  tags: [privileged, arm64]
-  needs:
-    - job: dev-arm64
-      optional: true
-  rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
-  variables:
-    _PLATFORM: arm64
-    _TARGET: run
-    IMAGE: ${_IMAGE_RUN_CI_ARM64}
-    ENABLE_SINGLEARCH_PUSH: 'true'
-    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 
@@ -212,7 +166,7 @@ run-arm64:
 Test dev-amd64:
   extends: .test
   needs:
-    - job: dev-amd64
+    - job: build-amd64
   rules:
     - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
   variables:
@@ -223,7 +177,7 @@ Test dev-arm64:
   extends: .test
   tags: [privileged, arm64]
   needs:
-    - job: dev-arm64
+    - job: build-arm64
   rules:
       - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
   variables:
@@ -233,7 +187,7 @@ Test dev-arm64:
 Test run-amd64:
   extends: .test
   needs:
-    - job: run-amd64
+    - job: build-amd64
   rules:
     - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET !~ /.*dev.*/
   variables:
@@ -243,7 +197,7 @@ Test run-amd64:
 Test run-arm64:
   extends: .test
   needs:
-    - job: run-arm64
+    - job: build-arm64
   rules:
     - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET !~ /.*dev.*/
   variables:
@@ -268,7 +222,7 @@ Slim run-amd64:
   stage: Slim Images
   extends: .slim
   needs:
-    - job: run-amd64
+    - job: build-amd64
       optional: true
     - job: Test run-amd64
       optional: true
@@ -284,7 +238,7 @@ Slim run-arm64:
   extends: .slim
   tags: [privileged, arm64]
   needs:
-    - job: run-arm64
+    - job: build-arm64
       optional: true
     - job: Test run-arm64
       optional: true
@@ -297,14 +251,11 @@ Slim run-arm64:
 
 
 .push:
+  stage: Push Multi-Arch Images
   needs:
-    - job: dev-amd64
+    - job: build-amd64
       optional: true
-    - job: dev-arm64
-      optional: true
-    - job: run-amd64
-      optional: true
-    - job: run-arm64
+    - job: build-arm64
       optional: true
     - job: Test dev-amd64
       optional: true
