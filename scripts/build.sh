@@ -8,14 +8,15 @@ source "${ROOT_PATH}/scripts/utils.sh"
 
 build_image() {
     echo "Building stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}' ..."
-    BUILDX_PROVENANCE="${BUILDX_PROVENANCE:-false}"
+    BUILDX_ATTESTATIONS="${BUILDX_ATTESTATIONS:-false}"
 
     DOCKER_ARGS=(
       --file "$(dirname "$0")/../docker/Dockerfile"
       --target "${TARGET}"
       --platform "${PLATFORM}"
       --tag "${IMAGE}"
-      --provenance="${BUILDX_PROVENANCE}"
+      --provenance="${BUILDX_ATTESTATIONS}"
+      --sbom="${BUILDX_ATTESTATIONS}"
     )
 
     if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then
@@ -80,7 +81,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     require_var "BASE_IMAGE"
     require_var "IMAGE"
     [[ "${TARGET}" == *"run"* ]] && require_var "COMMAND"
-    BUILDX_PROVENANCE="${BUILDX_PROVENANCE:-false}"
+    BUILDX_ATTESTATIONS="${BUILDX_ATTESTATIONS:-false}"
     _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
     build_image
 fi

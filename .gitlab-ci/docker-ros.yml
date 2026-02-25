@@ -18,7 +18,7 @@ variables:
   BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: docker/before_dependency_installation.sh     # Relative filepath to script containing commands to run before dependency installation
   BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
-  BUILDX_PROVENANCE:          'false'                                 # Value for `docker buildx build --provenance` (set `false` for older registries)
+  BUILDX_ATTESTATIONS:        'false'                                 # Value for `docker buildx build --provenance/--sbom` (set `false` for older registries)
   COMMAND:                    ''                                      # Launch command of run image (required if target=run)
   CMAKE_ARGS:                 '-DCMAKE_BUILD_TYPE=Release'            # CMake arguments to pass to `colcon build`
   DISABLE_ROS_INSTALLATION:   'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
