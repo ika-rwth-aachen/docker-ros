@@ -18,6 +18,7 @@ variables:
   BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: docker/before_dependency_installation.sh     # Relative filepath to script containing commands to run before dependency installation
   BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
+  BUILDX_PROVENANCE:          'false'                                 # Value for `docker buildx build --provenance` (set `false` for older registries)
   COMMAND:                    ''                                      # Launch command of run image (required if target=run)
   CMAKE_ARGS:                 '-DCMAKE_BUILD_TYPE=Release'            # CMake arguments to pass to `colcon build`
   DISABLE_ROS_INSTALLATION:   'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
@@ -46,7 +47,7 @@ variables:
   RMW_IMPLEMENTATION:         'rmw_fastrtps_cpp'                      # RMW implementation to use (only for ROS 2)
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
   SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --include-path /opt/ros --include-path /docker-ros/ws/install'  # Arguments to `slim build` (except for `--target` and `--tag`)
-  TARGET:                     dev,run                                 # Target stage of Dockerfile (comma-separated list) [dev|run]
+  TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
   VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
   
   DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image

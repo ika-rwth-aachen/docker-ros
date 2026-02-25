@@ -387,6 +387,10 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`build-context` | `BUILD_CONTEXT`**  
   Build context of Docker build process  
   *default:* `${{ github.workspace }}` | `.`  
+- **`buildx-provenance` | `BUILDX_PROVENANCE`**  
+  Value passed to `docker buildx build --provenance`  
+  *set to `false` for compatibility with older registries that reject attestation metadata*  
+  *default:* `false`
 - **`command` | `COMMAND`**  
   Launch command of run image  
   *required if `target=run`*  
