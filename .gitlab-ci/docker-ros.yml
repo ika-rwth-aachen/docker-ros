@@ -125,7 +125,7 @@ default:
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       fi
-      TARGET=${TARGET} PLATFORM=${_PLATFORM} ENABLE_SINGLEARCH_PUSH=true ENABLE_SLIM=false _ENABLE_IMAGE_PUSH=true ./docker/docker-ros/scripts/ci.sh
+      TARGET=${TARGET} PLATFORM=${_PLATFORM} _ENABLE_IMAGE_PUSH=true ./docker/docker-ros/scripts/ci.sh
 
 build-amd64:
   extends: .build
@@ -133,6 +133,8 @@ build-amd64:
     - if: $PLATFORM =~ /.*amd64.*/
   variables:
     _PLATFORM: amd64
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 build-arm64:
@@ -142,6 +144,8 @@ build-arm64:
     - if: $PLATFORM =~ /.*arm64.*/
   variables:
     _PLATFORM: arm64
+    ENABLE_SINGLEARCH_PUSH: 'true'
+    ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
 
