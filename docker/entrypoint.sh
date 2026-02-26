@@ -8,9 +8,12 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 
 # exec as dockeruser with configured UID/GID
 if [[ $DOCKER_UID && $DOCKER_GID ]]; then
+    [[ -n "$DOCKER_EPHEMERAL_USER" ]] && echo "INFO | DOCKER_EPHEMERAL_USER=$DOCKER_EPHEMERAL_USER DOCKER_UID=$DOCKER_UID DOCKER_GID=$DOCKER_GID"
+    created_docker_group=false
     created_docker_user=false
     if ! getent group $DOCKER_GID > /dev/null 2>&1; then
         groupadd -g $DOCKER_GID $DOCKER_USER
+        created_docker_group=true
     else
         echo -e "\e[33mWARNING | Cannot create group '$DOCKER_USER' with GID $DOCKER_GID, another group '$(getent group $DOCKER_GID | cut -d: -f1)' with same GID is already existing\e[0m"
     fi
@@ -35,10 +38,10 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
         echo -e "\e[33mWARNING | Cannot create user '$DOCKER_USER' with UID $DOCKER_UID, another user '$(getent passwd $DOCKER_UID | cut -d: -f1)' with same UID is already existing\e[0m"
     fi
     # Remove the user/group created in this run to keep user-creation libraries in slim probe, then continue as root.
-    if [[ "$DOCKER_EPHEMERAL_USER" == "true" && "$created_docker_user" == "true" ]]; then
-        gosu $DOCKER_USER true
-        userdel -r $DOCKER_USER > /dev/null 2>&1 || true
-        groupdel $DOCKER_USER > /dev/null 2>&1 || true
+    if [[ "$DOCKER_EPHEMERAL_USER" == "true" ]]; then
+        [[ "$created_docker_user" == "true" ]] && gosu $DOCKER_USER true
+        [[ "$created_docker_user" == "true" ]] && userdel -r $DOCKER_USER > /dev/null 2>&1 || true
+        [[ "$created_docker_group" == "true" ]] && groupdel $DOCKER_USER > /dev/null 2>&1 || true
         exec "$@"
     else
         [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
