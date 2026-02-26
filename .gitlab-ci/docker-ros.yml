@@ -18,6 +18,7 @@ variables:
   BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: docker/before_dependency_installation.sh     # Relative filepath to script containing commands to run before dependency installation
   BLACKLISTED_PACKAGES_FILE:  docker/blacklisted-packages.txt         # Relative filepath to file containing the blacklisted packages
   BUILD_CONTEXT:              .                                       # Build context of Docker build process
+  BUILDX_ATTESTATIONS:        'false'                                 # Value for `docker buildx build --provenance/--sbom` (set `false` for older registries)
   COMMAND:                    ''                                      # Launch command of run image (required if target=run)
   CMAKE_ARGS:                 '-DCMAKE_BUILD_TYPE=Release'            # CMake arguments to pass to `colcon build`
   DISABLE_ROS_INSTALLATION:   'false'                                 # Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS
@@ -86,8 +87,7 @@ variables:
 
 
 stages:
-  - Build dev Images
-  - Build run Images
+  - Build Images
   - Test ROS Industrial CI
   - Slim Images
   - Push Multi-Arch Images
@@ -119,72 +119,31 @@ default:
     - echo -e "section_end:`date +%s`:setup_section\r\e[0K"
 
 .build:
+  stage: Build Images
   script:
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
       fi
-      TARGET=${_TARGET} PLATFORM=${_PLATFORM} ./docker/docker-ros/scripts/ci.sh
-      echo -e "section_start:`date +%s`:push_section[collapsed=true]\r\e[0K[docker-ros] Push ${IMAGE}"
-      docker push ${IMAGE}
-      echo -e "section_end:`date +%s`:push_section\r\e[0K"
+      TARGET=${TARGET} PLATFORM=${_PLATFORM} _ENABLE_IMAGE_PUSH=true ./docker/docker-ros/scripts/ci.sh
 
-dev-amd64:
-  stage: Build dev Images
+build-amd64:
   extends: .build
   rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
+    - if: $PLATFORM =~ /.*amd64.*/
   variables:
     _PLATFORM: amd64
-    _TARGET: dev
-    IMAGE: ${_IMAGE_DEV_CI_AMD64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
 
-dev-arm64:
-  stage: Build dev Images
+build-arm64:
   extends: .build
   tags: [privileged, arm64]
   rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
+    - if: $PLATFORM =~ /.*arm64.*/
   variables:
     _PLATFORM: arm64
-    _TARGET: dev
-    IMAGE: ${_IMAGE_DEV_CI_ARM64}
-    ENABLE_SINGLEARCH_PUSH: 'true'
-    ENABLE_SLIM: 'false'
-    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
-
-run-amd64:
-  stage: Build run Images
-  extends: .build
-  needs:
-    - job: dev-amd64
-      optional: true
-  rules:
-    - if: $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*run.*/
-  variables:
-    _PLATFORM: amd64
-    _TARGET: run
-    IMAGE: ${_IMAGE_RUN_CI_AMD64}
-    ENABLE_SINGLEARCH_PUSH: 'true'
-    ENABLE_SLIM: 'false'
-    _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
-
-run-arm64:
-  stage: Build run Images
-  extends: .build
-  tags: [privileged, arm64]
-  needs:
-    - job: dev-arm64
-      optional: true
-  rules:
-    - if: $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*run.*/
-  variables:
-    _PLATFORM: arm64
-    _TARGET: run
-    IMAGE: ${_IMAGE_RUN_CI_ARM64}
     ENABLE_SINGLEARCH_PUSH: 'true'
     ENABLE_SLIM: 'false'
     _IMAGE_POSTFIX: _${CI_COMMIT_REF_SLUG}_ci
@@ -212,7 +171,7 @@ run-arm64:
 Test dev-amd64:
   extends: .test
   needs:
-    - job: dev-amd64
+    - job: build-amd64
   rules:
     - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET =~ /.*dev.*/
   variables:
@@ -223,7 +182,7 @@ Test dev-arm64:
   extends: .test
   tags: [privileged, arm64]
   needs:
-    - job: dev-arm64
+    - job: build-arm64
   rules:
       - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET =~ /.*dev.*/
   variables:
@@ -233,7 +192,7 @@ Test dev-arm64:
 Test run-amd64:
   extends: .test
   needs:
-    - job: run-amd64
+    - job: build-amd64
   rules:
     - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*amd64.*/ && $TARGET !~ /.*dev.*/
   variables:
@@ -243,7 +202,7 @@ Test run-amd64:
 Test run-arm64:
   extends: .test
   needs:
-    - job: run-arm64
+    - job: build-arm64
   rules:
     - if: $ENABLE_INDUSTRIAL_CI == 'true' && $PLATFORM =~ /.*arm64.*/ && $TARGET !~ /.*dev.*/
   variables:
@@ -268,7 +227,7 @@ Slim run-amd64:
   stage: Slim Images
   extends: .slim
   needs:
-    - job: run-amd64
+    - job: build-amd64
       optional: true
     - job: Test run-amd64
       optional: true
@@ -284,7 +243,7 @@ Slim run-arm64:
   extends: .slim
   tags: [privileged, arm64]
   needs:
-    - job: run-arm64
+    - job: build-arm64
       optional: true
     - job: Test run-arm64
       optional: true
@@ -297,14 +256,11 @@ Slim run-arm64:
 
 
 .push:
+  stage: Push Multi-Arch Images
   needs:
-    - job: dev-amd64
+    - job: build-amd64
       optional: true
-    - job: dev-arm64
-      optional: true
-    - job: run-amd64
-      optional: true
-    - job: run-arm64
+    - job: build-arm64
       optional: true
     - job: Test dev-amd64
       optional: true
@@ -325,48 +281,33 @@ Slim run-arm64:
     - |-
       if [[ "${PLATFORM}" =~ amd64 && "${PLATFORM}" =~ arm64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
-          docker manifest create ${IMG_DEV} --amend ${_IMAGE_DEV_CI_AMD64} --amend ${_IMAGE_DEV_CI_ARM64}
-          docker manifest push ${IMG_DEV}
+          docker buildx imagetools create --tag ${IMG_DEV} ${_IMAGE_DEV_CI_AMD64} ${_IMAGE_DEV_CI_ARM64}
         fi
         if [[ "${TARGET}" =~ run ]]; then
-          docker manifest create ${IMG_RUN} --amend ${_IMAGE_RUN_CI_AMD64} --amend ${_IMAGE_RUN_CI_ARM64}
-          docker manifest push ${IMG_RUN}
+          docker buildx imagetools create --tag ${IMG_RUN} ${_IMAGE_RUN_CI_AMD64} ${_IMAGE_RUN_CI_ARM64}
         fi
         if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
-          docker manifest create ${IMG_SLIM} --amend ${_IMAGE_SLIM_CI_AMD64} --amend ${_IMAGE_SLIM_CI_ARM64}
-          docker manifest push ${IMG_SLIM}
+          docker buildx imagetools create --tag ${IMG_SLIM} ${_IMAGE_SLIM_CI_AMD64} ${_IMAGE_SLIM_CI_ARM64}
         fi
       elif [[ "${PLATFORM}" =~ amd64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
-          docker pull ${_IMAGE_DEV_CI_AMD64}
-          docker tag ${_IMAGE_DEV_CI_AMD64} ${IMG_DEV}
-          docker push ${IMG_DEV}
+          docker buildx imagetools create --tag ${IMG_DEV} ${_IMAGE_DEV_CI_AMD64}
         fi
         if [[ "${TARGET}" =~ run ]]; then
-          docker pull ${_IMAGE_RUN_CI_AMD64}
-          docker tag ${_IMAGE_RUN_CI_AMD64} ${IMG_RUN}
-          docker push ${IMG_RUN}
+          docker buildx imagetools create --tag ${IMG_RUN} ${_IMAGE_RUN_CI_AMD64}
         fi
         if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
-          docker pull ${_IMAGE_SLIM_CI_AMD64}
-          docker tag ${_IMAGE_SLIM_CI_AMD64} ${IMG_SLIM}
-          docker push ${IMG_SLIM}
+          docker buildx imagetools create --tag ${IMG_SLIM} ${_IMAGE_SLIM_CI_AMD64}
         fi
       elif [[ "${PLATFORM}" =~ arm64 ]]; then
         if [[ "${TARGET}" =~ dev ]]; then
-          docker pull ${_IMAGE_DEV_CI_ARM64}
-          docker tag ${_IMAGE_DEV_CI_ARM64} ${IMG_DEV}
-          docker push ${IMG_DEV}
+          docker buildx imagetools create --tag ${IMG_DEV} ${_IMAGE_DEV_CI_ARM64}
         fi
         if [[ "${TARGET}" =~ run ]]; then
-          docker pull ${_IMAGE_RUN_CI_ARM64}
-          docker tag ${_IMAGE_RUN_CI_ARM64} ${IMG_RUN}
-          docker push ${IMG_RUN}
+          docker buildx imagetools create --tag ${IMG_RUN} ${_IMAGE_RUN_CI_ARM64}
         fi
         if [[ "${ENABLE_SLIM}" == 'true' && "${TARGET}" =~ run ]]; then
-          docker pull ${_IMAGE_SLIM_CI_ARM64}
-          docker tag ${_IMAGE_SLIM_CI_ARM64} ${IMG_SLIM}
-          docker push ${IMG_SLIM}
+          docker buildx imagetools create --tag ${IMG_SLIM} ${_IMAGE_SLIM_CI_ARM64}
         fi
       fi
 

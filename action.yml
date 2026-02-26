@@ -32,6 +32,9 @@ inputs:
   build-context:
     description: "Build context of Docker build process"
     default: ${{ github.workspace }}
+  buildx-attestations:
+    description: "Value passed to `docker buildx build --provenance` and `--sbom` (use `false` for older registries)"
+    default: false
   command:
     description: "Launch command of run image (required if target=run)"
   cmake-args:
@@ -200,6 +203,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
@@ -266,6 +270,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
@@ -311,6 +316,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
