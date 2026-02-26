@@ -491,7 +491,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *supported values:* `rolling`, ..., `noetic`, ...
 - **`slim-build-args` | `SLIM_BUILD_ARGS`**  
   [Arguments to `slim build`](https://github.com/slimtoolkit/slim?tab=readme-ov-file#build-command-options) (except for `--target` and `--tag`)  
-  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --env DOCKER_UID=1000 --env DOCKER_GID=1000 --include-path /opt/ros --include-path /docker-ros/ws/install`  
+  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --env DOCKER_UID=1000 --env DOCKER_GID=1000 --env DOCKER_EPHEMERAL_USER=true --include-path /opt/ros --include-path /docker-ros/ws/install`  
 - **`slim-image-name` | `SLIM_IMAGE_NAME`**  
   Image name of slim run image  
   *default:* `<IMAGE_NAME>`  
