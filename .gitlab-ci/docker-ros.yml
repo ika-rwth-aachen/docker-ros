@@ -94,9 +94,9 @@ stages:
 
 
 default:
-  image: docker:20.10.22-git
+  image: docker:25.0-git
   services:
-    - docker:20.10.22-dind
+    - docker:25.0-dind
   tags:
     - privileged
     - amd64
