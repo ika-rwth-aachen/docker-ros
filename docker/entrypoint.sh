@@ -37,7 +37,7 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     else
         echo -e "\e[33mWARNING | Cannot create user '$DOCKER_USER' with UID $DOCKER_UID, another user '$(getent passwd $DOCKER_UID | cut -d: -f1)' with same UID is already existing\e[0m"
     fi
-    # Remove the user/group created in this run to keep user-creation libraries in slim probe, then continue as root.
+    # Remove the user/group created in this run to keep user-creation libraries in mint probe, then continue as root.
     if [[ "$DOCKER_EPHEMERAL_USER" == "true" ]]; then
         [[ "$created_docker_user" == "true" ]] && gosu $DOCKER_USER true
         [[ "$created_docker_user" == "true" ]] && userdel -r $DOCKER_USER > /dev/null 2>&1 || true

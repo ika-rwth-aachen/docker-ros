@@ -32,7 +32,7 @@ variables:
   ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: 'false'                      # Enable recursive discovery of files named `blacklisted-packages-file`
   ENABLE_RECURSIVE_VCS_IMPORT: 'true'                                 # Enable recursive discovery of files named `*.repos`
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
-  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
+  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via mint (only if run stage is targeted)
   GIT_HTTPS_PASSWORD:         ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
   GIT_HTTPS_SERVER:           ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
   GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
@@ -46,7 +46,7 @@ variables:
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
   RMW_IMPLEMENTATION:         'rmw_fastrtps_cpp'                      # RMW implementation to use (only for ROS 2)
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
-  SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --env DOCKER_UID=1000 --env DOCKER_GID=1000 --env DOCKER_EPHEMERAL_USER=true --include-path /opt/ros --include-path /docker-ros/ws/install'  # Arguments to `slim build` (except for `--target` and `--tag`)
+  SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --env DOCKER_UID=1000 --env DOCKER_GID=1000 --env DOCKER_EPHEMERAL_USER=true --include-path /opt/ros --include-path /docker-ros/ws/install'  # Arguments to `mint slim` (except for `--target` and `--tag`)
   TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
   VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
   
@@ -220,7 +220,7 @@ Test run-arm64:
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker pull ${FAT_IMAGE}
   script:
-    - ./slim build --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS}
+    - ./mint slim --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS}
     - docker push ${SLIM_IMAGE}
 
 Slim run-amd64:
@@ -236,7 +236,7 @@ Slim run-amd64:
   variables:
     FAT_IMAGE: ${_IMAGE_RUN_CI_AMD64}
     SLIM_IMAGE: ${_IMAGE_SLIM_CI_AMD64}
-    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz"
+    SLIM_DOWNLOAD_URL: "https://github.com/mintoolkit/mint/releases/download/1.41.8/dist_linux.tar.gz"
 
 Slim run-arm64:
   stage: Slim Images
@@ -252,7 +252,7 @@ Slim run-arm64:
   variables:
     FAT_IMAGE: ${_IMAGE_RUN_CI_ARM64}
     SLIM_IMAGE: ${_IMAGE_SLIM_CI_ARM64}
-    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux_arm64.tar.gz"
+    SLIM_DOWNLOAD_URL: "https://github.com/mintoolkit/mint/releases/download/1.41.8/dist_linux_arm64.tar.gz"
 
 
 .push:

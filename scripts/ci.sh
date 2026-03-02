@@ -96,10 +96,16 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         [[ -n "${_IMAGE_POSTFIX}" ]] && slim_image="${slim_image}${_IMAGE_POSTFIX}"
         [[ "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && image="${image}-${PLATFORM}"
         [[ "${ENABLE_SINGLEARCH_PUSH}" == "true" ]] && slim_image="${slim_image}-${PLATFORM}"
-        curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+        mint_base_url="https://github.com/mintoolkit/mint/releases/download/1.41.8"
+        if [[ "$(dpkg --print-architecture)" == "arm64" ]]; then
+            mint_download_url="${mint_base_url}/dist_linux_arm64.tar.gz"
+        else
+            mint_download_url="${mint_base_url}/dist_linux.tar.gz"
+        fi
+        curl -L -o ds.tar.gz "${mint_download_url}"
         tar -xvf ds.tar.gz
         cd dist_linux*
-        ./slim build --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
+        ./mint slim --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
         docker push "${slim_image}"
         cd -
         rm -rf dist_linux* ds.tar.gz
