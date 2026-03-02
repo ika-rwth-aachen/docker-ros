@@ -219,6 +219,7 @@ Test run-arm64:
     - cd dist_linux*
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker pull ${FAT_IMAGE}
+    - export DOCKER_API_VERSION="${DOCKER_API_VERSION:-$(docker version --format '{{.Server.APIVersion}}')}"
   script:
     - ./mint slim --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS}
     - docker push ${SLIM_IMAGE}
