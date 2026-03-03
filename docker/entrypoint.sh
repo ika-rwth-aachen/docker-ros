@@ -9,6 +9,7 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 # exec as dockeruser with configured UID/GID
 if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     [[ -n "$DOCKER_EPHEMERAL_USER" ]] && echo "INFO | DOCKER_EPHEMERAL_USER=$DOCKER_EPHEMERAL_USER DOCKER_UID=$DOCKER_UID DOCKER_GID=$DOCKER_GID"
+    mkdir -p /home
     if ! getent group $DOCKER_GID > /dev/null 2>&1; then
         groupadd -g $DOCKER_GID $DOCKER_USER
     else
