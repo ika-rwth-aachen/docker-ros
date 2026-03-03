@@ -6,10 +6,30 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 [[ -f /opt/ws_base_image/install/setup.bash ]] && source /opt/ws_base_image/install/setup.bash
 [[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash
 
+first_free_id() {
+    local db="$1"
+    local id="$2"
+    while getent "$db" "$id" > /dev/null 2>&1; do
+        id=$((id + 1))
+    done
+    echo "$id"
+}
+
+delete_user_group_if_exists() {
+    local name="$1"
+    [[ -z "$name" ]] && return 0
+    getent passwd "$name" > /dev/null 2>&1 && userdel -r "$name" > /dev/null 2>&1 || true
+    getent group "$name" > /dev/null 2>&1 && groupdel "$name" > /dev/null 2>&1 || true
+}
+
+DOCKER_USER_ORIGINAL="$DOCKER_USER"
+
 # In ephemeral probe mode, enforce UID/GID defaults to exercise user-creation path.
 if [[ "$DOCKER_EPHEMERAL_USER" == "true" ]]; then
-    DOCKER_UID="${DOCKER_UID:-1000}"
-    DOCKER_GID="${DOCKER_GID:-1000}"
+    delete_user_group_if_exists "$DOCKER_USER_ORIGINAL"
+    DOCKER_UID="$(first_free_id passwd "${DOCKER_UID:-1000}")"
+    DOCKER_GID="$(first_free_id group "${DOCKER_GID:-1000}")"
+    DOCKER_USER="${DOCKER_USER_ORIGINAL}_ephemeral"
 fi
 
 # exec as dockeruser with configured UID/GID
@@ -43,8 +63,8 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     # In ephemeral mode, remove DOCKER_USER and its group after probing, then continue as root.
     if [[ "$DOCKER_EPHEMERAL_USER" == "true" ]]; then
         getent passwd "$DOCKER_USER" > /dev/null 2>&1 && gosu "$DOCKER_USER" true || true
-        userdel -r "$DOCKER_USER" > /dev/null 2>&1 || true
-        groupdel "$DOCKER_USER" > /dev/null 2>&1 || true
+        delete_user_group_if_exists "$DOCKER_USER"
+        delete_user_group_if_exists "$DOCKER_USER_ORIGINAL"
         exec "$@"
     else
         [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
