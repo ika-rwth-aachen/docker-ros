@@ -352,7 +352,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 
 ### Slim Deployment Image
 
-*docker-ros* integrates the [*mint*](https://github.com/mintoolkit/mint) toolkit for minifying container images. Slimming is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that `mint slim` removes every single thing not needed for executing the default launch command. To balance image size and out-of-the-box functionality, the `/opt/ros` and `/docker-ros/ws/install` directories are preserved by default. The default `SLIM_BUILD_ARGS` also injects `DOCKER_UID=1000` and `DOCKER_GID=1000` so that the entrypoint's user creation path runs during the probe and its libraries are retained. The minification process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
+*docker-ros* integrates the [*mint*](https://github.com/mintoolkit/mint) toolkit for minifying container images. Slimming is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that `mint slim` removes every single thing not needed for executing the default launch command. To balance image size and out-of-the-box functionality, the `/opt/ros` and `/docker-ros/ws/install` directories are preserved by default. The default `SLIM_BUILD_ARGS` enables `DOCKER_EPHEMERAL_USER=true` so that the entrypoint's user creation path runs during the probe and its libraries are retained. The minification process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
 
 
 ## Configuration Variables
@@ -491,7 +491,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *supported values:* `rolling`, ..., `noetic`, ...
 - **`slim-build-args` | `SLIM_BUILD_ARGS`**  
   Arguments to `mint slim` (except for `--target` and `--tag`)  
-  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --env DOCKER_UID=1000 --env DOCKER_GID=1000 --env DOCKER_EPHEMERAL_USER=true --include-path /opt/ros --include-path /docker-ros/ws/install --include-path /etc/ld.so.cache --include-path /etc/ld.so.conf --include-path /etc/ld.so.conf.d`  
+  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --env DOCKER_EPHEMERAL_USER=true --include-path /opt/ros --include-path /docker-ros/ws/install --include-path /etc/ld.so.cache --include-path /etc/ld.so.conf --include-path /etc/ld.so.conf.d`  
 - **`slim-image-name` | `SLIM_IMAGE_NAME`**  
   Image name of slim run image  
   *default:* `<IMAGE_NAME>`  

@@ -6,6 +6,12 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 [[ -f /opt/ws_base_image/install/setup.bash ]] && source /opt/ws_base_image/install/setup.bash
 [[ -f $WORKSPACE/install/setup.bash ]] && source $WORKSPACE/install/setup.bash
 
+# In ephemeral probe mode, enforce UID/GID defaults to exercise user-creation path.
+if [[ "$DOCKER_EPHEMERAL_USER" == "true" ]]; then
+    DOCKER_UID="${DOCKER_UID:-1000}"
+    DOCKER_GID="${DOCKER_GID:-1000}"
+fi
+
 # exec as dockeruser with configured UID/GID
 if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     [[ -n "$DOCKER_EPHEMERAL_USER" ]] && echo "INFO | DOCKER_EPHEMERAL_USER=$DOCKER_EPHEMERAL_USER DOCKER_UID=$DOCKER_UID DOCKER_GID=$DOCKER_GID"
