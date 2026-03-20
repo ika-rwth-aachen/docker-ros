@@ -106,6 +106,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         tar -xvf ds.tar.gz
         cd dist_linux*
         export DOCKER_API_VERSION="${DOCKER_API_VERSION:-$(docker version --format '{{.Server.APIVersion}}')}"
+        docker pull "${image}"
         ./mint slim --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
         docker push "${slim_image}"
         cd -
