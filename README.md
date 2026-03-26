@@ -491,7 +491,28 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *supported values:* `rolling`, ..., `noetic`, ...
 - **`slim-build-args` | `SLIM_BUILD_ARGS`**  
   Arguments to `mint slim` (except for `--target` and `--tag`)  
-  *default:* `--sensor-ipc-mode proxy --continue-after=30 --show-clogs --http-probe=false --env DOCKER_UID=23456 --env DOCKER_GID=23456 --env DOCKER_USER=dockerslimprobe --include-path /opt/ros --include-path /docker-ros/ws/install --include-path /etc/ld.so.cache --include-path /etc/ld.so.conf --include-path /etc/ld.so.conf.d --preserve-path /etc/passwd --preserve-path /etc/group --preserve-path /etc/shadow --preserve-path /etc/gshadow --exclude-pattern /home/dockerslimprobe --exclude-pattern /home/dockerslimprobe/** --exclude-pattern /var/mail/dockerslimprobe`
+  *default:*
+  ```bash
+  --sensor-ipc-mode proxy
+  --continue-after=30
+  --show-clogs
+  --http-probe=false
+  --env DOCKER_UID=23456
+  --env DOCKER_GID=23456
+  --env DOCKER_USER=dockerslimprobe
+  --include-path /opt/ros
+  --include-path /docker-ros/ws/install
+  --include-path /etc/ld.so.cache
+  --include-path /etc/ld.so.conf
+  --include-path /etc/ld.so.conf.d
+  --preserve-path /etc/passwd
+  --preserve-path /etc/group
+  --preserve-path /etc/shadow
+  --preserve-path /etc/gshadow
+  --exclude-pattern /home/dockerslimprobe
+  --exclude-pattern /home/dockerslimprobe/**
+  --exclude-pattern /var/mail/dockerslimprobe
+  ```
 - **`slim-image-name` | `SLIM_IMAGE_NAME`**  
   Image name of slim run image  
   *default:* `<IMAGE_NAME>`  

@@ -46,7 +46,25 @@ GIT_SSH_PRIVATE_KEY="${GIT_SSH_PRIVATE_KEY:-}"
 IMAGE="${IMAGE_NAME}:${IMAGE_TAG}"
 RMW_IMPLEMENTATION="${RMW_IMPLEMENTATION:-}"
 ROS_DISTRO="${ROS_DISTRO:-}"
-SLIM_BUILD_ARGS="${SLIM_BUILD_ARGS:-'--sensor-ipc-mode proxy --continue-after=30 --show-clogs --http-probe=false --env DOCKER_UID=23456 --env DOCKER_GID=23456 --env DOCKER_USER=dockerslimprobe --include-path /opt/ros --include-path /docker-ros/ws/install --include-path /etc/ld.so.cache --include-path /etc/ld.so.conf --include-path /etc/ld.so.conf.d --preserve-path /etc/passwd --preserve-path /etc/group --preserve-path /etc/shadow --preserve-path /etc/gshadow --exclude-pattern /home/dockerslimprobe --exclude-pattern /home/dockerslimprobe/** --exclude-pattern /var/mail/dockerslimprobe'}"
+SLIM_BUILD_ARGS="${SLIM_BUILD_ARGS:-'--sensor-ipc-mode proxy \
+--continue-after=30 \
+--show-clogs \
+--http-probe=false \
+--env DOCKER_UID=23456 \
+--env DOCKER_GID=23456 \
+--env DOCKER_USER=dockerslimprobe \
+--include-path /opt/ros \
+--include-path /docker-ros/ws/install \
+--include-path /etc/ld.so.cache \
+--include-path /etc/ld.so.conf \
+--include-path /etc/ld.so.conf.d \
+--preserve-path /etc/passwd \
+--preserve-path /etc/group \
+--preserve-path /etc/shadow \
+--preserve-path /etc/gshadow \
+--exclude-pattern /home/dockerslimprobe \
+--exclude-pattern /home/dockerslimprobe/** \
+--exclude-pattern /var/mail/dockerslimprobe'}"
 SLIM_IMAGE="${SLIM_IMAGE_NAME}:${SLIM_IMAGE_TAG}"
 VCS_IMPORT_FILE="${VCS_IMPORT_FILE:-}"
 _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
