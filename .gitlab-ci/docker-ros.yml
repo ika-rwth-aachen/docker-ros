@@ -12,6 +12,7 @@ variables:
   ADDITIONAL_DEBS_FILE:       docker/additional-debs.txt              # Relative filepath to file containing additional apt deb packages to install
   ADDITIONAL_FILES_DIR:       docker/additional-files                 # Relative path to directory containing additional files to copy into image"
   ADDITIONAL_PIP_FILE:        docker/additional-pip-requirements.txt  # Relative filepath to file containing additional pip packages to install
+  ADDITIONAL_SLIM_BUILD_ARGS: ''                                      # Additional arguments appended to `mint slim` after `SLIM_BUILD_ARGS`
   AFTER_DEPENDENCY_INSTALLATION_SCRIPT: docker/custom.sh              # Relative filepath to script containing commands to run after dependency installation
   BASE_IMAGE:                 ''                                      # Base image name:tag (required)
   BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: docker/before_dependency_identification.sh # Relative filepath to script containing commands to run before dependency identification
@@ -32,7 +33,7 @@ variables:
   ENABLE_RECURSIVE_BLACKLISTED_PACKAGES: 'false'                      # Enable recursive discovery of files named `blacklisted-packages-file`
   ENABLE_RECURSIVE_VCS_IMPORT: 'true'                                 # Enable recursive discovery of files named `*.repos`
   ENABLE_SINGLEARCH_PUSH:     'false'                                 # Enable push of single arch images with [-amd64|-arm64] postfix
-  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via slim (only if run stage is targeted)
+  ENABLE_SLIM:                'true'                                  # Enable an extra slimmed run image via mint (only if run stage is targeted)
   GIT_HTTPS_PASSWORD:         ${CI_JOB_TOKEN}                         # Password for cloning private Git repositories via HTTPS
   GIT_HTTPS_SERVER:           ${CI_SERVER_HOST}                       # Server URL (without protocol) for cloning private Git repositories via HTTPS
   GIT_HTTPS_USER:             gitlab-ci-token                         # Username for cloning private Git repositories via HTTPS
@@ -46,10 +47,29 @@ variables:
   REGISTRY:                   ${CI_REGISTRY}                          # Docker registry to push images to
   RMW_IMPLEMENTATION:         'rmw_fastrtps_cpp'                      # RMW implementation to use (only for ROS 2)
   ROS_DISTRO:                 ''                                      # ROS Distro (required if ROS is not installed in `base-image`)
-  SLIM_BUILD_ARGS:            '--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --include-path /opt/ros --include-path /docker-ros/ws/install'  # Arguments to `slim build` (except for `--target` and `--tag`)
+  SLIM_BUILD_ARGS: >-                                                 # Arguments to `mint slim` (except for `--target` and `--tag`)
+    --sensor-ipc-mode proxy
+    --continue-after=30
+    --show-clogs
+    --http-probe=false
+    --env DOCKER_UID=23456
+    --env DOCKER_GID=23456
+    --env DOCKER_USER=dockerslimprobe
+    --include-path /opt/ros
+    --include-path /docker-ros/ws/install
+    --include-path /etc/ld.so.cache
+    --include-path /etc/ld.so.conf
+    --include-path /etc/ld.so.conf.d
+    --preserve-path /etc/passwd
+    --preserve-path /etc/group
+    --preserve-path /etc/shadow
+    --preserve-path /etc/gshadow
+    --exclude-pattern /home/dockerslimprobe
+    --exclude-pattern /home/dockerslimprobe/**
+    --exclude-pattern /var/mail/dockerslimprobe
   TARGET:                     run                                     # Target stage of Dockerfile (comma-separated list) [dev|run]
   VCS_IMPORT_FILE:            .repos                                  # Relative filepath to file containing additional repos to install via vcstools (only relevant if ENABLE_RECURSIVE_VCS_IMPORT=false)
-  
+
   DEV_IMAGE_NAME:             ${IMAGE_NAME}                           # Image name of dev image
   DEV_IMAGE_TAG:              ${IMAGE_TAG}-dev                        # Image tag of dev image
   SLIM_IMAGE_NAME:            ${IMAGE_NAME}                           # Image name of slim run image
@@ -219,8 +239,9 @@ Test run-arm64:
     - cd dist_linux*
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - docker pull ${FAT_IMAGE}
+    - export DOCKER_API_VERSION="${DOCKER_API_VERSION:-$(docker version --format '{{.Server.APIVersion}}')}"
   script:
-    - ./slim build --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS}
+    - ./mint slim --target ${FAT_IMAGE} --tag ${SLIM_IMAGE} ${SLIM_BUILD_ARGS} ${ADDITIONAL_SLIM_BUILD_ARGS}
     - docker push ${SLIM_IMAGE}
 
 Slim run-amd64:
@@ -236,7 +257,7 @@ Slim run-amd64:
   variables:
     FAT_IMAGE: ${_IMAGE_RUN_CI_AMD64}
     SLIM_IMAGE: ${_IMAGE_SLIM_CI_AMD64}
-    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz"
+    SLIM_DOWNLOAD_URL: "https://github.com/mintoolkit/mint/releases/download/1.41.8/dist_linux.tar.gz"
 
 Slim run-arm64:
   stage: Slim Images
@@ -252,7 +273,7 @@ Slim run-arm64:
   variables:
     FAT_IMAGE: ${_IMAGE_RUN_CI_ARM64}
     SLIM_IMAGE: ${_IMAGE_SLIM_CI_ARM64}
-    SLIM_DOWNLOAD_URL: "https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux_arm64.tar.gz"
+    SLIM_DOWNLOAD_URL: "https://github.com/mintoolkit/mint/releases/download/1.41.8/dist_linux_arm64.tar.gz"
 
 
 .push:

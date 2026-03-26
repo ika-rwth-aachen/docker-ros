@@ -46,7 +46,7 @@ We recommend to use *docker-ros* in combination with our other tools for Docker 
 
 ## About
 
-*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. Building such images can easily be automated by integrating *docker-ros* into CI through the provided [GitHub action](action.yml) or [GitLab CI template](.gitlab-ci/docker-ros.yml). The development image built by *docker-ros* contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository. *docker-ros* is also able to build multi-arch Docker images for *amd64* and *arm64* architectures. In addition, [*slim*](https://github.com/slimtoolkit/slim) is integrated for slimming Docker image size of the deployment image by up to 30x (see [*Slim Deployment Image*](#slim-deployment-image)).
+*docker-ros* provides a generic [Dockerfile](docker/Dockerfile) that can be used to build development and deployment Docker images for arbitrary ROS packages or package stacks. Building such images can easily be automated by integrating *docker-ros* into CI through the provided [GitHub action](action.yml) or [GitLab CI template](.gitlab-ci/docker-ros.yml). The development image built by *docker-ros* contains all required dependencies and the source code of your ROS-based repository. The deployment image only contains dependencies and the compiled binaries created by building the ROS packages in the repository. *docker-ros* is also able to build multi-arch Docker images for *amd64* and *arm64* architectures. In addition, [*mint*](https://github.com/mintoolkit/mint) is integrated for minifying deployment images (see [*Slim Deployment Image*](#slim-deployment-image)).
 
 The Dockerfile performs the following steps to build these images:
 1. All dependency repositories that are defined in a `.repos` file anywhere in the repository are cloned using [*vcstool*](https://github.com/dirk-thomas/vcstool).
@@ -352,7 +352,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 
 ### Slim Deployment Image
 
-*docker-ros* integrates the [*slim*](https://github.com/slimtoolkit/slim) toolkit for minifying container images. *slim* is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that *slim* removes every single thing not needed for executing the default launch command. To balance image size and out-of-the-box functionality, the `/opt/ros` and `/docker-ros/ws/install` directories are preserved by default. The slimming process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
+*docker-ros* integrates the [*mint*](https://github.com/mintoolkit/mint) toolkit for minifying container images. Slimming is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that `mint slim` removes every single thing not needed for executing the default launch command. To balance image size and out-of-the-box functionality, the `/opt/ros`, `/docker-ros/ws/install`, and `/etc/ld.so.*` runtime linker configuration are preserved by default. The default `SLIM_BUILD_ARGS` also runs the regular `docker-ros` entrypoint to create a user, but does not keep any probe-specific changes in the slimmed image. The image command is executed for 30 seconds. The minification process can be controlled via the `SLIM_BUILD_ARGS` and `ADDITIONAL_SLIM_BUILD_ARGS` configuration variables.
 
 
 ## Configuration Variables
@@ -369,6 +369,9 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
+- **`additional-slim-build-args` | `ADDITIONAL_SLIM_BUILD_ARGS`**
+  Additional arguments appended to `mint slim` after `SLIM_BUILD_ARGS`
+  *default:* `''`
 - **`after-dependency-installation-script` | `AFTER_DEPENDENCY_INSTALLATION_SCRIPT`**  
   Relative filepath to script containing commands to run after dependency installation  
   *default:* `docker/custom.sh`
@@ -447,7 +450,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   Enable recursive discovery of files named `*.repos`  
   *default:* `true`
 - **`enable-slim` | `ENABLE_SLIM`**  
-  Enable an extra slimmed run image via [slim](https://github.com/slimtoolkit/slim) (only if `run` stage is targeted)  
+  Enable an extra slimmed run image via [mint](https://github.com/mintoolkit/mint) (only if `run` stage is targeted)  
   *default:* `true`
 - **`git-https-password` | `GIT_HTTPS_PASSWORD`**  
   Password for cloning private Git repositories via HTTPS  
@@ -490,8 +493,29 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *required if ROS is not installed in `base-image`*  
   *supported values:* `rolling`, ..., `noetic`, ...
 - **`slim-build-args` | `SLIM_BUILD_ARGS`**  
-  [Arguments to `slim build`](https://github.com/slimtoolkit/slim?tab=readme-ov-file#build-command-options) (except for `--target` and `--tag`)  
-  *default:* `--sensor-ipc-mode proxy --continue-after=10 --show-clogs --http-probe=false --include-path /opt/ros --include-path /docker-ros/ws/install`  
+  Arguments to `mint slim` (except for `--target` and `--tag`)  
+  *default:*
+  ```bash
+  --sensor-ipc-mode proxy
+  --continue-after=30
+  --show-clogs
+  --http-probe=false
+  --env DOCKER_UID=23456
+  --env DOCKER_GID=23456
+  --env DOCKER_USER=dockerslimprobe
+  --include-path /opt/ros
+  --include-path /docker-ros/ws/install
+  --include-path /etc/ld.so.cache
+  --include-path /etc/ld.so.conf
+  --include-path /etc/ld.so.conf.d
+  --preserve-path /etc/passwd
+  --preserve-path /etc/group
+  --preserve-path /etc/shadow
+  --preserve-path /etc/gshadow
+  --exclude-pattern /home/dockerslimprobe
+  --exclude-pattern /home/dockerslimprobe/**
+  --exclude-pattern /var/mail/dockerslimprobe
+  ```
 - **`slim-image-name` | `SLIM_IMAGE_NAME`**  
   Image name of slim run image  
   *default:* `<IMAGE_NAME>`  
