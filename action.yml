@@ -14,6 +14,8 @@ inputs:
   additional-pip-file:
     description: "Relative filepath to file containing additional pip packages to install"
     default: docker/additional-pip-requirements.txt
+  additional-slim-build-args:
+    description: "Additional arguments appended to `mint slim` after `slim-build-args`"
   after-dependency-installation-script:
     description: "Relative filepath to script containing commands to run after dependency installation"
     default: docker/custom.sh
@@ -217,6 +219,7 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        ADDITIONAL_SLIM_BUILD_ARGS: ${{ inputs.additional-slim-build-args }}
         AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
@@ -284,6 +287,7 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        ADDITIONAL_SLIM_BUILD_ARGS: ${{ inputs.additional-slim-build-args }}
         AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
@@ -330,6 +334,7 @@ runs:
         ADDITIONAL_DEBS_FILE: ${{ inputs.additional-debs-file }}
         ADDITIONAL_FILES_DIR: ${{ inputs.additional-files-dir }}
         ADDITIONAL_PIP_FILE: ${{ inputs.additional-pip-file }}
+        ADDITIONAL_SLIM_BUILD_ARGS: ${{ inputs.additional-slim-build-args }}
         AFTER_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.after-dependency-installation-script }}
         BASE_IMAGE: ${{ inputs.base-image }}
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}

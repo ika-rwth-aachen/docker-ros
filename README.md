@@ -352,7 +352,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 
 ### Slim Deployment Image
 
-*docker-ros* integrates the [*mint*](https://github.com/mintoolkit/mint) toolkit for minifying container images. Slimming is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that `mint slim` removes every single thing not needed for executing the default launch command. To balance image size and out-of-the-box functionality, the `/opt/ros`, `/docker-ros/ws/install`, and `/etc/ld.so.*` runtime linker configuration are preserved by default. The default `SLIM_BUILD_ARGS` also runs the regular `docker-ros` entrypoint during the probe with fixed `DOCKER_UID`, `DOCKER_GID`, and `DOCKER_USER` values so that the normal user creation path is exercised and its required binaries and libraries are retained. The probe uses UID/GID `23456` to stay within a typical non-system user range while remaining unlikely to collide with existing accounts. The default probe is allowed to continue for 30 seconds to give slower ROS launch setups enough time to start their actual node processes. Probe-specific changes to `/etc/passwd`, `/etc/group`, `/etc/shadow`, and `/etc/gshadow` are discarded again, and the temporary probe home/mail paths are excluded from the final slim image. The minification process can be controlled via the `SLIM_BUILD_ARGS` configuration variable.
+*docker-ros* integrates the [*mint*](https://github.com/mintoolkit/mint) toolkit for minifying container images. Slimming is enabled by default and will, in addition to the `run` deployment image, produce an additional `:latest-slim`-tagged minified image. Note that `mint slim` removes every single thing not needed for executing the default launch command. To balance image size and out-of-the-box functionality, the `/opt/ros`, `/docker-ros/ws/install`, and `/etc/ld.so.*` runtime linker configuration are preserved by default. The default `SLIM_BUILD_ARGS` also runs the regular `docker-ros` entrypoint during the probe with fixed `DOCKER_UID`, `DOCKER_GID`, and `DOCKER_USER` values so that the normal user creation path is exercised and its required binaries and libraries are retained. The probe uses UID/GID `23456` to stay within a typical non-system user range while remaining unlikely to collide with existing accounts. The default probe is allowed to continue for 30 seconds to give slower ROS launch setups enough time to start their actual node processes. Probe-specific changes to `/etc/passwd`, `/etc/group`, `/etc/shadow`, and `/etc/gshadow` are discarded again, and the temporary probe home/mail paths are excluded from the final slim image. Additional project-specific `mint slim` flags can be appended via `ADDITIONAL_SLIM_BUILD_ARGS` without replacing the default base arguments. The minification process can be controlled via the `SLIM_BUILD_ARGS` and `ADDITIONAL_SLIM_BUILD_ARGS` configuration variables.
 
 
 ## Configuration Variables
@@ -369,6 +369,9 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`additional-pip-file` | `ADDITIONAL_PIP_FILE`**  
   Relative filepath to file containing additional pip packages to install  
   *default:* `docker/additional-pip-requirements.txt`
+- **`additional-slim-build-args` | `ADDITIONAL_SLIM_BUILD_ARGS`**
+  Additional arguments appended to `mint slim` after `SLIM_BUILD_ARGS`
+  *default:* `''`
 - **`after-dependency-installation-script` | `AFTER_DEPENDENCY_INSTALLATION_SCRIPT`**  
   Relative filepath to script containing commands to run after dependency installation  
   *default:* `docker/custom.sh`

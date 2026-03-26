@@ -22,6 +22,7 @@ SLIM_IMAGE_TAG="${SLIM_IMAGE_TAG:-${IMAGE_TAG}-slim}"
 ADDITIONAL_DEBS_FILE="${ADDITIONAL_DEBS_FILE:-}"
 ADDITIONAL_FILES_DIR="${ADDITIONAL_FILES_DIR:-}"
 ADDITIONAL_PIP_FILE="${ADDITIONAL_PIP_FILE:-}"
+ADDITIONAL_SLIM_BUILD_ARGS="${ADDITIONAL_SLIM_BUILD_ARGS:-}"
 AFTER_DEPENDENCY_INSTALLATION_SCRIPT="${AFTER_DEPENDENCY_INSTALLATION_SCRIPT:-}"
 BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT="${BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT:-}"
 BEFORE_DEPENDENCY_INSTALLATION_SCRIPT="${BEFORE_DEPENDENCY_INSTALLATION_SCRIPT:-}"
@@ -125,7 +126,7 @@ for PLATFORM in "${PLATFORMS[@]}"; do
         cd dist_linux*
         export DOCKER_API_VERSION="${DOCKER_API_VERSION:-$(docker version --format '{{.Server.APIVersion}}')}"
         docker pull "${image}"
-        ./mint slim --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS}
+        ./mint slim --target "${image}" --tag "${slim_image}" ${SLIM_BUILD_ARGS} ${ADDITIONAL_SLIM_BUILD_ARGS}
         docker push "${slim_image}"
         cd -
         rm -rf dist_linux* ds.tar.gz
