@@ -277,7 +277,7 @@ runs:
       id: slugify-ref-name
       uses: gacts/github-slug@v1
       with:
-        to-slug: ${{ github.ref_name }}
+        to-slug: ${{ github.head_ref || github.ref_name }}
 
     - name: Push images
       shell: bash
