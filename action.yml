@@ -266,6 +266,7 @@ runs:
         ADDITIONAL_DEBS: git
         AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
         BEFORE_BUILD_UPSTREAM_WORKSPACE_EMBED: 'ici_with_unset_variables source /root/.bashrc'
+        BEFORE_BUILD_TARGET_WORKSPACE_EMBED: 'ici_with_unset_variables source /root/.bashrc'
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
         DOCKER_RUN_OPTS: -u root:root
