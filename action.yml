@@ -267,7 +267,7 @@ runs:
         AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
-        DOCKER_RUN_OPTS: -u root:root
+        DOCKER_RUN_OPTS: -u dockeruser:dockeruser
         SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
         TARGET_WORKSPACE: ${{ inputs.build-context }}
