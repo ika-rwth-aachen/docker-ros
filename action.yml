@@ -263,13 +263,12 @@ runs:
       if: ${{ inputs.enable-industrial-ci == 'true' }}
       uses: ros-industrial/industrial_ci@master
       env:
-        DOCKER_UID: 23456
-        DOCKER_GID: 23456
         ADDITIONAL_DEBS: git
         AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
+        BEFORE_BUILD_TARGET_WORKSPACE: 'source /root/.bashrc'
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
-        DOCKER_RUN_OPTS: -u 23456:23456
+        DOCKER_RUN_OPTS: -u root:root
         SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
         TARGET_WORKSPACE: ${{ inputs.build-context }}
