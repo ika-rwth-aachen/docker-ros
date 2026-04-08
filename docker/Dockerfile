@@ -137,9 +137,9 @@ ARG ENABLE_RECURSIVE_ADDITIONAL_PIP="false"
 RUN echo "pip install pip \\" >> $WORKSPACE/.install-dependencies.sh && \
     set -o pipefail && \
     if [[ $ENABLE_RECURSIVE_ADDITIONAL_PIP == 'true' ]]; then \
-        find . -type f -name $(basename ${ADDITIONAL_PIP_FILE}) -exec sed "$ a\\" {} \; | awk '{print "  " $0 " \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
+        find . -type f -name $(basename ${ADDITIONAL_PIP_FILE}) -exec sed "$ a\\" {} \; | awk '{print "  \"" $0 "\" \\"}' >> $WORKSPACE/.install-dependencies.sh ; \
     elif [[ -f src/target/${ADDITIONAL_PIP_FILE} ]]; then \
-        cat src/target/${ADDITIONAL_PIP_FILE} | awk '{ gsub(/#.*/, ""); gsub(/^[ \t]+|[ \t]+$/, ""); if (NF) print "  " $0 " \\" }' >> $WORKSPACE/.install-dependencies.sh ; \
+        cat src/target/${ADDITIONAL_PIP_FILE} | awk '{ gsub(/#.*/, ""); gsub(/^[ \t]+|[ \t]+$/, ""); if (NF) print "  \"" $0 "\" \\" }' >> $WORKSPACE/.install-dependencies.sh ; \
     fi && \
     echo ";" >> $WORKSPACE/.install-dependencies.sh
 
