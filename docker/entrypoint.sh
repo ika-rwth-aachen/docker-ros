@@ -39,7 +39,7 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     if [[ "$first_arg" == "dev" ]]; then
         exec gosu $DOCKER_USER bash
     elif [[ "$first_arg" == "run" ]]; then
-        exec gosu $DOCKER_USER "$remaining_args"
+        exec gosu $DOCKER_USER "${remaining_args[@]}"
     else
         echo "ERROR: first_arg must be 'dev' or 'run', got '$first_arg'" >&2
         exit 1
@@ -48,7 +48,7 @@ else
     if [[ "$first_arg" == "dev" ]]; then
         exec bash
     elif [[ "$first_arg" == "run" ]]; then
-        exec "$remaining_args"
+        exec "${remaining_args[@]}"
     else
         echo "ERROR: first_arg must be 'dev' or 'run', got '$first_arg'" >&2
         exit 1
