@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+first_arg="$1"  # 'dev' or 'run' image
+remaining_args=("${@:2}")  # command
+
 # source ROS workspace
 source /opt/ros/$ROS_DISTRO/setup.bash
 [[ -f /opt/ws_base_image/install/setup.bash ]] && source /opt/ws_base_image/install/setup.bash
@@ -33,7 +36,21 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
         echo -e "\e[33mWARNING | Cannot create user '$DOCKER_USER' with UID $DOCKER_UID, another user '$(getent passwd $DOCKER_UID | cut -d: -f1)' with same UID is already existing\e[0m"
     fi
     [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
-    exec gosu $DOCKER_USER "$@"
+    if [[ "$first_arg" == "dev" ]]; then
+        exec gosu $DOCKER_USER bash
+    elif [[ "$first_arg" == "run" ]]; then
+        exec gosu $DOCKER_USER "$remaining_args"
+    else
+        echo "ERROR: first_arg must be 'dev' or 'run', got '$first_arg'" >&2
+        exit 1
+    fi
 else
-    exec "$@"
+    if [[ "$first_arg" == "dev" ]]; then
+        exec bash
+    elif [[ "$first_arg" == "run" ]]; then
+        exec "$remaining_args"
+    else
+        echo "ERROR: first_arg must be 'dev' or 'run', got '$first_arg'" >&2
+        exit 1
+    fi
 fi

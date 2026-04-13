@@ -257,7 +257,6 @@ ENV TINI_VERSION=v0.19.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-${TARGETARCH} /tini
 RUN chmod +x /tini
 COPY docker/docker-ros/docker/entrypoint.sh /
-ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 
 ############ dev ###############################################################
 FROM dependencies-install AS dev
@@ -265,6 +264,7 @@ FROM dependencies-install AS dev
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
+ENTRYPOINT ["/tini", "--", "/entrypoint.sh", "dev"]
 CMD ["bash"]
 
 ############ build #############################################################
@@ -287,6 +287,7 @@ COPY --from=build $WORKSPACE/install install
 RUN ldconfig
 
 # setup command
+ENTRYPOINT ["/tini", "--", "/entrypoint.sh", "run"]
 ARG COMMAND
 ENV DEFAULT_CMD=${COMMAND}
 CMD bash -c "${DEFAULT_CMD}"
