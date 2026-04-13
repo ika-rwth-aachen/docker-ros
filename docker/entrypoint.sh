@@ -37,7 +37,11 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     fi
     [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
     if [[ "$first_arg" == "dev" ]]; then
-        exec gosu $DOCKER_USER bash
+        if [ -t 0 ] ; then
+            exec gosu $DOCKER_USER bash
+        else
+            exec gosu $DOCKER_USER sleep infinity
+        fi
     elif [[ "$first_arg" == "run" ]]; then
         exec gosu $DOCKER_USER "${remaining_args[@]}"
     else
@@ -46,7 +50,11 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     fi
 else
     if [[ "$first_arg" == "dev" ]]; then
-        exec bash
+        if [ -t 0 ] ; then
+            exec bash
+        else
+            exec sleep infinity
+        fi
     elif [[ "$first_arg" == "run" ]]; then
         exec "${remaining_args[@]}"
     else
