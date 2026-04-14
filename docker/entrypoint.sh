@@ -46,7 +46,7 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
     elif [[ "$docker_build_stage" == "run" ]]; then
         exec gosu $DOCKER_USER "${command[@]}"
     else
-        echo "ERROR: docker_build_stage must be 'dev' or 'run', got '$docker_build_stage'" >&2
+        echo -e "\e[33mERROR | docker_build_stage must be 'dev' or 'run', got '$docker_build_stage'\e[0m"
         exit 1
     fi
 else
