@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-first_arg="$1"  # 'dev' or 'run' image
-remaining_args=("${@:2}")  # command
+docker_build_stage="$1"  # 'dev' or 'run' stage
+command=("${@:2}")  # command
 
 # source ROS workspace
 source /opt/ros/$ROS_DISTRO/setup.bash
@@ -36,29 +36,31 @@ if [[ $DOCKER_UID && $DOCKER_GID ]]; then
         echo -e "\e[33mWARNING | Cannot create user '$DOCKER_USER' with UID $DOCKER_UID, another user '$(getent passwd $DOCKER_UID | cut -d: -f1)' with same UID is already existing\e[0m"
     fi
     [[ $(pwd) == "$WORKSPACE" ]] && cd /home/$DOCKER_USER/ws
-    if [[ "$first_arg" == "dev" ]]; then
+    if [[ "$docker_build_stage" == "dev" ]]; then
         if [ -t 0 ] ; then
             exec gosu $DOCKER_USER bash
         else
+            echo "Keeping non-interactive dev container running. Attach to the container with 'docker exec -it ...'."
             exec gosu $DOCKER_USER sleep infinity
         fi
-    elif [[ "$first_arg" == "run" ]]; then
-        exec gosu $DOCKER_USER "${remaining_args[@]}"
+    elif [[ "$docker_build_stage" == "run" ]]; then
+        exec gosu $DOCKER_USER "${command[@]}"
     else
-        echo "ERROR: first_arg must be 'dev' or 'run', got '$first_arg'" >&2
+        echo "ERROR: docker_build_stage must be 'dev' or 'run', got '$docker_build_stage'" >&2
         exit 1
     fi
 else
-    if [[ "$first_arg" == "dev" ]]; then
+    if [[ "$docker_build_stage" == "dev" ]]; then
         if [ -t 0 ] ; then
             exec bash
         else
+            echo "Keeping non-interactive dev container running. Attach to the container with 'docker exec -it ...'."
             exec sleep infinity
         fi
-    elif [[ "$first_arg" == "run" ]]; then
-        exec "${remaining_args[@]}"
+    elif [[ "$docker_build_stage" == "run" ]]; then
+        exec "${command[@]}"
     else
-        echo "ERROR: first_arg must be 'dev' or 'run', got '$first_arg'" >&2
+        echo -e "\e[33mERROR | docker_build_stage must be 'dev' or 'run', got '$docker_build_stage'\e[0m"
         exit 1
     fi
 fi
