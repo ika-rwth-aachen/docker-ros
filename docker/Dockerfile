@@ -18,7 +18,16 @@ RUN mkdir -p src/target src/upstream src/downstream
 ARG ROS_DISTRO
 ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
-RUN apt-get update && \
+RUN rm -f /etc/apt/sources.list && \
+    . /etc/os-release && \
+    printf '%s\n' \
+        'Types: deb' \
+        'URIs: https://ftp.fau.de/ubuntu' \
+        "Suites: ${UBUNTU_CODENAME} ${UBUNTU_CODENAME}-updates ${UBUNTU_CODENAME}-backports ${UBUNTU_CODENAME}-security" \
+        'Components: main restricted universe multiverse' \
+        'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg' \
+        > /etc/apt/sources.list.d/ubuntu.sources && \
+    apt-get update && \
     apt-get install -y curl gnupg && \
     if ! [[ -n $(find /etc/apt/sources.list.d/ -name "*ros2*") ]]; then \
         ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') && \
@@ -187,7 +196,16 @@ WORKDIR $WORKSPACE
 ARG ROS_DISTRO
 ENV ROS_DISTRO=${ROS_DISTRO}
 RUN test -n "$ROS_DISTRO" || (echo "missing build-arg: ROS_DISTRO" && false)
-RUN apt-get update && \
+RUN rm -f /etc/apt/sources.list && \
+    . /etc/os-release && \
+    printf '%s\n' \
+        'Types: deb' \
+        'URIs: https://ftp.fau.de/ubuntu' \
+        "Suites: ${UBUNTU_CODENAME} ${UBUNTU_CODENAME}-updates ${UBUNTU_CODENAME}-backports ${UBUNTU_CODENAME}-security" \
+        'Components: main restricted universe multiverse' \
+        'Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg' \
+        > /etc/apt/sources.list.d/ubuntu.sources && \
+    apt-get update && \
     apt-get install -y curl gnupg && \
     if ! [[ -n $(find /etc/apt/sources.list.d/ -name "*ros2*") ]]; then \
         ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}') && \
