@@ -7,62 +7,16 @@ trim_whitespace() {
     printf '%s' "${value}"
 }
 
-join_with_comma() {
-    local first_item=true
-    local value
-    for value in "$@"; do
-        [[ -n "${value}" ]] || continue
-        if [[ "${first_item}" == "true" ]]; then
-            printf '%s' "${value}"
-            first_item=false
-        else
-            printf ', %s' "${value}"
-        fi
-    done
-}
+normalize_optional_label() {
+    local var_name="$1"
+    local value="${!var_name:-}"
 
-list_package_xml_files() {
-    find . -type f -name package.xml ! -path '*/build/*' ! -path '*/install/*' ! -path '*/log/*' | sort
-}
-
-collect_package_xml_values() {
-    local tag="$1"
-    local include_email="${2:-false}"
-    local file
-    local line
-    local email
-    local value
-    local entry
-
-    while IFS= read -r file; do
-        while IFS= read -r line; do
-            [[ "${line}" == *"<${tag}"*"</${tag}>"* ]] || continue
-
-            value="$(printf '%s\n' "${line}" | sed -n "s:.*<${tag}[^>]*>\\([^<]*\\)</${tag}>.*:\\1:p")"
-            value="$(trim_whitespace "${value}")"
-            [[ -n "${value}" ]] || continue
-
-            if [[ "${include_email}" == "true" ]]; then
-                email="$(printf '%s\n' "${line}" | sed -n 's:.*email="\([^"]*\)".*:\1:p')"
-                email="$(trim_whitespace "${email}")"
-                entry="${value}"
-                [[ -n "${email}" ]] && entry="${entry} <${email}>"
-                printf '%s\n' "${entry}"
-            else
-                printf '%s\n' "${value}"
-            fi
-        done < "${file}"
-    done < <(list_package_xml_files)
-}
-
-resolve_package_xml_label() {
-    local tag="$1"
-    local include_email="${2:-false}"
-    local -a values=()
-
-    mapfile -t values < <(collect_package_xml_values "${tag}" "${include_email}" | awk 'NF' | sort -u)
-    if [[ ${#values[@]} -gt 0 ]]; then
-        join_with_comma "${values[@]}"
+    value="$(trim_whitespace "${value}")"
+    if [[ -n "${value}" ]]; then
+        printf -v "${var_name}" '%s' "${value}"
+        export "${var_name}"
+    else
+        unset "${var_name}"
     fi
 }
 
@@ -94,6 +48,101 @@ normalize_git_url() {
 
 get_git_root() {
     git rev-parse --show-toplevel 2> /dev/null || true
+}
+
+resolve_repository_root() {
+    local git_root
+
+    git_root="$(get_git_root)"
+    if [[ -n "${git_root}" ]]; then
+        printf '%s\n' "${git_root}"
+    else
+        pwd
+    fi
+}
+
+find_repository_license_file() {
+    local repo_root="$1"
+    local candidate
+
+    for candidate in LICENSE LICENSE.txt LICENSE.md LICENSE.rst COPYING COPYING.txt COPYING.md COPYING.rst; do
+        if [[ -f "${repo_root}/${candidate}" ]]; then
+            printf '%s\n' "${repo_root}/${candidate}"
+            return 0
+        fi
+    done
+}
+
+resolve_license_identifier_from_file() {
+    local file="$1"
+    local spdx_identifier
+    local first_non_empty_line
+
+    spdx_identifier="$(sed -n 's/.*SPDX-License-Identifier:[[:space:]]*\([^[:space:]]\+\).*/\1/p' "${file}" | head -n 1)"
+    if [[ -n "${spdx_identifier}" ]]; then
+        printf '%s' "${spdx_identifier}"
+        return 0
+    fi
+
+    if grep -qi 'Apache License' "${file}" && grep -qi 'Version 2\.0' "${file}"; then
+        printf 'Apache-2.0'
+        return 0
+    fi
+
+    if grep -qiE '(^|[[:space:]])MIT License([[:space:]]|$)|The MIT License' "${file}"; then
+        printf 'MIT'
+        return 0
+    fi
+
+    if grep -qi 'BSD 3-Clause' "${file}"; then
+        printf 'BSD-3-Clause'
+        return 0
+    fi
+
+    if grep -qi 'BSD 2-Clause' "${file}"; then
+        printf 'BSD-2-Clause'
+        return 0
+    fi
+
+    if grep -qi 'Mozilla Public License' "${file}" && grep -qi 'Version 2\.0' "${file}"; then
+        printf 'MPL-2.0'
+        return 0
+    fi
+
+    if grep -qi 'GNU GENERAL PUBLIC LICENSE' "${file}" && grep -qi 'Version 3' "${file}"; then
+        printf 'GPL-3.0'
+        return 0
+    fi
+
+    if grep -qi 'GNU GENERAL PUBLIC LICENSE' "${file}" && grep -qi 'Version 2' "${file}"; then
+        printf 'GPL-2.0'
+        return 0
+    fi
+
+    if grep -qi 'GNU LESSER GENERAL PUBLIC LICENSE' "${file}" && grep -qi 'Version 3' "${file}"; then
+        printf 'LGPL-3.0'
+        return 0
+    fi
+
+    if grep -qi 'GNU LESSER GENERAL PUBLIC LICENSE' "${file}" && grep -qi 'Version 2\.1' "${file}"; then
+        printf 'LGPL-2.1'
+        return 0
+    fi
+
+    first_non_empty_line="$(awk 'NF { print; exit }' "${file}")"
+    first_non_empty_line="$(trim_whitespace "${first_non_empty_line}")"
+    printf '%s' "${first_non_empty_line}"
+}
+
+resolve_repository_license() {
+    local repo_root
+    local license_file
+
+    repo_root="$(resolve_repository_root)"
+    license_file="$(find_repository_license_file "${repo_root}")"
+    [[ -n "${license_file}" ]] || return 0
+
+    resolve_license_identifier_from_file "${license_file}"
 }
 
 resolve_repository_url() {
@@ -158,16 +207,8 @@ resolve_repository_version() {
 }
 
 resolve_repository_labels() {
-    if [[ -z "${LABEL_MAINTAINER:-}" ]]; then
-        LABEL_MAINTAINER="$(resolve_package_xml_label maintainer true)"
-    fi
-
-    if [[ -z "${LABEL_AUTHORS:-}" ]]; then
-        LABEL_AUTHORS="$(resolve_package_xml_label author true)"
-    fi
-
     if [[ -z "${LABEL_LICENSES:-}" ]]; then
-        LABEL_LICENSES="$(resolve_package_xml_label license)"
+        LABEL_LICENSES="$(resolve_repository_license)"
     fi
 
     if [[ -z "${LABEL_URL:-}" ]]; then
@@ -178,7 +219,11 @@ resolve_repository_labels() {
         LABEL_VERSION="$(resolve_repository_version)"
     fi
 
-    export LABEL_MAINTAINER LABEL_AUTHORS LABEL_LICENSES LABEL_URL LABEL_VERSION
+    normalize_optional_label "LABEL_MAINTAINER"
+    normalize_optional_label "LABEL_AUTHORS"
+    normalize_optional_label "LABEL_LICENSES"
+    normalize_optional_label "LABEL_URL"
+    normalize_optional_label "LABEL_VERSION"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

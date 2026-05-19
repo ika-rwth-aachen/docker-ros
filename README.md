@@ -473,13 +473,13 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *default:* `latest`  
 - **`label-authors` | `LABEL_AUTHORS`**  
   Override `org.opencontainers.image.authors` label  
-  *default:* unique `<author>` entries collected from repository `package.xml` files  
+  *default:* unset  
 - **`label-licenses` | `LABEL_LICENSES`**  
   Override `org.opencontainers.image.licenses` label  
-  *default:* unique `<license>` entries collected from repository `package.xml` files  
+  *default:* detected from the repository root `LICENSE` file, otherwise unset  
 - **`label-maintainer` | `LABEL_MAINTAINER`**  
   Override `maintainer` label  
-  *default:* unique `<maintainer>` entries collected from repository `package.xml` files  
+  *default:* unset  
 - **`label-url` | `LABEL_URL`**  
   Override `org.opencontainers.image.url` label  
   *default:* repository URL from CI metadata or the sanitized `origin` remote URL  

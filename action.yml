@@ -106,11 +106,11 @@ inputs:
     description: "Image tag of run image"
     default: latest
   label-authors:
-    description: "Override `org.opencontainers.image.authors` label (defaults to unique `<author>` entries from `package.xml` files)"
+    description: "Set `org.opencontainers.image.authors` label (unset by default)"
   label-licenses:
-    description: "Override `org.opencontainers.image.licenses` label (defaults to unique `<license>` entries from `package.xml` files)"
+    description: "Override `org.opencontainers.image.licenses` label (defaults to the repository root `LICENSE` file when detected, otherwise unset)"
   label-maintainer:
-    description: "Override `maintainer` label (defaults to unique `<maintainer>` entries from `package.xml` files)"
+    description: "Set `maintainer` label (unset by default)"
   label-url:
     description: "Override `org.opencontainers.image.url` label (defaults to the repository URL from CI metadata or `origin`)"
   label-version:

@@ -1,28 +1,7 @@
 ARG BASE_IMAGE
-ARG LABEL_MAINTAINER="TODO <TODO@TODO.todo>"
-ARG LABEL_AUTHORS="TODO"
-ARG LABEL_LICENSES="TODO"
-ARG LABEL_URL="TODO"
-ARG LABEL_VERSION="TODO"
-
-############ labels ############################################################
-FROM ${BASE_IMAGE} AS labels
-
-ARG LABEL_MAINTAINER
-ARG LABEL_AUTHORS
-ARG LABEL_LICENSES
-ARG LABEL_URL
-ARG LABEL_VERSION
-
-# set labels
-LABEL maintainer="${LABEL_MAINTAINER}"
-LABEL org.opencontainers.image.authors="${LABEL_AUTHORS}"
-LABEL org.opencontainers.image.licenses="${LABEL_LICENSES}"
-LABEL org.opencontainers.image.url="${LABEL_URL}"
-LABEL org.opencontainers.image.version="${LABEL_VERSION}"
 
 ############ dependencies ######################################################
-FROM labels AS dependencies
+FROM ${BASE_IMAGE} AS dependencies
 ARG TARGETARCH
 ENV TARGETARCH=${TARGETARCH}
 
@@ -181,7 +160,7 @@ ARG ADDITIONAL_FILES_DIR="docker/additional-files"
 RUN rm -rf src/target/${ADDITIONAL_FILES_DIR}
 
 ############ dependencies-install ##############################################
-FROM labels AS dependencies-install
+FROM ${BASE_IMAGE} AS dependencies-install
 ARG TARGETARCH
 ARG GIT_HTTPS_URL
 ARG GIT_HTTPS_USER

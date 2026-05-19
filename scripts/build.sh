@@ -10,7 +10,7 @@ source "${ROOT_PATH}/scripts/utils.sh"
 build_image() {
     echo "Building stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}' ..."
     BUILDX_ATTESTATIONS="${BUILDX_ATTESTATIONS:-false}"
-  resolve_repository_labels
+    resolve_repository_labels
 
     DOCKER_ARGS=(
       --file "$(dirname "$0")/../docker/Dockerfile"
@@ -40,6 +40,15 @@ build_image() {
       fi
     }
 
+    add_label_if_set() {
+      local label_name="$1"
+      local var_name="$2"
+      local var_value="${!var_name:-}"
+      if [[ -n "${var_value}" ]]; then
+        DOCKER_ARGS+=( "--label" "${label_name}=${var_value}" )
+      fi
+    }
+
     # optional build args
     add_arg_if_set "ADDITIONAL_DEBS_FILE"
     add_arg_if_set "ADDITIONAL_FILES_DIR"
@@ -62,14 +71,15 @@ build_image() {
     add_arg_if_set "GIT_HTTPS_USER"
     add_arg_if_set "GIT_SSH_KNOWN_HOST_KEYS"
     add_arg_if_set "GIT_SSH_PRIVATE_KEY"
-    add_arg_if_set "LABEL_AUTHORS"
-    add_arg_if_set "LABEL_LICENSES"
-    add_arg_if_set "LABEL_MAINTAINER"
-    add_arg_if_set "LABEL_URL"
-    add_arg_if_set "LABEL_VERSION"
     add_arg_if_set "RMW_IMPLEMENTATION"
     add_arg_if_set "ROS_DISTRO"
     add_arg_if_set "VCS_IMPORT_FILE"
+
+    add_label_if_set "maintainer" "LABEL_MAINTAINER"
+    add_label_if_set "org.opencontainers.image.authors" "LABEL_AUTHORS"
+    add_label_if_set "org.opencontainers.image.licenses" "LABEL_LICENSES"
+    add_label_if_set "org.opencontainers.image.url" "LABEL_URL"
+    add_label_if_set "org.opencontainers.image.version" "LABEL_VERSION"
 
     DOCKER_ARGS+=( "." )
 
