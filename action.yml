@@ -105,6 +105,16 @@ inputs:
   image-tag:
     description: "Image tag of run image"
     default: latest
+  label-authors:
+    description: "Override `org.opencontainers.image.authors` label (defaults to unique `<author>` entries from `package.xml` files)"
+  label-licenses:
+    description: "Override `org.opencontainers.image.licenses` label (defaults to unique `<license>` entries from `package.xml` files)"
+  label-maintainer:
+    description: "Override `maintainer` label (defaults to unique `<maintainer>` entries from `package.xml` files)"
+  label-url:
+    description: "Override `org.opencontainers.image.url` label (defaults to the repository URL from CI metadata or `origin`)"
+  label-version:
+    description: "Override `org.opencontainers.image.version` label (defaults to the tag name in tag pipelines or the current commit SHA)"
   platform:
     description: "Target platform architecture (comma-separated list) [amd64|arm64|...]"
   registry:
@@ -245,6 +255,11 @@ runs:
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: ${{ inputs.image-tag }}
+        LABEL_AUTHORS: ${{ inputs.label-authors }}
+        LABEL_LICENSES: ${{ inputs.label-licenses }}
+        LABEL_MAINTAINER: ${{ inputs.label-maintainer }}
+        LABEL_URL: ${{ inputs.label-url }}
+        LABEL_VERSION: ${{ inputs.label-version }}
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
@@ -315,6 +330,11 @@ runs:
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: ${{ inputs.image-tag }}
+        LABEL_AUTHORS: ${{ inputs.label-authors }}
+        LABEL_LICENSES: ${{ inputs.label-licenses }}
+        LABEL_MAINTAINER: ${{ inputs.label-maintainer }}
+        LABEL_URL: ${{ inputs.label-url }}
+        LABEL_VERSION: ${{ inputs.label-version }}
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}
@@ -362,6 +382,11 @@ runs:
         GIT_SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: latest
+        LABEL_AUTHORS: ${{ inputs.label-authors }}
+        LABEL_LICENSES: ${{ inputs.label-licenses }}
+        LABEL_MAINTAINER: ${{ inputs.label-maintainer }}
+        LABEL_URL: ${{ inputs.label-url }}
+        LABEL_VERSION: ${{ inputs.label-version }}
         PLATFORM: ${{ inputs.platform }}
         RMW_IMPLEMENTATION: ${{ inputs.rmw-implementation }}
         ROS_DISTRO: ${{ inputs.ros-distro }}

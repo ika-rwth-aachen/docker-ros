@@ -41,6 +41,11 @@ variables:
   GIT_SSH_PRIVATE_KEY:        ''                                      # SSH private key for cloning private Git repositories via SSH
   IMAGE_NAME:                 ${CI_REGISTRY_IMAGE}                    # Image name of run image
   IMAGE_TAG:                  latest                                  # Image tag of run image
+  LABEL_AUTHORS:              ''                                      # Override org.opencontainers.image.authors label (default: unique <author> entries from package.xml files)
+  LABEL_LICENSES:             ''                                      # Override org.opencontainers.image.licenses label (default: unique <license> entries from package.xml files)
+  LABEL_MAINTAINER:           ''                                      # Override maintainer label (default: unique <maintainer> entries from package.xml files)
+  LABEL_URL:                  ''                                      # Override org.opencontainers.image.url label (default: repository URL from CI metadata or git origin)
+  LABEL_VERSION:              ''                                      # Override org.opencontainers.image.version label (default: CI tag or current git commit SHA)
   PLATFORM:                   amd64                                   # Target platform architecture (comma-separated list) [amd64|arm64|...]
   REGISTRY_PASSWORD:          ${CI_REGISTRY_PASSWORD}                 # Docker registry password
   REGISTRY_USER:              ${CI_REGISTRY_USER}                     # Docker registry username
