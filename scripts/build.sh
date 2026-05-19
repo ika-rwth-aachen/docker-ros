@@ -78,6 +78,8 @@ build_image() {
     add_label_override "org.opencontainers.image.licenses" "LABEL_LICENSES"
     add_label_override "org.opencontainers.image.url" "LABEL_URL"
     add_label_override "org.opencontainers.image.version" "LABEL_VERSION"
+    LABEL_DOCKER_ROS="true"
+    add_label_override "de.rwth-aachen.ika.docker-ros" "LABEL_DOCKER_ROS"
 
     DOCKER_ARGS+=( "." )
 
