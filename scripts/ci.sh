@@ -4,7 +4,6 @@ set -e
 
 ROOT_PATH="$(realpath "$(cd -P "$(dirname "${0}")" && pwd)"/..)"
 source "${ROOT_PATH}/scripts/build.sh"
-source "${ROOT_PATH}/scripts/repository-metadata.sh"
 source "${ROOT_PATH}/scripts/utils.sh"
 
 
@@ -71,8 +70,6 @@ SLIM_IMAGE="${SLIM_IMAGE_NAME}:${SLIM_IMAGE_TAG}"
 VCS_IMPORT_FILE="${VCS_IMPORT_FILE:-}"
 _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
 _IMAGE_POSTFIX="${_IMAGE_POSTFIX:-""}"
-
-resolve_repository_labels
 
 # write image name for industrial_ci to output (GitHub-only)
 if [[ -n "${GITHUB_ACTIONS}" ]]; then
