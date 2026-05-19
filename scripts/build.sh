@@ -3,12 +3,14 @@
 set -e
 
 ROOT_PATH="$(realpath "$(cd -P "$(dirname "${0}")" && pwd)"/..)"
+source "${ROOT_PATH}/scripts/repository-metadata.sh"
 source "${ROOT_PATH}/scripts/utils.sh"
 
 
 build_image() {
     echo "Building stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}' ..."
     BUILDX_ATTESTATIONS="${BUILDX_ATTESTATIONS:-false}"
+  resolve_repository_labels
 
     DOCKER_ARGS=(
       --file "$(dirname "$0")/../docker/Dockerfile"

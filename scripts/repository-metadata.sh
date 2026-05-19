@@ -161,27 +161,22 @@ resolve_repository_labels() {
     if [[ -z "${LABEL_MAINTAINER:-}" ]]; then
         LABEL_MAINTAINER="$(resolve_package_xml_label maintainer true)"
     fi
-    LABEL_MAINTAINER="${LABEL_MAINTAINER:-TBD <TBD@TBD.xy>}"
 
     if [[ -z "${LABEL_AUTHORS:-}" ]]; then
         LABEL_AUTHORS="$(resolve_package_xml_label author true)"
     fi
-    LABEL_AUTHORS="${LABEL_AUTHORS:-TBD}"
 
     if [[ -z "${LABEL_LICENSES:-}" ]]; then
         LABEL_LICENSES="$(resolve_package_xml_label license)"
     fi
-    LABEL_LICENSES="${LABEL_LICENSES:-MIT}"
 
     if [[ -z "${LABEL_URL:-}" ]]; then
         LABEL_URL="$(resolve_repository_url)"
     fi
-    LABEL_URL="${LABEL_URL:-TBD}"
 
     if [[ -z "${LABEL_VERSION:-}" ]]; then
         LABEL_VERSION="$(resolve_repository_version)"
     fi
-    LABEL_VERSION="${LABEL_VERSION:-TBD}"
 
     export LABEL_MAINTAINER LABEL_AUTHORS LABEL_LICENSES LABEL_URL LABEL_VERSION
 }
