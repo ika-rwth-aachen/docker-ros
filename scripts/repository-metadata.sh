@@ -145,6 +145,42 @@ resolve_repository_license() {
     resolve_license_identifier_from_file "${license_file}"
 }
 
+resolve_github_repository_description() {
+    local event_path="${GITHUB_EVENT_PATH:-}"
+    local python_bin
+
+    [[ -n "${event_path}" && -f "${event_path}" ]] || return 0
+
+    python_bin="$(command -v python3 2> /dev/null || command -v python 2> /dev/null || true)"
+    [[ -n "${python_bin}" ]] || return 0
+
+    "${python_bin}" - "${event_path}" <<'PY'
+import json
+import sys
+
+try:
+    with open(sys.argv[1], encoding="utf-8") as event_file:
+        payload = json.load(event_file)
+except Exception:
+    sys.exit(0)
+
+description = (((payload or {}).get("repository") or {}).get("description") or "").strip()
+if description:
+    print(description, end="")
+PY
+}
+
+resolve_repository_description() {
+    if [[ -n "${CI_PROJECT_DESCRIPTION:-}" ]]; then
+        # GitLab
+        printf '%s' "${CI_PROJECT_DESCRIPTION}"
+        return 0
+    fi
+
+    # GitHub
+    resolve_github_repository_description
+}
+
 resolve_repository_url() {
     local git_root
     local git_url
@@ -207,6 +243,10 @@ resolve_repository_version() {
 }
 
 resolve_repository_labels() {
+    if [[ -z "${LABEL_DESCRIPTION:-}" ]]; then
+        LABEL_DESCRIPTION="$(resolve_repository_description)"
+    fi
+
     if [[ -z "${LABEL_LICENSES:-}" ]]; then
         LABEL_LICENSES="$(resolve_repository_license)"
     fi
@@ -221,6 +261,7 @@ resolve_repository_labels() {
 
     normalize_optional_label "LABEL_MAINTAINER"
     normalize_optional_label "LABEL_AUTHORS"
+    normalize_optional_label "LABEL_DESCRIPTION"
     normalize_optional_label "LABEL_LICENSES"
     normalize_optional_label "LABEL_URL"
     normalize_optional_label "LABEL_VERSION"
@@ -230,6 +271,7 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     resolve_repository_labels
     printf 'LABEL_MAINTAINER=%s\n' "${LABEL_MAINTAINER}"
     printf 'LABEL_AUTHORS=%s\n' "${LABEL_AUTHORS}"
+    printf 'LABEL_DESCRIPTION=%s\n' "${LABEL_DESCRIPTION}"
     printf 'LABEL_LICENSES=%s\n' "${LABEL_LICENSES}"
     printf 'LABEL_URL=%s\n' "${LABEL_URL}"
     printf 'LABEL_VERSION=%s\n' "${LABEL_VERSION}"

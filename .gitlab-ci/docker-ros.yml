@@ -42,6 +42,7 @@ variables:
   IMAGE_NAME:                 ${CI_REGISTRY_IMAGE}                    # Image name of run image
   IMAGE_TAG:                  latest                                  # Image tag of run image
   LABEL_AUTHORS:              ''                                      # Override org.opencontainers.image.authors label (default: unset)
+  LABEL_DESCRIPTION:          ''                                      # Override org.opencontainers.image.description label (default: GitLab project description, otherwise unset)
   LABEL_LICENSES:             ''                                      # Override org.opencontainers.image.licenses label (default: repository root LICENSE file, otherwise unset)
   LABEL_MAINTAINER:           ''                                      # Override maintainer label (default: unset)
   LABEL_URL:                  ''                                      # Override org.opencontainers.image.url label (default: repository URL from CI metadata or git origin)

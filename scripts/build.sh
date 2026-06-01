@@ -75,6 +75,7 @@ build_image() {
 
     add_label_override "maintainer" "LABEL_MAINTAINER"
     add_label_override "org.opencontainers.image.authors" "LABEL_AUTHORS"
+    add_label_override "org.opencontainers.image.description" "LABEL_DESCRIPTION"
     add_label_override "org.opencontainers.image.licenses" "LABEL_LICENSES"
     add_label_override "org.opencontainers.image.url" "LABEL_URL"
     add_label_override "org.opencontainers.image.version" "LABEL_VERSION"

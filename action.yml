@@ -107,6 +107,8 @@ inputs:
     default: latest
   label-authors:
     description: "Set `org.opencontainers.image.authors` label (unset by default)"
+  label-description:
+    description: "Override `org.opencontainers.image.description` label (defaults to the GitHub repository description from the event payload when available, otherwise unset)"
   label-licenses:
     description: "Override `org.opencontainers.image.licenses` label (defaults to the repository root `LICENSE` file when detected, otherwise unset)"
   label-maintainer:
@@ -256,6 +258,7 @@ runs:
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: ${{ inputs.image-tag }}
         LABEL_AUTHORS: ${{ inputs.label-authors }}
+        LABEL_DESCRIPTION: ${{ inputs.label-description }}
         LABEL_LICENSES: ${{ inputs.label-licenses }}
         LABEL_MAINTAINER: ${{ inputs.label-maintainer }}
         LABEL_URL: ${{ inputs.label-url }}
@@ -331,6 +334,7 @@ runs:
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: ${{ inputs.image-tag }}
         LABEL_AUTHORS: ${{ inputs.label-authors }}
+        LABEL_DESCRIPTION: ${{ inputs.label-description }}
         LABEL_LICENSES: ${{ inputs.label-licenses }}
         LABEL_MAINTAINER: ${{ inputs.label-maintainer }}
         LABEL_URL: ${{ inputs.label-url }}
@@ -383,6 +387,7 @@ runs:
         IMAGE_NAME: ${{ steps.image-name.outputs.lowercase }}
         IMAGE_TAG: latest
         LABEL_AUTHORS: ${{ inputs.label-authors }}
+        LABEL_DESCRIPTION: ${{ inputs.label-description }}
         LABEL_LICENSES: ${{ inputs.label-licenses }}
         LABEL_MAINTAINER: ${{ inputs.label-maintainer }}
         LABEL_URL: ${{ inputs.label-url }}
