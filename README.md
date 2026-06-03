@@ -471,6 +471,24 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`image-tag` | `IMAGE_TAG`**  
   Image tag of run image
   *default:* `latest`  
+- **`label-authors` | `LABEL_AUTHORS`**  
+  Override `org.opencontainers.image.authors` label  
+  *default:* unset  
+- **`label-description` | `LABEL_DESCRIPTION`**  
+  Override `org.opencontainers.image.description` label  
+  *default:* repository description from GitHub or GitLab CI metadata when available, otherwise unset  
+- **`label-licenses` | `LABEL_LICENSES`**  
+  Override `org.opencontainers.image.licenses` label  
+  *default:* detected from the repository root `LICENSE` file, otherwise unset  
+- **`label-maintainer` | `LABEL_MAINTAINER`**  
+  Override `maintainer` label  
+  *default:* unset  
+- **`label-url` | `LABEL_URL`**  
+  Override `org.opencontainers.image.url` label  
+  *default:* repository URL from CI metadata or the sanitized `origin` remote URL  
+- **`label-version` | `LABEL_VERSION`**  
+  Override `org.opencontainers.image.version` label  
+  *default:* tag name in tag pipelines, otherwise the current git commit SHA  
 - **`platform` | `PLATFORM`**  
   Target platform architecture (comma-separated list)  
   *default:* runner architecture | `amd64`

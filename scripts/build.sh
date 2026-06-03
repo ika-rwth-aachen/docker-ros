@@ -3,12 +3,14 @@
 set -e
 
 ROOT_PATH="$(realpath "$(cd -P "$(dirname "${0}")" && pwd)"/..)"
+source "${ROOT_PATH}/scripts/repository-metadata.sh"
 source "${ROOT_PATH}/scripts/utils.sh"
 
 
 build_image() {
     echo "Building stage '${TARGET}' for platform '${PLATFORM}' as '${IMAGE}' ..."
     BUILDX_ATTESTATIONS="${BUILDX_ATTESTATIONS:-false}"
+    resolve_repository_labels
 
     DOCKER_ARGS=(
       --file "$(dirname "$0")/../docker/Dockerfile"
@@ -38,6 +40,13 @@ build_image() {
       fi
     }
 
+    add_label_override() {
+      local label_name="$1"
+      local var_name="$2"
+      local var_value="${!var_name-}"
+      DOCKER_ARGS+=( "--label" "${label_name}=${var_value}" )
+    }
+
     # optional build args
     add_arg_if_set "ADDITIONAL_DEBS_FILE"
     add_arg_if_set "ADDITIONAL_FILES_DIR"
@@ -63,6 +72,16 @@ build_image() {
     add_arg_if_set "RMW_IMPLEMENTATION"
     add_arg_if_set "ROS_DISTRO"
     add_arg_if_set "VCS_IMPORT_FILE"
+
+    add_label_override "maintainer" "LABEL_MAINTAINER"
+    add_label_override "org.opencontainers.image.authors" "LABEL_AUTHORS"
+    add_label_override "org.opencontainers.image.description" "LABEL_DESCRIPTION"
+    add_label_override "org.opencontainers.image.licenses" "LABEL_LICENSES"
+    add_label_override "org.opencontainers.image.source" "LABEL_URL"
+    add_label_override "org.opencontainers.image.url" "LABEL_URL"
+    add_label_override "org.opencontainers.image.version" "LABEL_VERSION"
+    LABEL_DOCKER_ROS="true"
+    add_label_override "de.rwth-aachen.ika.docker-ros" "LABEL_DOCKER_ROS"
 
     DOCKER_ARGS+=( "." )
 
