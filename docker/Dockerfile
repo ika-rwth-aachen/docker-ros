@@ -293,6 +293,11 @@ LABEL devcontainer.metadata='[{ \
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
+# write default command into script
+ARG COMMAND
+ENV DEFAULT_CMD=${COMMAND}
+RUN echo "${DEFAULT_CMD}" > /usr/local/bin/run_default_command && chmod +x /usr/local/bin/run_default_command
+
 CMD ["bash"]
 
 ############ build #############################################################
