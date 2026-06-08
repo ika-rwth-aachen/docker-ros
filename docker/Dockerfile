@@ -262,6 +262,34 @@ ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 ############ dev ###############################################################
 FROM dependencies-install AS dev
 
+# configure VS Code devcontainer
+LABEL devcontainer.metadata='[{ \
+  "capAdd": [ "SYS_PTRACE" ], \
+  "containerEnv": { \
+    "PIP_BREAK_SYSTEM_PACKAGES": "1" \
+    }, \
+  "customizations": { \
+    "vscode": { \
+      "settings": { \
+        "ROS2.rosSetupScript": "/docker-ros/ws/install/setup.bash" \
+      }, \
+      "extensions": [ \
+        "althack.ament-task-provider", \
+        "cschlosser.doxdocgen", \
+        "mhutchie.git-graph", \
+        "ms-python.black-formatter", \
+        "ms-python.flake8", \
+        "ms-python.python", \
+        "ms-vscode.cpp-devtools", \
+        "ms-vscode.cpptools-themes", \
+        "ms-vscode.cpptools", \
+        "njpwerner.autodocstring", \
+        "Ranch-Hand-Robotics.rde-pack" \
+      ] \
+    } \
+  } \
+}]'
+
 # copy contents of repository from dependencies stage
 COPY --from=dependencies $WORKSPACE/src $WORKSPACE/src
 
