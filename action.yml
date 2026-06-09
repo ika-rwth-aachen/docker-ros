@@ -369,7 +369,7 @@ runs:
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
         DEV_IMAGE_NAME: ${{ steps.dev-image-name.outputs.lowercase }}
-        DEV_IMAGE_TAG: latest-dev
+        DEV_IMAGE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || 'latest' }}-dev
         DISABLE_ROS_INSTALLATION: ${{ inputs.disable-ros-installation }}
         ENABLE_RECURSIVE_ADDITIONAL_DEBS: ${{ inputs.enable-recursive-additional-debs }}
         ENABLE_RECURSIVE_ADDITIONAL_PIP: ${{ inputs.enable-recursive-additional-pip }}
@@ -397,7 +397,7 @@ runs:
         ROS_DISTRO: ${{ inputs.ros-distro }}
         SLIM_BUILD_ARGS: ${{ inputs.slim-build-args }}
         SLIM_IMAGE_NAME: ${{ steps.slim-image-name.outputs.lowercase }}
-        SLIM_IMAGE_TAG: latest-slim
+        SLIM_IMAGE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || 'latest' }}-slim
         TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         _ENABLE_IMAGE_PUSH: true
