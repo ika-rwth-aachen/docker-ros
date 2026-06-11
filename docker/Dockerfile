@@ -263,6 +263,8 @@ ENTRYPOINT ["/tini", "--", "/entrypoint.sh"]
 FROM dependencies-install AS dev
 
 # configure VS Code devcontainer
+# Reference: https://containers.dev/implementors/json_reference/
+# Aligned with: https://github.com/openads-project/openads-dev-environment/blob/main/.devcontainer/devcontainer.json
 LABEL devcontainer.metadata='[{ \
   "capAdd": [ "SYS_PTRACE" ], \
   "containerEnv": { \
