@@ -84,6 +84,7 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
     if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then
         echo "RUN_IMAGE=${IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
         echo "DEV_IMAGE=${DEV_IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
+        echo "SLIM_IMAGE=${SLIM_IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
     fi
     echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 fi

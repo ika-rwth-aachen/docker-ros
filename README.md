@@ -249,10 +249,13 @@ jobs:
         with:
           base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
-      - run: docker run --rm "${{ steps.docker-ros.outputs.run-image }}" ros2 --help
+      - run: |
+          echo "${{ steps.docker-ros.outputs.run-image }}"
+          echo "${{ steps.docker-ros.outputs.dev-image }}"
+          echo "${{ steps.docker-ros.outputs.slim-image }}"
 ```
 
-The GitHub action exposes the resolved image references including tag via the `run-image` and `dev-image` outputs.
+The GitHub action exposes the resolved image references including tag via the `run-image`, `dev-image`, and `slim-image` outputs.
 
 </details>
 
@@ -278,10 +281,12 @@ run-tests:
     - job: Push tag
       optional: true
   script:
-    - docker run --rm "${RUN_IMAGE}" ros2 --help
+    - echo "${RUN_IMAGE}"
+    - echo "${DEV_IMAGE}"
+    - echo "${SLIM_IMAGE}"
 ```
 
-GitLab pipelines expose the resolved image references including tag via the `RUN_IMAGE` and `DEV_IMAGE` variables.
+GitLab pipelines expose the resolved image references including tag via the `RUN_IMAGE`, `DEV_IMAGE`, and `SLIM_IMAGE` variables.
 
 </details>
 

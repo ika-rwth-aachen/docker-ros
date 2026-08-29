@@ -11,6 +11,9 @@ outputs:
   dev-image:
     description: "Resolved dev image reference including tag"
     value: ${{ steps.push-images.outputs.DEV_IMAGE }}
+  slim-image:
+    description: "Resolved slim image reference including tag"
+    value: ${{ steps.push-images.outputs.SLIM_IMAGE }}
 
 inputs:
   additional-debs-file:
