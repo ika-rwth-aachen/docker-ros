@@ -234,7 +234,9 @@ variables:
 
 </details>
 
-### Use resolved image outputs in later GitHub steps
+### Use resolved image references in later CI steps
+
+<details><summary>GitHub</summary>
 
 ```yml
 on: push
@@ -251,6 +253,37 @@ jobs:
 ```
 
 The GitHub action exposes the resolved image references including tag via the `run-image` and `dev-image` outputs.
+
+</details>
+
+<details><summary>GitLab</summary>
+
+```yml
+include:
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.10.0/.gitlab-ci/docker-ros.yml
+
+variables:
+  BASE_IMAGE: rwthika/ros2:jazzy
+  COMMAND: ros2 run my_pkg my_node
+
+run-tests:
+  stage: Push Multi-Arch Images
+  needs:
+    - job: Push CI
+      optional: true
+    - job: Push
+      optional: true
+    - job: Push target tag
+      optional: true
+    - job: Push tag
+      optional: true
+  script:
+    - docker run --rm "${RUN_IMAGE}" ros2 --help
+```
+
+GitLab pipelines expose the resolved image references including tag via the `RUN_IMAGE` and `DEV_IMAGE` variables.
+
+</details>
 
 ### Build multi-arch images on arch-specific self-hosted runners in parallel
 
