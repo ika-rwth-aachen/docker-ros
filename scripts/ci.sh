@@ -71,8 +71,10 @@ VCS_IMPORT_FILE="${VCS_IMPORT_FILE:-}"
 _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
 _IMAGE_POSTFIX="${_IMAGE_POSTFIX:-""}"
 
-# write image name for industrial_ci to output (GitHub-only)
-if [[ -n "${GITHUB_ACTIONS}" ]]; then
+# write image names to step output (GitHub-only)
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    echo "RUN_IMAGE=${IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
+    echo "DEV_IMAGE=${DEV_IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
     industrial_ci_image="${IMAGE}"
     [[ "${TARGET}" == *"dev"* ]] && industrial_ci_image="${DEV_IMAGE}"
     [[ -n "${_IMAGE_POSTFIX}" ]] && industrial_ci_image="${industrial_ci_image}${_IMAGE_POSTFIX}"

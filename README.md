@@ -234,6 +234,24 @@ variables:
 
 </details>
 
+### Use resolved image outputs in later GitHub steps
+
+```yml
+on: push
+jobs:
+  docker-ros:
+    runs-on: ubuntu-latest
+    steps:
+      - id: docker-ros
+        uses: ika-rwth-aachen/docker-ros@v1.10.0
+        with:
+          base-image: rwthika/ros2:jazzy
+          command: ros2 run my_pkg my_node
+      - run: docker run --rm "${{ steps.docker-ros.outputs.run-image }}" ros2 --help
+```
+
+The GitHub action exposes the resolved image references including tag via the `run-image` and `dev-image` outputs.
+
 ### Build multi-arch images on arch-specific self-hosted runners in parallel
 
 <details><summary>GitHub</summary>

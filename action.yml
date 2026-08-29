@@ -4,6 +4,14 @@ branding:
   color: blue
   icon: package
 
+outputs:
+  run-image:
+    description: "Resolved run image reference including tag"
+    value: ${{ steps.push-images.outputs.RUN_IMAGE }}
+  dev-image:
+    description: "Resolved dev image reference including tag"
+    value: ${{ steps.push-images.outputs.DEV_IMAGE }}
+
 inputs:
   additional-debs-file:
     description: "Relative filepath to file containing additional apt deb packages to install"
@@ -299,6 +307,7 @@ runs:
         to-slug: ${{ github.head_ref || github.ref_name }}
 
     - name: Push images
+      id: push-images
       shell: bash
       working-directory: ${{ inputs.build-context }}
       run: docker/docker-ros/scripts/ci.sh
