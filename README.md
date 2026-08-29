@@ -234,6 +234,62 @@ variables:
 
 </details>
 
+### Use resolved image references in later CI steps
+
+<details><summary>GitHub</summary>
+
+```yml
+on: push
+jobs:
+  docker-ros:
+    runs-on: ubuntu-latest
+    steps:
+      - id: docker-ros
+        uses: ika-rwth-aachen/docker-ros@v1.10.0
+        with:
+          base-image: rwthika/ros2:jazzy
+          command: ros2 run my_pkg my_node
+      - run: |
+          echo "${{ steps.docker-ros.outputs.run-image }}"
+          echo "${{ steps.docker-ros.outputs.dev-image }}"
+          echo "${{ steps.docker-ros.outputs.slim-image }}"
+```
+
+The GitHub action exposes the resolved image references including tag via the `run-image`, `dev-image`, and `slim-image` outputs.
+
+</details>
+
+<details><summary>GitLab</summary>
+
+```yml
+include:
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.10.0/.gitlab-ci/docker-ros.yml
+
+variables:
+  BASE_IMAGE: rwthika/ros2:jazzy
+  COMMAND: ros2 run my_pkg my_node
+
+run-tests:
+  stage: Push Multi-Arch Images
+  needs:
+    - job: Push CI
+      optional: true
+    - job: Push
+      optional: true
+    - job: Push target tag
+      optional: true
+    - job: Push tag
+      optional: true
+  script:
+    - echo "${RUN_IMAGE}"
+    - echo "${DEV_IMAGE}"
+    - echo "${SLIM_IMAGE}"
+```
+
+GitLab pipelines expose the resolved image references including tag via the `RUN_IMAGE`, `DEV_IMAGE`, and `SLIM_IMAGE` variables.
+
+</details>
+
 ### Build multi-arch images on arch-specific self-hosted runners in parallel
 
 <details><summary>GitHub</summary>

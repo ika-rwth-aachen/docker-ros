@@ -1,11 +1,37 @@
 workflow:
   rules:
     - if: $CI_PIPELINE_SOURCE == "parent_pipeline"      # run child pipeline if triggered by parent pipeline
+      variables:
+        RUN_IMAGE: ${_IMAGE_RUN_CI}
+        DEV_IMAGE: ${_IMAGE_DEV_CI}
+        SLIM_IMAGE: ${_IMAGE_SLIM_CI}
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"  # run merge request pipeline if triggered by merge request
+      variables:
+        RUN_IMAGE: ${_IMAGE_RUN_CI}
+        DEV_IMAGE: ${_IMAGE_DEV_CI}
+        SLIM_IMAGE: ${_IMAGE_SLIM_CI}
     - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS  # don't run branch pipeline if open merge request exists
       when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH      # run default branch pipeline without CI postfix
+      variables:
+        RUN_IMAGE: ${_RUN_IMAGE}
+        DEV_IMAGE: ${_DEV_IMAGE}
+        SLIM_IMAGE: ${_SLIM_IMAGE}
     - if: $CI_COMMIT_BRANCH                             # run branch pipeline if triggered by commit
+      variables:
+        RUN_IMAGE: ${_IMAGE_RUN_CI}
+        DEV_IMAGE: ${_IMAGE_DEV_CI}
+        SLIM_IMAGE: ${_IMAGE_SLIM_CI}
+    - if: $CI_COMMIT_TAG && ($ENABLE_PUSH_AS_LATEST == "true" || $IMAGE_TAG == "latest")  # run tag pipeline with tag aliases if triggered by tag
+      variables:
+        RUN_IMAGE: ${_IMAGE_RUN_TAG}
+        DEV_IMAGE: ${_IMAGE_DEV_TAG}
+        SLIM_IMAGE: ${_IMAGE_SLIM_TAG}
     - if: $CI_COMMIT_TAG                                # run tag pipeline with specific image tags if triggered by tag
+      variables:
+        RUN_IMAGE: ${_IMAGE_RUN_TARGET_TAG}
+        DEV_IMAGE: ${_IMAGE_DEV_TARGET_TAG}
+        SLIM_IMAGE: ${_IMAGE_SLIM_TARGET_TAG}
 
 
 variables:

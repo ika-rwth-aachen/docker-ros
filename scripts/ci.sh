@@ -71,15 +71,20 @@ VCS_IMPORT_FILE="${VCS_IMPORT_FILE:-}"
 _ENABLE_IMAGE_PUSH="${_ENABLE_IMAGE_PUSH:-false}"
 _IMAGE_POSTFIX="${_IMAGE_POSTFIX:-""}"
 
-# write image name for industrial_ci to output (GitHub-only)
-if [[ -n "${GITHUB_ACTIONS}" ]]; then
-    industrial_ci_image="${IMAGE}"
-    [[ "${TARGET}" == *"dev"* ]] && industrial_ci_image="${DEV_IMAGE}"
-    [[ -n "${_IMAGE_POSTFIX}" ]] && industrial_ci_image="${industrial_ci_image}${_IMAGE_POSTFIX}"
-    if [[ "${PLATFORM}" != *","* ]]; then
-        industrial_ci_image="${industrial_ci_image}-${PLATFORM}"
-    else
-        industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
+# write image names to step output (GitHub-only)
+industrial_ci_image="${IMAGE}"
+[[ "${TARGET}" == *"dev"* ]] && industrial_ci_image="${DEV_IMAGE}"
+[[ -n "${_IMAGE_POSTFIX}" ]] && industrial_ci_image="${industrial_ci_image}${_IMAGE_POSTFIX}"
+if [[ "${PLATFORM}" != *","* ]]; then
+    industrial_ci_image="${industrial_ci_image}-${PLATFORM}"
+else
+    industrial_ci_image="${industrial_ci_image}-$(dpkg --print-architecture)"
+fi
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+    if [[ "${_ENABLE_IMAGE_PUSH}" == "true" ]]; then
+        echo "RUN_IMAGE=${IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
+        echo "DEV_IMAGE=${DEV_IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
+        echo "SLIM_IMAGE=${SLIM_IMAGE}${_IMAGE_POSTFIX}" >> "${GITHUB_OUTPUT}"
     fi
     echo "INDUSTRIAL_CI_IMAGE=${industrial_ci_image}" >> "${GITHUB_OUTPUT}"
 fi
