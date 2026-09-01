@@ -47,7 +47,7 @@ inputs:
     default: ${{ github.workspace }}
   buildx-attestations:
     description: "Value passed to `docker buildx build --provenance` and `--sbom` (use `false` for older registries)"
-    default: false
+    default: "false"
   command:
     description: "Launch command of run image (required if target=run)"
   cmake-args:
@@ -60,45 +60,46 @@ inputs:
     description: "Image tag of dev image"
   disable-ros-installation:
     description: "Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS"
-    default: false
+    default: "false"
   enable-checkout:
     description: "Enable checkout action to (re-)download your repository prior to running the pipeline"
-    default: true
+    default: "true"
   enable-checkout-lfs:
     description: "Enable Git LFS support for the checkout action"
-    default: true
+    default: "true"
   enable-checkout-submodules:
     description: "Enable submodules for the checkout action (false|true|recursive)"
     default: recursive
   enable-industrial-ci:
     description: "Enable industrial_ci"
-    default: false
+    default: "false"
   enable-push-as-latest:
     description: "Push images with tag `latest`/`latest-dev` in addition to the configured image names"
-    default: false
+    default: "false"
   enable-recursive-additional-debs:
     description: "Enable recursive discovery of files named `additional-debs-file`"
-    default: false
+    default: "false"
   enable-recursive-additional-pip:
     description: "Enable recursive discovery of files named `additional-pip-file`"
-    default: false
+    default: "false"
   enable-recursive-after-dependency-installation-script:
     description: "Enable recursive discovery of files named `after-dependency-installation-script`"
-    default: false
+    default: "false"
   enable-recursive-before-dependency-installation-script:
     description: "Enable recursive discovery of files named `before-dependency-installation-script`"
-    default: false
+    default: "false"
   enable-recursive-blacklisted-packages:
     description: "Enable recursive discovery of files named `blacklisted-packages-file`"
+    default: "false"
   enable-recursive-vcs-import:
     description: "Enable recursive discovery of files named `*.repos`"
     default: "true"
   enable-singlearch-push:
     description: "Enable push of single arch images with [-amd64|-arm64] postfix"
-    default: false
+    default: "false"
   enable-slim:
     description: "Enable an extra slimmed run image via mint (only if run stage is targeted)"
-    default: true
+    default: "true"
   git-https-password:
     description: "Password for cloning private Git repositories via HTTPS"
     default: ${{ github.token }}
