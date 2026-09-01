@@ -90,7 +90,9 @@ inputs:
     default: false
   enable-recursive-blacklisted-packages:
     description: "Enable recursive discovery of files named `blacklisted-packages-file`"
-    default: false
+  enable-recursive-vcs-import:
+    description: "Enable recursive discovery of files named `*.repos`"
+    default: "true"
   enable-singlearch-push:
     description: "Enable push of single arch images with [-amd64|-arm64] postfix"
     default: false
@@ -174,6 +176,9 @@ inputs:
   target:
     description: "Target stage of Dockerfile (comma-separated list) [dev|run]"
     default: run
+  vcs-import-file:
+    description: "Relative filepath to file containing additional repos to install via vcstools (only relevant if enable-recursive-vcs-import=false)"
+    default: .repos
 
 
 runs:
