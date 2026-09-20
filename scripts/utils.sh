@@ -87,12 +87,20 @@ render_buildx_log_records() {
 
     jq -Rrs '
           def stage_from_name($name):
-            try ($name | capture("^\\[(?<stage>[A-Za-z0-9_-]+) [0-9]+/[0-9]+\\]").stage)
+            try ($name | capture("^\\[(?:[^ ]+ )?(?<stage>[A-Za-z0-9_-]+) [0-9]+/[0-9]+\\]").stage)
             catch "BuildKit";
 
           [ split("\n")[]
             | select(length > 0)
             | (fromjson? // {unparsed: .})
+            # Buildx writes SolveStatus objects, whose vertexes and logs are
+            # arrays.  Older clients may write the individual objects instead.
+            | if (.vertexes? or .logs? or .warnings?) then
+                (.vertexes[]? | {vertex: .}),
+                (.logs[]? | {log: .}),
+                (.warnings[]? | {warning: .})
+              else .
+              end
           ] as $events
           | (reduce $events[] as $event
               ({};
@@ -105,6 +113,9 @@ render_buildx_log_records() {
                   {stage: "BuildKit", text: .unparsed}
                 elif .log? then
                   {stage: ($vertex_stages[.log.vertex] // "BuildKit"), text: (.log.data | @base64d)}
+                elif .warning? then
+                  {stage: ($vertex_stages[.warning.vertex] // "BuildKit"),
+                   text: ((.warning.short | @base64d) + "\n" + ((.warning.detail // []) | map(@base64d) | join("\n")))}
                 elif (.vertex? and .vertex.completed?) then
                   .vertex as $vertex
                   | {stage: ($vertex_stages[$vertex.digest] // "BuildKit"),
