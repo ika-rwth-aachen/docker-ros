@@ -221,6 +221,14 @@ runs:
     - name: Set up Docker buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Verify build log tooling
+      shell: bash
+      run: |
+        command -v jq > /dev/null || {
+          echo "docker-ros requires jq to render grouped BuildKit logs. Install jq on this runner and retry."
+          exit 1
+        }
+
     - name: Enforce lower-case image name 
       id: image-name
       uses: ASzc/change-string-case-action@v6
