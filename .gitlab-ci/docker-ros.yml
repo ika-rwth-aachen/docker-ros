@@ -154,7 +154,7 @@ default:
     - amd64
   before_script:
     - echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
-    - apk add --update bash jq
+    - apk add --update bash
     - cd ${BUILD_CONTEXT}
     - |-
       if [[ ! -d docker/docker-ros ]]; then

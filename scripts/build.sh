@@ -86,21 +86,13 @@ build_image() {
     DOCKER_ARGS+=( "." )
 
     if [[ -n "${GITLAB_CI:-}" || -n "${GITHUB_ACTIONS:-}" ]]; then
-      local buildx_log
       local buildx_status
 
-      require_command jq
-      buildx_log="$(mktemp)"
-      if docker buildx build --progress=rawjson "${DOCKER_ARGS[@]}" > "${buildx_log}" 2>&1; then
-        buildx_status=0
+      if docker buildx build --progress=plain "${DOCKER_ARGS[@]}" 2>&1 | render_buildx_log_stream; then
+        buildx_status="${PIPESTATUS[0]}"
       else
-        buildx_status=$?
+        buildx_status="${PIPESTATUS[0]}"
       fi
-      if ! render_buildx_log "${buildx_log}"; then
-        rm -f "${buildx_log}"
-        return 1
-      fi
-      rm -f "${buildx_log}"
       [[ "${buildx_status}" -eq 0 ]] || return "${buildx_status}"
     else
       docker buildx build "${DOCKER_ARGS[@]}"
