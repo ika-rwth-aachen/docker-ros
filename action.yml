@@ -45,6 +45,9 @@ inputs:
   build-context:
     description: "Build context of Docker build process"
     default: ${{ github.workspace }}
+  build-required-packages-only:
+    description: "Build target packages and their recursive source dependencies, and restrict rosdep to those packages"
+    default: "true"
   buildx-attestations:
     description: "Value passed to `docker buildx build --provenance` and `--sbom` (use `false` for older registries)"
     default: "false"
@@ -254,6 +257,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
         BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
@@ -289,25 +293,24 @@ runs:
         TARGET: ${{ inputs.target }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
 
-    - name: Set up industrial_ci
-      if: ${{ inputs.enable-industrial-ci == 'true' }}
-      shell: bash
-      run: test -f ${{ inputs.build-context }}/.repos || echo "repositories:" > ${{ inputs.build-context }}/.repos
-
     - name: Run industrial_ci
       if: ${{ inputs.enable-industrial-ci == 'true' }}
       uses: ros-industrial/industrial_ci@master
       env:
         ADDITIONAL_DEBS: git
+        AFTER_SETUP_UPSTREAM_WORKSPACE: 'rosenv bash "${{ inputs.build-context }}/docker/docker-ros/scripts/industrial-ci-upstream.sh"'
+        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
+        ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
+        VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
         BEFORE_BUILD_TARGET_WORKSPACE: '[ -f /opt/ws_base_image/install/setup.bash ] && echo "source /opt/ws_base_image/install/setup.bash" >> /root/upstream_ws/install/setup.bash || true'
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
-        DOCKER_RUN_OPTS: -u root:root
+        DOCKER_RUN_OPTS: -u root:root -e BUILD_REQUIRED_PACKAGES_ONLY -e ENABLE_RECURSIVE_VCS_IMPORT -e VCS_IMPORT_FILE
         SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
         TARGET_WORKSPACE: ${{ inputs.build-context }}
-        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/.repos
+        UPSTREAM_WORKSPACE: ${{ inputs.build-context }}/docker/docker-ros/assets/empty.repos
 
     - name: Slugify ref name
       id: slugify-ref-name
@@ -330,6 +333,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
         BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
@@ -383,6 +387,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
+        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
         BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}

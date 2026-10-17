@@ -1,0 +1,2 @@
+# Bootstrap industrial_ci's upstream phase; the setup hook imports the sources.
+repositories: {}

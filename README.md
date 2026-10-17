@@ -446,6 +446,9 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`build-context` | `BUILD_CONTEXT`**  
   Build context of Docker build process  
   *default:* `${{ github.workspace }}` | `.`  
+- **`build-required-packages-only` | `BUILD_REQUIRED_PACKAGES_ONLY`**
+  Limit builds and rosdep to all target repository packages and their recursive source dependencies. Unused upstream package directories are removed from the image sources and industrial_ci workspace. Requires complete dependency declarations in `package.xml`.
+  *default:* `true`
 - **`buildx-attestations` | `BUILDX_ATTESTATIONS`**  
   Value passed to `docker buildx build --provenance` and `--sbom`  
   *set to `false` for compatibility with older registries that reject attestation metadata*  
@@ -503,7 +506,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   Enable recursive discovery of files named `blacklisted-packages-file`  
   *default:* `false`
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
-  Enable recursive discovery of files named `*.repos`  
+  Enable recursive discovery of files named `*.repos`, including in industrial_ci. Imports finish before required-package selection.
   *default:* `true`
 - **`enable-slim` | `ENABLE_SLIM`**  
   Enable an extra slimmed run image via [mint](https://github.com/mintoolkit/mint) (only if `run` stage is targeted)  
