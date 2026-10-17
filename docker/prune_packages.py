@@ -8,8 +8,10 @@ import sys
 
 
 def list_packages(*args):
+    # industrial_ci runs hooks from a read-only target repository.
     result = subprocess.run(
-        ["colcon", "list", *args], check=True, text=True, stdout=subprocess.PIPE
+        ["colcon", "--log-base", "/dev/null", "list", *args],
+        check=True, text=True, stdout=subprocess.PIPE,
     )
     return result.stdout.splitlines()
 
