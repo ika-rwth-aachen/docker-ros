@@ -32,6 +32,7 @@ ARG DISABLE_ROS_INSTALLATION="false"
 RUN apt-get update && \
     apt-get install -y \
         git \
+        python3-colcon-common-extensions \
         python3-rosdep \
         python3-vcstool && \
     if [[ "$DISABLE_ROS_INSTALLATION" != "true" ]]; then \
@@ -93,12 +94,9 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     $WORKSPACE/.remove-packages.sh 2> /dev/null | tr '\n' '\0' | xargs -0 rm -rf
 
 # limit dependency installation and builds to target packages and their dependencies
-ARG BUILD_REQUIRED_PACKAGES_ONLY="true"
+ARG ENABLE_BUILD_REQUIRED_PACKAGES_ONLY="true"
 COPY docker/docker-ros/docker/prune_packages.py /usr/local/bin/
-RUN if [[ "$BUILD_REQUIRED_PACKAGES_ONLY" == "true" ]]; then \
-        apt-get update && \
-        apt-get install -y python3-colcon-common-extensions && \
-        rm -rf /var/lib/apt/lists/* && \
+RUN if [[ "$ENABLE_BUILD_REQUIRED_PACKAGES_ONLY" == "true" ]]; then \
         source /opt/ros/$ROS_DISTRO/setup.bash && \
         python3 /usr/local/bin/prune_packages.py src/target src/upstream ; \
     fi

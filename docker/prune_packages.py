@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-"""Remove unneeded upstream package directories from a CI source workspace."""
+"""Keep only upstream source packages required by the target repository.
+
+Arguments are the target and upstream source directories. All packages found in
+target are roots; colcon computes their recursive dependency closure across both
+directories, including runtime and test dependencies. Upstream package directories
+outside that closure are deleted before rosdep and builds. Target sources are
+never modified. If target contains no packages, all upstream packages are kept
+to support repositories consisting only of .repos files.
+
+Discovery completes before deletion begins. Colcon logging is disabled because
+industrial_ci can run this script from a read-only target checkout.
+"""
 
 import pathlib
 import shutil

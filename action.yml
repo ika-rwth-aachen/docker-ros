@@ -45,9 +45,6 @@ inputs:
   build-context:
     description: "Build context of Docker build process"
     default: ${{ github.workspace }}
-  build-required-packages-only:
-    description: "Build target packages and their recursive source dependencies, and restrict rosdep to those packages"
-    default: "true"
   buildx-attestations:
     description: "Value passed to `docker buildx build --provenance` and `--sbom` (use `false` for older registries)"
     default: "false"
@@ -64,6 +61,9 @@ inputs:
   disable-ros-installation:
     description: "Disable automatic installation of `ros-$ROS_DISTRO-ros-core` package, e.g., if ROS is already installed in `base-image` and package is not available for the OS"
     default: "false"
+  enable-build-required-packages-only:
+    description: "Enable building only target packages and their recursive source dependencies, and restrict rosdep to those packages"
+    default: "true"
   enable-checkout:
     description: "Enable checkout action to (re-)download your repository prior to running the pipeline"
     default: "true"
@@ -95,7 +95,7 @@ inputs:
     description: "Enable recursive discovery of files named `blacklisted-packages-file`"
     default: "false"
   enable-recursive-vcs-import:
-    description: "Enable recursive discovery of files named `*.repos`"
+    description: "Enable recursive discovery of files named `*.repos`, including in industrial_ci"
     default: "true"
   enable-singlearch-push:
     description: "Enable push of single arch images with [-amd64|-arm64] postfix"
@@ -257,7 +257,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
+        ENABLE_BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.enable-build-required-packages-only }}
         BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
@@ -299,14 +299,14 @@ runs:
       env:
         ADDITIONAL_DEBS: git
         AFTER_SETUP_UPSTREAM_WORKSPACE: 'rosenv bash "${{ inputs.build-context }}/docker/docker-ros/scripts/industrial-ci-upstream.sh"'
-        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
+        ENABLE_BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.enable-build-required-packages-only }}
         ENABLE_RECURSIVE_VCS_IMPORT: ${{ inputs.enable-recursive-vcs-import }}
         VCS_IMPORT_FILE: ${{ inputs.vcs-import-file }}
         AFTER_INIT_EMBED: '[[ -n ${{ inputs.git-https-server }} ]] && git config --global url.https://${{ inputs.git-https-user }}:${{ inputs.git-https-password }}@${{ inputs.git-https-server }}.insteadOf https://${{ inputs.git-https-server }}'
         BEFORE_BUILD_TARGET_WORKSPACE: '[ -f /opt/ws_base_image/install/setup.bash ] && echo "source /opt/ws_base_image/install/setup.bash" >> /root/upstream_ws/install/setup.bash || true'
         DOCKER_IMAGE: ${{ steps.build-images.outputs.INDUSTRIAL_CI_IMAGE }}
         DOCKER_PULL: false
-        DOCKER_RUN_OPTS: -u root:root -e BUILD_REQUIRED_PACKAGES_ONLY -e ENABLE_RECURSIVE_VCS_IMPORT -e VCS_IMPORT_FILE
+        DOCKER_RUN_OPTS: -u root:root -e ENABLE_BUILD_REQUIRED_PACKAGES_ONLY -e ENABLE_RECURSIVE_VCS_IMPORT -e VCS_IMPORT_FILE
         SSH_PRIVATE_KEY: ${{ inputs.git-ssh-private-key }}
         SSH_SERVER_HOSTKEYS: ${{ inputs.git-ssh-known-host-keys }}
         TARGET_WORKSPACE: ${{ inputs.build-context }}
@@ -333,7 +333,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
+        ENABLE_BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.enable-build-required-packages-only }}
         BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
@@ -387,7 +387,7 @@ runs:
         BEFORE_DEPENDENCY_IDENTIFICATION_SCRIPT: ${{ inputs.before-dependency-identification-script }}
         BEFORE_DEPENDENCY_INSTALLATION_SCRIPT: ${{ inputs.before-dependency-installation-script }}
         BLACKLISTED_PACKAGES_FILE: ${{ inputs.blacklisted-packages-file }}
-        BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.build-required-packages-only }}
+        ENABLE_BUILD_REQUIRED_PACKAGES_ONLY: ${{ inputs.enable-build-required-packages-only }}
         BUILDX_ATTESTATIONS: ${{ inputs.buildx-attestations }}
         COMMAND: ${{ inputs.command }}
         CMAKE_ARGS: ${{ inputs.cmake-args }}
