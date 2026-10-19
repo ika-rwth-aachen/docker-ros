@@ -113,7 +113,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.10.0
+      - uses: ika-rwth-aachen/docker-ros@v1.11.0
         with:
           base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
@@ -125,7 +125,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.10.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.11.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:jazzy
@@ -144,7 +144,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.10.0
+      - uses: ika-rwth-aachen/docker-ros@v1.11.0
         with:
           base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
@@ -157,7 +157,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.10.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.11.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:jazzy
@@ -177,7 +177,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.10.0
+      - uses: ika-rwth-aachen/docker-ros@v1.11.0
         with:
           base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
@@ -191,7 +191,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.10.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.11.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:jazzy
@@ -212,7 +212,7 @@ jobs:
   docker-ros:
     runs-on: ubuntu-latest
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.10.0
+      - uses: ika-rwth-aachen/docker-ros@v1.11.0
         with:
           base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
@@ -225,7 +225,7 @@ jobs:
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.10.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.11.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:jazzy
@@ -246,7 +246,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: docker-ros
-        uses: ika-rwth-aachen/docker-ros@v1.10.0
+        uses: ika-rwth-aachen/docker-ros@v1.11.0
         with:
           base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
@@ -264,7 +264,7 @@ The GitHub action exposes the resolved image references including tag via the `r
 
 ```yml
 include:
-  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.10.0/.gitlab-ci/docker-ros.yml
+  - remote: https://raw.githubusercontent.com/ika-rwth-aachen/docker-ros/v1.11.0/.gitlab-ci/docker-ros.yml
 
 variables:
   BASE_IMAGE: rwthika/ros2:jazzy
@@ -305,7 +305,7 @@ jobs:
         platform: [amd64, arm64]
     runs-on: [self-hosted, "${{ matrix.platform }}"]
     steps:
-      - uses: ika-rwth-aachen/docker-ros@v1.10.0
+      - uses: ika-rwth-aachen/docker-ros@v1.11.0
         with:
           base-image: rwthika/ros2:jazzy
           command: ros2 run my_pkg my_node
