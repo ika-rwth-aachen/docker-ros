@@ -29,6 +29,7 @@
   - [Build images locally](#build-images-locally)
 - [Advanced Dependencies](#advanced-dependencies)
   - [Recursion](#recursion)
+  - [Required Packages](#required-packages)
   - [Package Blacklist](#package-blacklist)
   - [Extra System Dependencies (*apt*)](#extra-system-dependencies-apt)
   - [Extra System Dependencies (*pip*)](#extra-system-dependencies-pip)
@@ -360,6 +361,12 @@ In order to keep things organized, we recommend to place all *docker-ros* relate
 
 Most of the steps listed in [*About*](#about) and below can be toggled between recursive and non-recursive mode, see [*Configuration Variables*](#configuration-variables). This usually means that not only special files on the top-level are considered (e.g., `docker/additional-requirements.txt`), but also files with the same name (e.g., `additional-requirements.txt`) that are found anywhere in the workspace, even after cloning the upstream repositories in step 1.
 
+### Required Packages
+
+By default, docker-ros keeps all target repository packages and their recursive source dependencies. After importing `.repos` files and applying the blacklist, unused upstream package directories are removed before rosdep and builds, including in industrial_ci. This requires complete dependency declarations in `package.xml`.
+
+If the target repository contains no ROS packages, all imported packages are kept. Set `ENABLE_BUILD_REQUIRED_PACKAGES_ONLY=false` (GitHub Action: `enable-build-required-packages-only: false`) to keep all upstream packages regardless of the target packages.
+
 ### Package Blacklist
 
 If your ROS-based repository (or any of your repository's upstream dependencies, see `.repos`) contains ROS packages that should neither be built nor be used for determining dependencies, you can blacklist those in a special `blacklisted-packages.txt` file.
@@ -469,6 +476,9 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
 - **`-` | `DOCKER_ROS_GIT_REF`**  
   Git ref of *docker-ros* to run in CI  
   *default:* `main` 
+- **`enable-build-required-packages-only` | `ENABLE_BUILD_REQUIRED_PACKAGES_ONLY`**
+  Enable building only target packages and their recursive source dependencies, and restrict rosdep to those packages
+  *default:* `true`
 - **`enable-checkout` | `-`**  
   Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
   *default:* `true`
@@ -503,7 +513,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   Enable recursive discovery of files named `blacklisted-packages-file`  
   *default:* `false`
 - **`enable-recursive-vcs-import` | `ENABLE_RECURSIVE_VCS_IMPORT`**  
-  Enable recursive discovery of files named `*.repos`  
+  Enable recursive discovery of files named `*.repos`, including in industrial_ci
   *default:* `true`
 - **`enable-slim` | `ENABLE_SLIM`**  
   Enable an extra slimmed run image via [mint](https://github.com/mintoolkit/mint) (only if `run` stage is targeted)  

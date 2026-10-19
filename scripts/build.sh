@@ -58,6 +58,7 @@ build_image() {
     add_arg_if_set "CMAKE_ARGS"
     add_arg_if_set "CUSTOM_SCRIPT_FILE"
     add_arg_if_set "DISABLE_ROS_INSTALLATION"
+    add_arg_if_set "ENABLE_BUILD_REQUIRED_PACKAGES_ONLY"
     add_arg_if_set "ENABLE_RECURSIVE_ADDITIONAL_DEBS"
     add_arg_if_set "ENABLE_RECURSIVE_ADDITIONAL_PIP"
     add_arg_if_set "ENABLE_RECURSIVE_AFTER_DEPENDENCY_INSTALLATION_SCRIPT"
