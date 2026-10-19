@@ -157,7 +157,7 @@ default:
     - echo -e "section_start:`date +%s`:setup_section[collapsed=true]\r\e[0K[docker-ros] Setup docker-ros"
     - apk add --update bash
     - cd ${BUILD_CONTEXT}
-    - |-
+    - &setup-docker-ros |-
       if [[ ! -d docker/docker-ros ]]; then
         mkdir -p docker
         git clone --depth=1  https://github.com/ika-rwth-aachen/docker-ros.git docker/docker-ros
@@ -215,6 +215,9 @@ build-arm64:
   before_script:
     - docker login -u ${REGISTRY_USER} -p ${REGISTRY_PASSWORD} ${REGISTRY}
     - apk add --update bash coreutils grep tar
+    - cd "${BUILD_CONTEXT}"
+    - *setup-docker-ros
+    - cd "${CI_PROJECT_DIR}"
     - |-
       if [[ ${CI_RUNNER_EXECUTABLE_ARCH} != ${_PLATFORM} && ${CI_RUNNER_EXECUTABLE_ARCH} != linux/${_PLATFORM} ]]; then
         docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
