@@ -447,7 +447,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   Build context of Docker build process  
   *default:* `${{ github.workspace }}` | `.`  
 - **`build-required-packages-only` | `BUILD_REQUIRED_PACKAGES_ONLY`**
-  Limit builds and rosdep to all target repository packages and their recursive source dependencies. Unused upstream package directories are removed from the image sources and industrial_ci workspace. Requires complete dependency declarations in `package.xml`.
+  Limit builds and rosdep to all target repository packages and their recursive source dependencies. Unused upstream package directories are removed from the image sources and industrial_ci workspace. Requires complete dependency declarations in `package.xml`. If the target repository contains no ROS packages, all imported packages are kept.
   *default:* `true`
 - **`buildx-attestations` | `BUILDX_ATTESTATIONS`**  
   Value passed to `docker buildx build --provenance` and `--sbom`  

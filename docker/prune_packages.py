@@ -21,7 +21,8 @@ def main():
     upstream = pathlib.Path(sys.argv[2]).resolve()
     targets = list_packages("--base-paths", str(target), "--names-only")
     if not targets:
-        raise RuntimeError("No target packages found; refusing to prune upstream packages")
+        print("No target packages found; keeping all upstream packages", flush=True)
+        return
 
     selected = set(list_packages(
         "--base-paths", str(target), str(upstream),
