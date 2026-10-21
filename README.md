@@ -363,9 +363,7 @@ Most of the steps listed in [*About*](#about) and below can be toggled between r
 
 ### Required Packages
 
-By default, docker-ros keeps all target repository packages and their recursive source dependencies. After importing `.repos` files and applying the blacklist, unused upstream package directories are removed before rosdep and builds, including in industrial_ci. This requires complete dependency declarations in `package.xml`.
-
-If the target repository contains no ROS packages, all imported packages are kept. Set `ENABLE_BUILD_REQUIRED_PACKAGES_ONLY=false` (GitHub Action: `enable-build-required-packages-only: false`) to keep all upstream packages regardless of the target packages.
+By default, docker-ros keeps all imported packages. Set `ENABLE_BUILD_REQUIRED_PACKAGES_ONLY=true` (GitHub Action: `enable-build-required-packages-only: true`) to keep only target repository packages and their recursive source dependencies. In that mode, unused upstream package directories are removed before rosdep and builds, including in industrial_ci. This requires complete dependency declarations in `package.xml`.
 
 ### Package Blacklist
 
@@ -478,7 +476,7 @@ The password of the custom user is set to its username (`dockeruser:dockeruser` 
   *default:* `main` 
 - **`enable-build-required-packages-only` | `ENABLE_BUILD_REQUIRED_PACKAGES_ONLY`**
   Enable building only target packages and their recursive source dependencies, and restrict rosdep to those packages
-  *default:* `true`
+  *default:* `false`
 - **`enable-checkout` | `-`**  
   Enable [*checkout*](https://github.com/actions/checkout) action to (re-)download your repository prior to running the pipeline  
   *default:* `true`

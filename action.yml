@@ -63,7 +63,7 @@ inputs:
     default: "false"
   enable-build-required-packages-only:
     description: "Enable building only target packages and their recursive source dependencies, and restrict rosdep to those packages"
-    default: "true"
+    default: "false"
   enable-checkout:
     description: "Enable checkout action to (re-)download your repository prior to running the pipeline"
     default: "true"
