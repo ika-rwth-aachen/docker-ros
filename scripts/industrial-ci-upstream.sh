@@ -21,6 +21,6 @@ elif [[ -f "${target_path}/${VCS_IMPORT_FILE:-.repos}" ]]; then
     vcs import --recursive "$upstream_path" < "${target_path}/${VCS_IMPORT_FILE:-.repos}"
 fi
 
-if [[ "${ENABLE_BUILD_REQUIRED_PACKAGES_ONLY:-true}" == "true" ]]; then
+if [[ "${ENABLE_BUILD_REQUIRED_PACKAGES_ONLY:-false}" == "true" ]]; then
     python3 "${docker_ros_path}/docker/prune_packages.py" "$target_path" "$upstream_path"
 fi

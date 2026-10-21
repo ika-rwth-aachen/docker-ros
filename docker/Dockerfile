@@ -94,7 +94,7 @@ RUN echo "colcon list -p --base-paths src/ --packages-select \\" >> $WORKSPACE/.
     $WORKSPACE/.remove-packages.sh 2> /dev/null | tr '\n' '\0' | xargs -0 rm -rf
 
 # limit dependency installation and builds to target packages and their dependencies
-ARG ENABLE_BUILD_REQUIRED_PACKAGES_ONLY="true"
+ARG ENABLE_BUILD_REQUIRED_PACKAGES_ONLY="false"
 COPY docker/docker-ros/docker/prune_packages.py /usr/local/bin/
 RUN if [[ "$ENABLE_BUILD_REQUIRED_PACKAGES_ONLY" == "true" ]]; then \
         source /opt/ros/$ROS_DISTRO/setup.bash && \
